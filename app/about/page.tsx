@@ -42,6 +42,39 @@ export default function About() {
             <li><strong>{t("Sustainability", "स्थिरता")}</strong> - {t("Creating long-term solutions, not just temporary fixes.", "सिर्फ अस्थायी समाधान नहीं, बल्कि दीर्घकालिक समाधान बनाना।")}</li>
           </ul>
         </div>
+
+        <section className="max-w-6xl mx-auto mt-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
+              {t("Leadership Team", "नेतृत्व टीम")}
+            </h2>
+            <p className="text-muted-foreground mt-2">
+              {t("Founder, Secretary and Treasurer", "संस्थापक, सचिव और कोषाध्यक्ष")}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { roleEn: "Founder", roleHi: "संस्थापक", image: "/leadership/founder.png" },
+              { roleEn: "Treasurer", roleHi: "कोषाध्यक्ष", image: "/leadership/secretary.png" },
+              { roleEn: "Secretary", roleHi: "सचिव", image: "/leadership/treasurer.png" },
+              
+            ].map((member) => (
+              <div key={member.roleEn} className="bg-card border rounded-2xl overflow-hidden shadow-sm">
+                <img
+                  src={member.image}
+                  alt={member.roleEn}
+                  className="w-full aspect-[4/5] object-cover"
+                />
+                <div className="p-4 text-center">
+                  <h3 className="text-xl font-serif font-semibold text-foreground">
+                    {t(member.roleEn, member.roleHi)}
+                  </h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </Layout>
   );
