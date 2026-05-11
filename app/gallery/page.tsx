@@ -2,6 +2,16 @@
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 
+const GALLERY_ITEMS = [
+  { src: "/gallery/events/event-1.webp", titleEn: "Drinking Water Facility Inauguration", titleHi: "???? ??? ?? ???? ???????" },
+  { src: "/gallery/events/event-2.webp", titleEn: "Volunteer Team at Service Point", titleHi: "???? ?????? ?? ????????? ???" },
+  { src: "/gallery/events/event-3.webp", titleEn: "Counselling Support Session", titleHi: "??????? ????? ????" },
+  { src: "/gallery/events/event-4.webp", titleEn: "Women Welfare Interaction", titleHi: "????? ?????? ?????" },
+  { src: "/gallery/events/event-5.webp", titleEn: "Community Participation", titleHi: "????????? ????????" },
+  { src: "/gallery/events/event-6.webp", titleEn: "Office Service Desk", titleHi: "???????? ???? ?????" },
+  { src: "/gallery/events/event-7.webp", titleEn: "Leadership Presence", titleHi: "??????? ????????" },
+];
+
 export default function Gallery() {
   const { t } = useLanguage();
 
@@ -10,28 +20,29 @@ export default function Gallery() {
       <div className="bg-primary/5 py-12 md:py-20 border-b">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4">
-            {t("Photo Gallery", "फोटो गैलरी")}
+            {t("Photo Gallery", "???? ?????")}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-serif">
             {t(
               "Glimpses of our impact and activities across various programs.",
-              "विभिन्न कार्यक्रमों में हमारे प्रभाव और गतिविधियों की झलक।"
+              "??????? ??????????? ??? ????? ?????? ?? ?????????? ?? ????",
             )}
           </p>
         </div>
       </div>
+
       <div className="container mx-auto px-4 py-16">
-        <div className="text-center py-20 bg-card rounded-2xl border border-dashed">
-          <div className="text-6xl mb-4 text-muted-foreground/30">📸</div>
-          <h3 className="text-2xl font-serif font-bold mb-2">{t("Gallery coming soon", "गैलरी जल्द आ रही है")}</h3>
-          <p className="text-muted-foreground">
-            {t("We are curating photos of our recent work.", "हम अपने हालिया काम की तस्वीरें एकत्र कर रहे हैं।")}
-          </p>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {GALLERY_ITEMS.map((item) => (
+            <article key={item.src} className="bg-card border rounded-2xl overflow-hidden hover:shadow-xl transition-all">
+              <img src={item.src} alt={item.titleEn} className="w-full h-64 object-cover" />
+              <div className="p-4">
+                <h3 className="font-serif font-bold text-foreground">{t(item.titleEn, item.titleHi)}</h3>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     </Layout>
   );
 }
-
-
-

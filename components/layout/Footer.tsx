@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import Link from "next/link";
 import { useLanguage } from "@/lib/language-context";
 
@@ -19,10 +19,11 @@ export function Footer() {
             <p className="text-sm text-muted-foreground">
               {t(
                 "Dedicated to education, health, women empowerment, and rural development across India.",
-                "भारत भर में शिक्षा, स्वास्थ्य, महिला सशक्तिकरण और ग्रामीण विकास के लिए समर्पित।"
+                "भारत भर में शिक्षा, स्वास्थ्य, महिला सशक्तिकरण और ग्रामीण विकास के लिए समर्पित।",
               )}
             </p>
           </div>
+
           <div>
             <h4 className="font-bold mb-4">{t("Quick Links", "महत्वपूर्ण लिंक")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
@@ -32,6 +33,7 @@ export function Footer() {
               <li><Link href="/membership" className="hover:text-primary">{t("Join Us", "हमसे जुड़ें")}</Link></li>
             </ul>
           </div>
+
           <div>
             <h4 className="font-bold mb-4">{t("Legal", "कानूनी")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
@@ -41,8 +43,12 @@ export function Footer() {
               <li><Link href="/admin/login" className="hover:text-primary">{t("Admin Login", "व्यवस्थापक लॉगिन")}</Link></li>
             </ul>
           </div>
+
           <div>
             <h4 className="font-bold mb-4">{t("Connect", "संपर्क करें")}</h4>
+            <p className="text-sm text-muted-foreground mb-3">
+              {t("Office Location: Tihar and Rampura", "कार्यालय स्थान: तिहार और रामपुरा")}
+            </p>
             <div className="flex gap-4">
               <a href="#" className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">FB</a>
               <a href="#" className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">IG</a>
@@ -51,14 +57,12 @@ export function Footer() {
             </div>
           </div>
         </div>
+
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} Nisvarthjan Seva Foundation. All rights reserved.</p>
+          <p className="mt-2">Lic. No: 4889004P2025NPL231619</p>
         </div>
       </div>
     </footer>
   );
 }
-
-
-
-

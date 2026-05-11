@@ -12,13 +12,16 @@ export async function POST(req: NextRequest) {
     const db = await getDb();
     const identifier = String(email).trim();
     const normalizedEmail = identifier.toLowerCase();
-    const member = await db.collection("members").findOne({
-      $or: [{ email: normalizedEmail }, { membershipId: identifier }],
-    });
+    const normalizedMembershipId = identifier.toUpperCase();
+    const member =
+      (await db.collection("members").findOne({ email: normalizedEmail })) ??
+      (await db.collection("members").findOne({ membershipId: normalizedMembershipId }));
+    const inputPassword = String(password).trim();
     const validPassword =
       member &&
-      ((typeof member.passwordHash === "string" && member.passwordHash === password) ||
-        password === "member123");
+      ((typeof member.password === "string" && member.password === inputPassword) ||
+        (typeof member.passwordHash === "string" && member.passwordHash === inputPassword) ||
+        inputPassword === "member123");
 
     if (!member || !validPassword) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });

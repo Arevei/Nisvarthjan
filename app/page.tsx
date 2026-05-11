@@ -72,6 +72,58 @@ const IMPACT_AREAS = [
   },
 ];
 
+const HOME_GALLERY = [
+  {
+    src: "/gallery/events/event-1.webp",
+    titleEn: "Drinking Water Facility Inauguration",
+    titleHi: "शीतल पेय जल सेवा उद्घाटन",
+    detailsEn: "Community members inaugurating a clean drinking water point.",
+    detailsHi: "स्थानीय समुदाय द्वारा स्वच्छ पेयजल केंद्र का उद्घाटन।",
+  },
+  {
+    src: "/gallery/events/event-2.webp",
+    titleEn: "Volunteer Team at Service Point",
+    titleHi: "सेवा केंद्र पर स्वयंसेवक टीम",
+    detailsEn: "Field team and local supporters at the newly started site.",
+    detailsHi: "नए सेवा स्थल पर टीम और स्थानीय सहयोगी।",
+  },
+  {
+    src: "/gallery/events/event-3.webp",
+    titleEn: "Counselling Support Session",
+    titleHi: "परामर्श सहयोग सत्र",
+    detailsEn: "Individual support and counselling for local families.",
+    detailsHi: "स्थानीय परिवारों के लिए व्यक्तिगत सहायता और परामर्श।",
+  },
+  {
+    src: "/gallery/events/event-4.webp",
+    titleEn: "Women Welfare Interaction",
+    titleHi: "महिला कल्याण संवाद",
+    detailsEn: "Focused interaction with women beneficiaries at Tihar.",
+    detailsHi: "तिहार क्षेत्र में महिला लाभार्थियों के साथ संवाद।",
+  },
+  {
+    src: "/gallery/events/event-5.webp",
+    titleEn: "Community Participation",
+    titleHi: "सामुदायिक भागीदारी",
+    detailsEn: "Residents gathering to support social development activity.",
+    detailsHi: "सामाजिक विकास गतिविधि में स्थानीय लोगों की भागीदारी।",
+  },
+  {
+    src: "/gallery/events/event-6.webp",
+    titleEn: "Office Service Desk",
+    titleHi: "कार्यालय सेवा डेस्क",
+    detailsEn: "On-ground coordination and service desk operations.",
+    detailsHi: "मैदानी समन्वय और सेवा डेस्क संचालन।",
+  },
+  {
+    src: "/gallery/events/event-7.webp",
+    titleEn: "Leadership Presence",
+    titleHi: "नेतृत्व उपस्थिति",
+    detailsEn: "Leadership joining public outreach and awareness programs.",
+    detailsHi: "जन-जागरूकता कार्यक्रमों में नेतृत्व की सहभागिता।",
+  },
+];
+
 export default function Home() {
   const { t } = useLanguage();
   const { data: stats } = useGetStats();
@@ -505,6 +557,52 @@ export default function Home() {
       </section>
 
       {/* ── CTA — full-bleed image ── */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-1">
+                {t("Ground Activities", "मैदानी गतिविधियाँ")}
+              </p>
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
+                {t("Recent Gallery Highlights", "हाल की गैलरी झलकियाँ")}
+              </h2>
+              <p className="text-muted-foreground mt-2 max-w-2xl">
+                {t(
+                  "Snapshots from our drinking water initiative, counselling sessions, and community meetings in Tihar and Rampura.",
+                  "तिहार और रामपुरा में पेयजल पहल, परामर्श सत्र और सामुदायिक बैठकों की झलकियाँ।",
+                )}
+              </p>
+            </div>
+            <Link href="/gallery" className="hidden sm:flex items-center gap-1 text-primary font-medium text-sm hover:underline">
+              {t("View Full Gallery", "पूरी गैलरी देखें")} <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {HOME_GALLERY.map((item) => (
+              <article key={item.src} className="bg-card border rounded-2xl overflow-hidden hover:shadow-xl transition-all">
+                <img src={item.src} alt={item.titleEn} className="w-full h-56 object-cover" />
+                <div className="p-5">
+                  <h3 className="font-serif font-bold text-lg text-foreground mb-2">
+                    {t(item.titleEn, item.titleHi)}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {t(item.detailsEn, item.detailsHi)}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="text-center mt-8 sm:hidden">
+            <Button variant="outline" asChild>
+              <Link href="/gallery">{t("View Full Gallery", "पूरी गैलरी देखें")}</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <section className="relative py-28 overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2000"

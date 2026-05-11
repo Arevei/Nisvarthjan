@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       membershipId: generateMembershipId(),
       status: "active",
       certificateNumber: generateCertificateNumber(),
-      passwordHash: password,
+      password: String(password),
       joinedAt: new Date(),
     };
 
