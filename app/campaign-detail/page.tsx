@@ -1,0 +1,123 @@
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Layout } from "@/components/layout/Layout";
+import { useLanguage } from "@/lib/language-context";
+import { useGetCampaign, getGetCampaignQueryKey, useCreateDonation } from "@/lib/api-client/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Users, Target, Heart } from "lucide-react";
+
+export default function CampaignDetail() {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const params = useParams<{ id: string }>();
+  const id = parseInt(params?.id ?? "0");
+  const [donorName, setDonorName] = useState("");
+  const [donorEmail, setDonorEmail] = useState("");
+  const [amount, setAmount] = useState("");
+
+  const { data: campaign, isLoading } = useGetCampaign(id, {
+    query: { enabled: !!id, queryKey: getGetCampaignQueryKey(id) },
+  });
+
+  const createDonation = useCreateDonation();
+
+  const handleDonate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!amount || !donorName || !donorEmail) {
+      toast({ title: t("Please fill all fields", "कृपया सभी फ़ील्ड भरें"), variant: "destructive" });
+      return;
+    }
+    createDonation.mutate(
+      { data: { amount: parseFloat(amount), donorName, donorEmail, campaignId: id, purpose: campaign?.title ?? "Campaign donation" } },
+      {
+        onSuccess: () => toast({ title: t("Thank you for your support!", "आपके सहयोग के लिए धन्यवाद!") }),
+        onError: () => toast({ title: t("Donation failed", "दान विफल"), variant: "destructive" }),
+      }
+    );
+  };
+
+  if (isLoading) {
+    return <Layout><div className="container mx-auto px-4 py-16"><div className="animate-pulse space-y-4 max-w-2xl mx-auto"><div className="h-64 bg-muted rounded-xl" /><div className="h-8 bg-muted rounded w-3/4" /></div></div></Layout>;
+  }
+
+  if (!campaign) {
+    return <Layout><div className="container mx-auto px-4 py-16 text-center"><h1 className="text-2xl font-bold">{t("Campaign not found", "अभियान नहीं मिला")}</h1><Button asChild className="mt-4"><Link href="/campaigns">{t("All Campaigns", "सभी अभियान")}</Link></Button></div></Layout>;
+  }
+
+  const pct = Math.min(100, (campaign.raisedAmount / campaign.goalAmount) * 100);
+
+  return (
+    <Layout>
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
+        <Button variant="ghost" asChild className="mb-6 text-primary">
+          <Link href="/campaigns"><ArrowLeft className="w-4 h-4 mr-2" />{t("All Campaigns", "सभी अभियान")}</Link>
+        </Button>
+
+        <div className="grid lg:grid-cols-2 gap-10">
+          <div>
+            {campaign.imageUrl ? (
+              <img src={campaign.imageUrl} alt={t(campaign.title, campaign.titleHindi)} className="w-full h-72 object-cover rounded-2xl mb-6" />
+            ) : (
+              <div className="w-full h-72 bg-primary/10 rounded-2xl mb-6 flex items-center justify-center">
+                <Heart className="w-16 h-16 text-primary/40" />
+              </div>
+            )}
+
+            <div className="inline-block bg-primary/10 text-primary text-sm font-semibold px-3 py-1 rounded-full mb-3 capitalize">{campaign.category}</div>
+            <h1 className="text-3xl font-serif font-bold text-foreground mb-4">{t(campaign.title, campaign.titleHindi)}</h1>
+            <p className="text-muted-foreground leading-relaxed mb-6">{t(campaign.description, campaign.descriptionHindi)}</p>
+
+            <div className="bg-card border rounded-xl p-6 space-y-4">
+              <div className="flex justify-between text-sm font-medium">
+                <span className="text-muted-foreground">{t("Raised", "एकत्रित")}</span>
+                <span className="text-foreground">₹{campaign.raisedAmount.toLocaleString("en-IN")} / ₹{campaign.goalAmount.toLocaleString("en-IN")}</span>
+              </div>
+              <Progress value={pct} className="h-3" />
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <div className="flex items-center gap-1"><Target className="w-4 h-4" />{Math.round(pct)}% {t("funded", "वित्त पोषित")}</div>
+                <div className="flex items-center gap-1"><Users className="w-4 h-4" />{campaign.donorCount} {t("donors", "दानकर्ता")}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border rounded-2xl p-8 shadow-sm h-fit">
+            <h2 className="text-xl font-serif font-bold text-foreground mb-6">{t("Support This Campaign", "इस अभियान का समर्थन करें")}</h2>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {[500, 1000, 2500].map((a) => (
+                <button key={a} data-testid={`button-amount-${a}`} onClick={() => setAmount(String(a))} className={`py-2 rounded-lg border-2 font-semibold text-sm transition-all ${amount === String(a) ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary text-foreground"}`}>
+                  ₹{a.toLocaleString("en-IN")}
+                </button>
+              ))}
+            </div>
+            <form onSubmit={handleDonate} className="space-y-4">
+              <div>
+                <Input data-testid="input-amount" type="number" placeholder={t("Enter amount (₹)", "राशि दर्ज करें (₹)")} value={amount} onChange={(e) => setAmount(e.target.value)} />
+              </div>
+              <div>
+                <Input data-testid="input-name" placeholder={t("Your Name *", "आपका नाम *")} value={donorName} onChange={(e) => setDonorName(e.target.value)} required />
+              </div>
+              <div>
+                <Input data-testid="input-email" type="email" placeholder={t("Email Address *", "ईमेल पता *")} value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} required />
+              </div>
+              <Button data-testid="button-donate" type="submit" className="w-full bg-primary hover:bg-primary/90 py-6 text-lg" disabled={createDonation.isPending}>
+                <Heart className="w-5 h-5 mr-2 fill-current" />
+                {createDonation.isPending ? t("Processing...", "प्रसंस्करण...") : t("Donate Now", "अभी दान करें")}
+              </Button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+
+
+
+
+

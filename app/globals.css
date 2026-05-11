@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+:root {
+  --button-outline: rgba(0, 0, 0, 0.1);
+  --badge-outline: rgba(0, 0, 0, 0.05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0, 0, 0, 0.03);
+  --elevate-2: rgba(0, 0, 0, 0.08);
+
+  --background: 35 33% 98%;
+  --foreground: 349 20% 15%;
+  --border: 35 15% 90%;
+  --input: 35 15% 85%;
+  --ring: 349 82% 38%;
+  --card: 0 0% 100%;
+  --card-foreground: 349 20% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 349 20% 15%;
+  --primary: 349 82% 38%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 35 15% 90%;
+  --secondary-foreground: 349 20% 15%;
+  --muted: 35 15% 90%;
+  --muted-foreground: 349 10% 40%;
+  --accent: 349 82% 96%;
+  --accent-foreground: 349 82% 38%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --button-outline: rgba(255, 255, 255, 0.1);
+  --badge-outline: rgba(255, 255, 255, 0.05);
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(255, 255, 255, 0.04);
+  --elevate-2: rgba(255, 255, 255, 0.09);
+
+  --background: 349 20% 10%;
+  --foreground: 35 33% 98%;
+  --border: 349 20% 20%;
+  --input: 349 20% 25%;
+  --ring: 349 82% 38%;
+  --card: 349 20% 12%;
+  --card-foreground: 35 33% 98%;
+  --popover: 349 20% 12%;
+  --popover-foreground: 35 33% 98%;
+  --primary: 349 82% 38%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 349 20% 20%;
+  --secondary-foreground: 35 33% 98%;
+  --muted: 349 20% 20%;
+  --muted-foreground: 35 15% 70%;
+  --accent: 349 82% 20%;
+  --accent-foreground: 349 82% 90%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply antialiased bg-background text-foreground;
+    font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  }
+}
