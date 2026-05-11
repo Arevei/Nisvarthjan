@@ -55,9 +55,9 @@ export default function About() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { roleEn: "Founder", roleHi: "संस्थापक", image: "/leadership/Founder.png" },
-              { roleEn: "Treasurer", roleHi: "सचिव", image: "/leadership/Treasurer.png" },
-              { roleEn: "Secretary", roleHi: "कोषाध्यक्ष", image: "/leadership/Secretary.png" },
+              { roleEn: "Founder", roleHi: "संस्थापक", image: "/leadership/Founder.jpg" },
+              { roleEn: "Treasurer", roleHi: "सचिव", image: "/leadership/Treasurer.jpg" },
+              { roleEn: "Secretary", roleHi: "कोषाध्यक्ष", image: "/leadership/Secretary.jpg" },
               
             ].map((member) => (
               <div key={member.roleEn} className="bg-card border rounded-2xl overflow-hidden shadow-sm">

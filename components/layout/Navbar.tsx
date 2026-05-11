@@ -40,7 +40,7 @@ export function Navbar() {
           >
             {language === "hi" ? "English" : "हिंदी"}
           </button>
-          {user ? (
+          {/* {user ? (
             <Link href="/dashboard" className="text-sm font-medium hover:text-primary">
               {t("Dashboard", "डैशबोर्ड")}
             </Link>
@@ -48,7 +48,7 @@ export function Navbar() {
             <Link href="/login" className="text-sm font-medium hover:text-primary">
               {t("Login", "लॉग इन")}
             </Link>
-          )}
+          )} */}
           <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
             <Link href="/donate">{t("Donate Now", "अभी दान करें")}</Link>
           </Button>
