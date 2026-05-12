@@ -4,10 +4,6 @@ import { getDb, nextSequence } from "@/lib/db";
 function generateMembershipId() {
   return `NSF-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000) + 10000}`;
 }
-function generateCertificateNumber() {
-  return `CERT-NSF-${new Date().getFullYear()}-${Math.floor(Math.random() * 900000) + 100000}`;
-}
-
 function fmt(m: any) {
   return {
     id: m.id,
@@ -62,8 +58,8 @@ export async function POST(req: NextRequest) {
       state: state ?? null,
       membershipType: membershipType ?? "general",
       membershipId: generateMembershipId(),
-      status: "active",
-      certificateNumber: generateCertificateNumber(),
+      status: "pending",
+      certificateNumber: null,
       password: String(password),
       joinedAt: new Date(),
     };

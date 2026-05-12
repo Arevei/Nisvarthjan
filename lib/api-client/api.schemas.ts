@@ -113,6 +113,7 @@ export interface UpdateCampaignInput {
   description?: string;
   descriptionHindi?: string;
   goalAmount?: number;
+  category?: string;
   isActive?: boolean;
   imageUrl?: string;
 }

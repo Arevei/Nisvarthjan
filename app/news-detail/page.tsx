@@ -8,6 +8,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, User } from "lucide-react";
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+const toRenderableHtml = (value: string) => {
+  if (/<[a-z][\s\S]*>/i.test(value)) return value;
+
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${escapeHtml(line)}</p>`)
+    .join("");
+};
+
 export default function NewsDetail() {
   const { t } = useLanguage();
   const params = useParams<{ id: string }>();
@@ -77,13 +96,10 @@ export default function NewsDetail() {
           )}
         </div>
 
-        <div className="prose prose-lg max-w-none text-foreground leading-relaxed">
-          {t(article.content, article.contentHindi)
-            .split("\n")
-            .map((para, i) => (
-              <p key={i} className="mb-4">{para}</p>
-            ))}
-        </div>
+        <div
+          className="prose prose-lg max-w-none text-foreground leading-relaxed prose-p:text-foreground prose-headings:text-foreground prose-a:text-primary"
+          dangerouslySetInnerHTML={{ __html: toRenderableHtml(t(article.content, article.contentHindi)) }}
+        />
       </div>
     </Layout>
   );

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb, nextSequence } from "@/lib/db";
+import { getSession } from "@/lib/session";
 
 function fmt(c: any) {
   return {
@@ -30,6 +31,11 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getSession();
+  if (!session.isAdmin) {
+    return NextResponse.json({ error: "Admin authentication required" }, { status: 401 });
+  }
+
   const body = await req.json();
   const { title, titleHindi, description, descriptionHindi, goalAmount, category, imageUrl, isActive } = body;
   if (!title || !description || !goalAmount || !category) {

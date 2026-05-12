@@ -11,6 +11,25 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Users, Target, Heart } from "lucide-react";
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+const toRenderableHtml = (value: string) => {
+  if (/<[a-z][\s\S]*>/i.test(value)) return value;
+
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${escapeHtml(line)}</p>`)
+    .join("");
+};
+
 export default function CampaignDetail() {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -70,7 +89,10 @@ export default function CampaignDetail() {
 
             <div className="inline-block bg-primary/10 text-primary text-sm font-semibold px-3 py-1 rounded-full mb-3 capitalize">{campaign.category}</div>
             <h1 className="text-3xl font-serif font-bold text-foreground mb-4">{t(campaign.title, campaign.titleHindi)}</h1>
-            <p className="text-muted-foreground leading-relaxed mb-6">{t(campaign.description, campaign.descriptionHindi)}</p>
+            <div
+              className="prose prose-sm mb-6 max-w-none text-foreground prose-p:text-muted-foreground prose-headings:text-foreground prose-a:text-primary"
+              dangerouslySetInnerHTML={{ __html: toRenderableHtml(t(campaign.description, campaign.descriptionHindi)) }}
+            />
 
             <div className="bg-card border rounded-xl p-6 space-y-4">
               <div className="flex justify-between text-sm font-medium">

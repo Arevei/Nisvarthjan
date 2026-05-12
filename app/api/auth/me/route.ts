@@ -12,6 +12,11 @@ export async function GET() {
     const db = await getDb();
     const member = await db.collection("members").findOne({ id: session.memberId });
     if (!member) return NextResponse.json({ error: "Member not found" }, { status: 401 });
+    if (member.status !== "active") {
+      session.memberId = undefined;
+      await session.save();
+      return NextResponse.json({ error: "Membership not active" }, { status: 403 });
+    }
 
     return NextResponse.json({
       id: member.id,

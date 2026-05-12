@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { getSession } from "@/lib/session";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -34,6 +35,11 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 }
 
 export async function PUT(req: NextRequest, { params }: Ctx) {
+  const session = await getSession();
+  if (!session.isAdmin) {
+    return NextResponse.json({ error: "Admin authentication required" }, { status: 401 });
+  }
+
   const id = parseInt((await params).id);
   if (isNaN(id)) return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
 
@@ -66,6 +72,11 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
 }
 
 export async function DELETE(_req: NextRequest, { params }: Ctx) {
+  const session = await getSession();
+  if (!session.isAdmin) {
+    return NextResponse.json({ error: "Admin authentication required" }, { status: 401 });
+  }
+
   const id = parseInt((await params).id);
   if (isNaN(id)) return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
 

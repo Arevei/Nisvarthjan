@@ -7,6 +7,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 
+const toPreviewText = (input: string) =>
+  input
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
 export default function Campaigns() {
   const { t, language } = useLanguage();
   const { data: campaigns, isLoading } = useListCampaigns();
@@ -61,7 +68,7 @@ export default function Campaigns() {
                       {language === "hi" && campaign.titleHindi ? campaign.titleHindi : campaign.title}
                     </h3>
                     <p className="text-muted-foreground line-clamp-2 mb-6 flex-1 text-sm">
-                      {language === "hi" && campaign.descriptionHindi ? campaign.descriptionHindi : campaign.description}
+                      {toPreviewText(language === "hi" && campaign.descriptionHindi ? campaign.descriptionHindi : campaign.description)}
                     </p>
                     
                     <div className="space-y-4">

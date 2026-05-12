@@ -6,6 +6,13 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 
+const toPreviewText = (input: string) =>
+  input
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
 export default function News() {
   const { t, language } = useLanguage();
   const { data: news, isLoading } = useListNews();
@@ -60,7 +67,7 @@ export default function News() {
                       {language === "hi" && article.titleHindi ? article.titleHindi : article.title}
                     </h3>
                     <p className="text-muted-foreground line-clamp-3 mb-4 flex-1">
-                      {language === "hi" && article.contentHindi ? article.contentHindi : article.content}
+                      {toPreviewText(language === "hi" && article.contentHindi ? article.contentHindi : article.content)}
                     </p>
                     <div className="text-primary font-medium text-sm">
                       {t("Read more →", "और पढ़ें →")}
