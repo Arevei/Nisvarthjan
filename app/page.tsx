@@ -8,7 +8,6 @@ import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { CampaignsSnapCarousel } from "@/components/home/CampaignsSnapCarousel";
 import { HomeHero } from "@/components/home/HomeHero";
 import { ArrowRight, Calendar, Target, Eye, Compass, Sparkles, Heart, Leaf, Users2, BookOpen } from "lucide-react";
-import { useRef } from "react";
 
 const CATEGORY_COLORS: Record<string, string> = {
   health:      "bg-rose-100 text-rose-700",
@@ -18,6 +17,16 @@ const CATEGORY_COLORS: Record<string, string> = {
   rural:       "bg-amber-100 text-amber-700",
   disaster:    "bg-orange-100 text-orange-700",
   general:     "bg-gray-100 text-gray-700",
+};
+
+const CATEGORY_LABELS: Record<string, { en: string; hi: string }> = {
+  health: { en: "Health", hi: "स्वास्थ्य" },
+  education: { en: "Education", hi: "शिक्षा" },
+  environment: { en: "Environment", hi: "पर्यावरण" },
+  women: { en: "Women", hi: "महिला सशक्तिकरण" },
+  rural: { en: "Rural", hi: "ग्रामीण विकास" },
+  disaster: { en: "Disaster", hi: "आपदा राहत" },
+  general: { en: "General", hi: "सामान्य" },
 };
 
 const CATEGORY_IMAGES: Record<string, string> = {
@@ -127,8 +136,15 @@ const HOME_GALLERY = [
   },
 ];
 
+const toPreviewText = (input: string) =>
+  input
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data: stats } = useGetStats();
   const { data: allNews = [] } = useListNews();
   const { data: allCampaigns = [] } = useListCampaigns();
@@ -162,11 +178,11 @@ export default function Home() {
                 { value: stats.livesImpacted,       suffix: "+", label: t("Lives Impacted",    "प्रभावित जीवन") },
                 { value: stats.villagesCovered,      suffix: "",  label: t("Villages Covered",  "कवर किए गए गांव") },
                 { value: stats.totalMembers,         suffix: "",  label: t("Active Volunteers", "सक्रिय स्वयंसेवक") },
-                { value: stats.treesPlanted,         suffix: "",  label: t("Trees Planted",     "लगाए गए पेड़") },
-              ].map(({ value, suffix, label }) => (
-                <div key={label} className="text-white">
-                  <div className="text-4xl md:text-5xl font-bold font-serif mb-2">
-                    <AnimatedCounter value={value} />{suffix}
+                  { value: stats.treesPlanted,         suffix: "",  label: t("Trees Planted",     "लगाए गए पेड़") },
+                ].map(({ value, suffix, label }) => (
+                  <div key={label} className="text-white">
+                    <div className="text-4xl md:text-5xl font-bold font-serif mb-2">
+                    <AnimatedCounter value={value} duration={2200} format={(n) => n.toLocaleString("en-IN")} />{suffix}
                   </div>
                   <div className="text-sm font-medium text-white/70 uppercase tracking-wider">{label}</div>
                 </div>
@@ -324,6 +340,11 @@ export default function Home() {
             <div className="grid md:grid-cols-3 gap-6">
               {latestNews.map((article) => {
                 const categoryImg = CATEGORY_IMAGES[article.category] ?? CATEGORY_IMAGES.general;
+                const category = CATEGORY_LABELS[article.category] ?? CATEGORY_LABELS.general;
+                const preview =
+                  language === "hi"
+                    ? toPreviewText(article.contentHindi ?? article.content)
+                    : toPreviewText(article.excerpt ?? article.content);
                 return (
                   <Link key={article.id} href={`/news/${article.id}`}>
                     <article className="bg-card border rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group h-full flex flex-col">
@@ -336,7 +357,7 @@ export default function Home() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                         <span className={`absolute bottom-3 left-3 text-xs font-bold px-3 py-1 rounded-full capitalize ${CATEGORY_COLORS[article.category] ?? CATEGORY_COLORS.general}`}>
-                          {article.category}
+                          {t(category.en, category.hi)}
                         </span>
                       </div>
                       <div className="p-5 flex flex-col flex-1">
@@ -348,9 +369,7 @@ export default function Home() {
                         <h3 className="font-bold text-foreground text-base mb-2 group-hover:text-primary transition-colors line-clamp-2 font-serif">
                           {t(article.title, article.titleHindi ?? article.title)}
                         </h3>
-                        {article.excerpt && (
-                          <p className="text-muted-foreground text-sm line-clamp-2 flex-1">{article.excerpt}</p>
-                        )}
+                        <p className="text-muted-foreground text-sm line-clamp-2 flex-1">{preview}</p>
                         <div className="mt-4 flex items-center gap-1 text-primary text-sm font-semibold">
                           {t("Read more", "और पढ़ें")} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                         </div>
@@ -430,6 +449,8 @@ export default function Home() {
         </div>
       </section>
 
+      
+
       {/* ── CTA — full-bleed image ── */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
@@ -455,13 +476,14 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {HOME_GALLERY.map((item) => (
-              <article key={item.src} className="bg-card border rounded-2xl overflow-hidden hover:shadow-xl transition-all">
-                <img src={item.src} alt={item.titleEn} className="w-full h-56 object-cover" />
-                <div className="p-5">
-                  <h3 className="font-serif font-bold text-lg text-foreground mb-2">
+              <article key={item.src} className="group relative h-72 overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+                <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
+                <div className="absolute inset-x-0 bottom-0 translate-y-3 p-5 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                  <h3 className="font-serif font-bold text-lg mb-2">
                     {t(item.titleEn, item.titleHi)}
                   </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-sm text-white/78 leading-relaxed">
                     {t(item.detailsEn, item.detailsHi)}
                   </p>
                 </div>
@@ -476,6 +498,40 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+
+      <section className="max-w-6xl mx-auto mt-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
+              {t("Leadership Team", "नेतृत्व टीम")}
+            </h2>
+            <p className="text-muted-foreground mt-2">
+              {t("Founder, Secretary and Treasurer", "संस्थापक, सचिव और कोषाध्यक्ष")}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { roleEn: "Founder", roleHi: "संस्थापक", image: "/leadership/Founder.jpg" },
+              { roleEn: "Treasurer", roleHi: "सचिव", image: "/leadership/Treasurer.jpg" },
+              { roleEn: "Secretary", roleHi: "कोषाध्यक्ष", image: "/leadership/Secretary.jpg" },
+              
+            ].map((member) => (
+              <div key={member.roleEn} className="bg-card border rounded-2xl overflow-hidden shadow-sm">
+                <img
+                  src={member.image}
+                  alt={member.roleEn}
+                  className="w-full aspect-[4/5] object-cover"
+                />
+                <div className="p-4 text-center">
+                  <h3 className="text-xl font-serif font-semibold text-foreground">
+                    {t(member.roleEn, member.roleHi)}
+                  </h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
       <section className="relative py-28 overflow-hidden">
         <img

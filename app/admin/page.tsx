@@ -13,8 +13,10 @@ import {
   useUpdateCampaign,
   useIssueCertificate,
   useListContacts,
+  useListGallery,
+  getListGalleryQueryKey,
 } from "@/lib/api-client/api";
-import type { Campaign } from "@/lib/api-client/api";
+import type { Campaign, GalleryImage } from "@/lib/api-client/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,15 +27,23 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Trash2, Plus, Users, DollarSign, Newspaper, Target, X, LogOut,
   Award, MessageSquare, CheckCircle, ToggleLeft, ToggleRight, Shield, Edit2, Save,
+  Image as ImageIcon,
 } from "lucide-react";
 
-type Tab = "news" | "members" | "donations" | "campaigns" | "contacts";
+type Tab = "news" | "members" | "donations" | "campaigns" | "gallery" | "contacts";
 
 const CAMPAIGN_CATEGORIES = ["education", "health", "environment", "women", "rural", "disaster", "general"];
 
 const emptyCampaignForm = {
   title: "", titleHindi: "", description: "", descriptionHindi: "",
   goalAmount: "", category: "general", imageUrl: "", isActive: true,
+};
+
+const emptyGalleryForm = {
+  imageUrl: "",
+  caption: "",
+  captionHindi: "",
+  category: "events",
 };
 
 export default function Admin() {
@@ -45,14 +55,17 @@ export default function Admin() {
   const [tab, setTab] = useState<Tab>("news");
   const [showNewsForm, setShowNewsForm] = useState(false);
   const [showCampaignForm, setShowCampaignForm] = useState(false);
+  const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [editingCampaignId, setEditingCampaignId] = useState<number | null>(null);
   const [certResult, setCertResult] = useState<Record<number, string>>({});
+  const [galleryBusy, setGalleryBusy] = useState(false);
 
   const [newsForm, setNewsForm] = useState({
     title: "", titleHindi: "", content: "", contentHindi: "", excerpt: "", category: "general", author: "",
   });
   const [campaignForm, setCampaignForm] = useState(emptyCampaignForm);
   const [editForm, setEditForm] = useState(emptyCampaignForm);
+  const [galleryForm, setGalleryForm] = useState(emptyGalleryForm);
 
   useEffect(() => {
     if (!isAdminLoading && !isAdmin) {
@@ -65,6 +78,7 @@ export default function Admin() {
   const { data: donations = [] } = useListDonations();
   const { data: campaigns = [] } = useListCampaigns();
   const { data: contacts = [] } = useListContacts();
+  const { data: gallery = [] } = useListGallery();
 
   const deleteNews = useDeleteNewsArticle();
   const createNews = useCreateNewsArticle();
@@ -135,6 +149,52 @@ export default function Admin() {
     );
   };
 
+  const handleCreateGalleryItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!galleryForm.imageUrl.trim()) {
+      toast({ title: t("Image URL is required", "छवि URL आवश्यक है"), variant: "destructive" });
+      return;
+    }
+
+    setGalleryBusy(true);
+    try {
+      const response = await fetch("/api/gallery", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(galleryForm),
+      });
+
+      if (!response.ok) throw new Error("Create failed");
+      queryClient.invalidateQueries({ queryKey: getListGalleryQueryKey() });
+      setGalleryForm(emptyGalleryForm);
+      setShowGalleryForm(false);
+      toast({ title: t("Gallery image added", "गैलरी छवि जोड़ी गई") });
+    } catch {
+      toast({ title: t("Failed to add gallery image", "गैलरी छवि जोड़ने में विफल"), variant: "destructive" });
+    } finally {
+      setGalleryBusy(false);
+    }
+  };
+
+  const handleDeleteGalleryItem = async (item: GalleryImage) => {
+    setGalleryBusy(true);
+    try {
+      const response = await fetch(`/api/gallery/${item.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) throw new Error("Delete failed");
+      queryClient.invalidateQueries({ queryKey: getListGalleryQueryKey() });
+      toast({ title: t("Gallery image deleted", "गैलरी छवि हटाई गई") });
+    } catch {
+      toast({ title: t("Failed to delete gallery image", "गैलरी छवि हटाने में विफल"), variant: "destructive" });
+    } finally {
+      setGalleryBusy(false);
+    }
+  };
+
   const startEditCampaign = (c: Campaign) => {
     setEditingCampaignId(c.id);
     setEditForm({
@@ -164,6 +224,7 @@ export default function Admin() {
           description: editForm.description,
           descriptionHindi: editForm.descriptionHindi || undefined,
           goalAmount: goal,
+          category: editForm.category,
           isActive: editForm.isActive,
           imageUrl: editForm.imageUrl || undefined,
         },
@@ -218,6 +279,7 @@ export default function Admin() {
     { id: "members", label: "Members", labelHi: "सदस्य", icon: Users, count: members.length },
     { id: "donations", label: "Donations", labelHi: "दान", icon: DollarSign, count: donations.length },
     { id: "campaigns", label: "Campaigns", labelHi: "अभियान", icon: Target, count: campaigns.length },
+    { id: "gallery", label: "Gallery", labelHi: "गैलरी", icon: ImageIcon, count: gallery.length },
     { id: "contacts", label: "Messages", labelHi: "संदेश", icon: MessageSquare, count: contacts.length },
   ];
 
@@ -535,6 +597,101 @@ export default function Admin() {
               })}
               {campaigns.length === 0 && <p className="text-center py-8 text-muted-foreground">{t("No campaigns yet.", "अभी तक कोई अभियान नहीं।")}</p>}
             </div>
+          </div>
+        )}
+
+        {/* ─── GALLERY TAB ─── */}
+        {tab === "gallery" && (
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-foreground">{t("Gallery Control", "गैलरी नियंत्रण")}</h2>
+              <Button onClick={() => setShowGalleryForm(!showGalleryForm)} className="bg-primary hover:bg-primary/90">
+                {showGalleryForm ? <><X className="w-4 h-4 mr-2" />{t("Cancel", "रद्द करें")}</> : <><Plus className="w-4 h-4 mr-2" />{t("Add Image", "छवि जोड़ें")}</>}
+              </Button>
+            </div>
+
+            {showGalleryForm && (
+              <div className="bg-card border-2 border-primary/20 rounded-xl p-6 mb-6 shadow-sm">
+                <h3 className="font-semibold text-foreground mb-4 text-primary">{t("Add Gallery Image", "गैलरी छवि जोड़ें")}</h3>
+                <form onSubmit={handleCreateGalleryItem} className="grid md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <Label>{t("Image URL *", "छवि URL *")}</Label>
+                    <Input
+                      type="url"
+                      value={galleryForm.imageUrl}
+                      onChange={(e) => setGalleryForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                      placeholder="https://..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label>{t("Caption (English)", "कैप्शन (अंग्रेजी)")}</Label>
+                    <Input value={galleryForm.caption} onChange={(e) => setGalleryForm((f) => ({ ...f, caption: e.target.value }))} />
+                  </div>
+                  <div>
+                    <Label>{t("Caption (Hindi)", "कैप्शन (हिंदी)")}</Label>
+                    <Input value={galleryForm.captionHindi} onChange={(e) => setGalleryForm((f) => ({ ...f, captionHindi: e.target.value }))} />
+                  </div>
+                  <div>
+                    <Label>{t("Category", "श्रेणी")}</Label>
+                    <Select value={galleryForm.category} onValueChange={(v) => setGalleryForm((f) => ({ ...f, category: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {["events", "education", "health", "environment", "women", "rural", "general"].map((category) => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-end">
+                    <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={galleryBusy}>
+                      {galleryBusy ? t("Saving...", "सहेज रहा है...") : t("Save Image", "छवि सहेजें")}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {gallery.map((item) => {
+                const title = item.caption || item.captionHindi || t("Gallery image", "गैलरी छवि");
+                return (
+                  <article key={item.id} className="group relative h-64 overflow-hidden rounded-xl border bg-card shadow-sm">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.imageUrl} alt={title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-80" />
+                    <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+                      {item.category}
+                    </div>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      className="absolute right-4 top-4 h-9 w-9 rounded-full bg-white/90 text-destructive hover:bg-white"
+                      disabled={galleryBusy}
+                      onClick={() => handleDeleteGalleryItem(item)}
+                      aria-label={t("Delete gallery image", "गैलरी छवि हटाएँ")}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                    <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                      <h3 className="font-serif text-lg font-bold leading-snug">{title}</h3>
+                      {item.captionHindi && item.captionHindi !== title && (
+                        <p className="mt-1 text-sm text-white/75">{item.captionHindi}</p>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            {gallery.length === 0 && (
+              <div className="text-center py-12 bg-card rounded-2xl border border-dashed">
+                <ImageIcon className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
+                <h3 className="font-serif text-xl font-bold text-foreground">{t("No gallery images yet", "अभी कोई गैलरी छवि नहीं")}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{t("Add image URLs here to publish them on the public gallery.", "सार्वजनिक गैलरी में दिखाने के लिए यहाँ छवि URL जोड़ें।")}</p>
+              </div>
+            )}
           </div>
         )}
 

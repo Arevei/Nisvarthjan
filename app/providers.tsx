@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { LanguageProvider } from "@/lib/language-context";
 import { AuthProvider } from "@/lib/auth-context";
+import { AdminAuthProvider } from "@/lib/admin-auth-context";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -13,8 +14,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>
-          {children}
-          <Toaster />
+          <AdminAuthProvider>
+            {children}
+            <Toaster />
+          </AdminAuthProvider>
         </AuthProvider>
       </LanguageProvider>
     </QueryClientProvider>

@@ -7,6 +7,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 
+const CATEGORY_LABELS: Record<string, { en: string; hi: string }> = {
+  health: { en: "Health", hi: "स्वास्थ्य" },
+  education: { en: "Education", hi: "शिक्षा" },
+  environment: { en: "Environment", hi: "पर्यावरण" },
+  women: { en: "Women", hi: "महिला सशक्तिकरण" },
+  rural: { en: "Rural", hi: "ग्रामीण विकास" },
+  disaster: { en: "Disaster", hi: "आपदा राहत" },
+  general: { en: "General", hi: "सामान्य" },
+};
+
 const toPreviewText = (input: string) =>
   input
     .replace(/<[^>]*>/g, " ")
@@ -49,6 +59,7 @@ export default function Campaigns() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {campaigns.map((campaign) => {
               const progress = Math.min(100, Math.round((campaign.raisedAmount / campaign.goalAmount) * 100));
+              const category = CATEGORY_LABELS[campaign.category] ?? CATEGORY_LABELS.general;
               return (
                 <div key={campaign.id} className="bg-card rounded-2xl border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col">
                   {campaign.imageUrl && (
@@ -62,7 +73,7 @@ export default function Campaigns() {
                   )}
                   <div className="p-6 flex-1 flex flex-col">
                     <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full w-fit mb-4">
-                      {campaign.category}
+                      {t(category.en, category.hi)}
                     </div>
                     <h3 className="text-xl font-bold font-serif mb-2 line-clamp-2">
                       {language === "hi" && campaign.titleHindi ? campaign.titleHindi : campaign.title}

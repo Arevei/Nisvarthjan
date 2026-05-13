@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { useLanguage } from "@/lib/language-context";
 
 interface HeroStats {
@@ -246,12 +247,12 @@ export function HomeHero({ stats }: HeroParallaxProps) {
               <br />
               <motion.span
                 style={{
-                  background: "linear-gradient(130deg, #fde68a 0%, #f59e0b 50%, #fbbf24 100%)",
+                  background: "linear-gradient(130deg, #fecdd3 0%, #f472b6 48%, #B11226 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                   fontStyle: "italic",
-                  filter: "drop-shadow(0 0 18px rgba(251,191,36,0.5))",
+                  filter: "drop-shadow(0 0 18px rgba(244,114,182,0.48))",
                 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -309,7 +310,7 @@ export function HomeHero({ stats }: HeroParallaxProps) {
             </motion.div>
 
             {/* Stats */}
-            {/* {stats && (
+            {stats && (
               <motion.div
                 className="mt-12 flex flex-wrap justify-center gap-10 md:gap-14"
                 initial={{ opacity: 0, y: 22 }}
@@ -317,17 +318,32 @@ export function HomeHero({ stats }: HeroParallaxProps) {
                 transition={{ duration: 1, delay: 1.62 }}
               >
                 {[
-                  { n: `${Math.round(stats.livesImpacted / 1000)}K+`, lbl: t("Lives Impacted", "\u092a\u094d\u0930\u092d\u093e\u0935\u093f\u0924 \u091c\u0940\u0935\u0928") },
-                  { n: `${stats.villagesCovered}+`,                   lbl: t("Villages",        "\u0917\u093e\u0901\u0935") },
-                  { n: `${stats.treesPlanted}+`,                      lbl: t("Trees Planted",   "\u0932\u0917\u093e\u090f \u0917\u090f \u092a\u0947\u0921\u093c") },
-                ].map(({ n, lbl }) => (
+                  {
+                    value: Math.round(stats.livesImpacted / 1000),
+                    suffix: "K+",
+                    lbl: t("Lives Impacted", "\u092a\u094d\u0930\u092d\u093e\u0935\u093f\u0924 \u091c\u0940\u0935\u0928"),
+                  },
+                  {
+                    value: stats.villagesCovered,
+                    suffix: "+",
+                    lbl: t("Villages", "\u0917\u093e\u0901\u0935"),
+                  },
+                  {
+                    value: stats.treesPlanted,
+                    suffix: "+",
+                    lbl: t("Trees Planted", "\u0932\u0917\u093e\u090f \u0917\u090f \u092a\u0947\u0921\u093c"),
+                  },
+                ].map(({ value, suffix, lbl }) => (
                   <div key={lbl} className="text-center group">
-                    <div className="text-[2.4rem] font-bold font-serif leading-none text-amber-300 group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_2px_12px_rgba(251,191,36,0.45)]">{n}</div>
+                    <div className="text-[2.4rem] font-bold font-serif leading-none text-amber-300 group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_2px_12px_rgba(251,191,36,0.45)]">
+                      <AnimatedCounter value={value} duration={1800} />
+                      {suffix}
+                    </div>
                     <div className="text-[10px] text-white/52 uppercase tracking-[0.2em] mt-2">{lbl}</div>
                   </div>
                 ))}
               </motion.div>
-            )} */}
+            )}
 
             {/* Scroll line */}
             <motion.div

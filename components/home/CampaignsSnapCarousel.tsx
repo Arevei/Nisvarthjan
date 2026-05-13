@@ -19,6 +19,16 @@ const CATEGORY_IMAGES: Record<string, string> = {
   general: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200",
 };
 
+const CATEGORY_LABELS: Record<string, { en: string; hi: string }> = {
+  health: { en: "Health", hi: "स्वास्थ्य" },
+  education: { en: "Education", hi: "शिक्षा" },
+  environment: { en: "Environment", hi: "पर्यावरण" },
+  women: { en: "Women", hi: "महिला सशक्तिकरण" },
+  rural: { en: "Rural", hi: "ग्रामीण विकास" },
+  disaster: { en: "Disaster", hi: "आपदा राहत" },
+  general: { en: "General", hi: "सामान्य" },
+};
+
 const toPreviewText = (input: string) =>
   input
     .replace(/<[^>]*>/g, " ")
@@ -55,6 +65,7 @@ export function CampaignsSnapCarousel({ campaigns }: CampaignsSnapCarouselProps)
             Math.round((campaign.raisedAmount / Math.max(campaign.goalAmount, 1)) * 100),
           );
           const image = campaign.imageUrl || CATEGORY_IMAGES[campaign.category] || CATEGORY_IMAGES.general;
+          const category = CATEGORY_LABELS[campaign.category] ?? CATEGORY_LABELS.general;
 
           return (
             <div
@@ -73,7 +84,7 @@ export function CampaignsSnapCarousel({ campaigns }: CampaignsSnapCarouselProps)
                   <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/42 to-black/8" />
                   <div className="absolute left-5 top-5">
                     <span className="rounded-full bg-white/92 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-                      {campaign.category}
+                      {t(category.en, category.hi)}
                     </span>
                   </div>
                   <div className="absolute right-5 top-5 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-sm">
