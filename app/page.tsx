@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useGetStats, useListNews, useListCampaigns } from "@/lib/api-client/api";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { CampaignsSnapCarousel } from "@/components/home/CampaignsSnapCarousel";
+import { HomeHero } from "@/components/home/HomeHero";
 import { ArrowRight, Calendar, Target, Eye, Compass, Sparkles, Heart, Leaf, Users2, BookOpen } from "lucide-react";
+import { useRef } from "react";
 
 const CATEGORY_COLORS: Record<string, string> = {
   health:      "bg-rose-100 text-rose-700",
@@ -131,102 +134,15 @@ export default function Home() {
   const { data: allCampaigns = [] } = useListCampaigns();
 
   const latestNews = allNews.slice(0, 3);
-  const featuredCampaigns = allCampaigns.filter((c) => c.isActive).slice(0, 3);
+  const featuredCampaigns = allCampaigns.filter((c) => c.isActive);
+
+
+  
 
   return (
     <Layout>
 
-      {/* ── HERO — split layout ── */}
-      <section className="relative min-h-[92vh] flex flex-col lg:flex-row overflow-hidden">
-        {/* Left — deep red panel */}
-        <div className="relative z-10 flex flex-col justify-center bg-primary text-primary-foreground px-8 md:px-14 py-24 lg:py-0 lg:w-[52%] lg:min-h-screen">
-          {/* Subtle texture overlay */}
-          <div className="absolute inset-0 opacity-5 bg-[url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070')] bg-cover bg-center" />
-          <div className="relative z-10 max-w-xl">
-            <span className="inline-block bg-white/15 text-white text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
-              {t("Nisvarthjan Seva Foundation", "निस्वार्थजन सेवा फाउंडेशन")}
-            </span>
-            <h1 className="text-4xl md:text-5xl xl:text-6xl font-serif font-bold mb-6 leading-tight">
-              {t("Empowering Communities,", "समुदायों को सशक्त बनाना,")}
-              <span className="block text-white/80">{t("Transforming Lives", "जीवन बदलना")}</span>
-            </h1>
-            <p className="text-lg md:text-xl mb-10 text-primary-foreground/85 leading-relaxed font-serif">
-              {t(
-                "Join us in our mission to bring education, healthcare, and sustainable development to rural India.",
-                "ग्रामीण भारत में शिक्षा, स्वास्थ्य सेवा और सतत विकास लाने के हमारे मिशन में शामिल हों।"
-              )}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Button size="lg" variant="secondary" asChild className="text-base px-8 py-6 font-semibold">
-                <Link href="/donate">{t("Donate Now", "अभी दान करें")}</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="text-base px-8 py-6 bg-transparent text-primary-foreground border-white/50 hover:bg-white hover:text-primary font-semibold">
-                <Link href="/membership">{t("Become a Member", "सदस्य बनें")}</Link>
-              </Button>
-            </div>
-            {/* Quick trust stats */}
-            {stats && (
-              <div className="flex gap-8 border-t border-white/20 pt-8">
-                {[
-                  { n: `${(stats.livesImpacted / 1000).toFixed(0)}K+`, lbl: t("Lives", "जीवन") },
-                  { n: stats.villagesCovered,                           lbl: t("Villages", "गांव") },
-                  { n: stats.treesPlanted,                              lbl: t("Trees", "पेड़") },
-                ].map(({ n, lbl }) => (
-                  <div key={lbl}>
-                    <div className="text-2xl font-bold font-serif">{n}</div>
-                    <div className="text-xs text-white/60 uppercase tracking-wider mt-0.5">{lbl}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right — image collage */}
-        <div className="relative lg:w-[48%] min-h-[50vh] lg:min-h-screen bg-gray-900 overflow-hidden">
-          {/* Main backdrop image */}
-          <img
-            src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1400"
-            alt="Community impact"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          {/* Dark gradient for text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-
-          {/* Floating image cards */}
-          <div className="absolute top-8 right-8 w-40 md:w-52 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
-            <img
-              src="https://images.unsplash.com/photo-1607748862156-7c548e7e98f4?q=80&w=600"
-              alt="Children learning"
-              className="w-full h-28 md:h-36 object-cover"
-            />
-          </div>
-          <div className="absolute top-8 left-8 w-36 md:w-44 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
-            <img
-              src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=600"
-              alt="Healthcare camp"
-              className="w-full h-24 md:h-32 object-cover"
-            />
-          </div>
-          <div className="absolute bottom-10 left-8 w-36 md:w-48 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
-            <img
-              src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=600"
-              alt="Environment drive"
-              className="w-full h-24 md:h-32 object-cover"
-            />
-          </div>
-
-          {/* Bottom text overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <p className="text-white text-sm font-medium italic opacity-90">
-              {t(
-                '\u201cSelfless service is the highest form of humanity.\u201d \u2014 NSF',
-                '\u201c\u0928\u093f\u0938\u094d\u0935\u093e\u0930\u094d\u0925 \u0938\u0947\u0935\u093e \u092e\u093e\u0928\u0935\u0924\u093e \u0915\u093e \u0938\u0930\u094d\u0935\u094b\u091a\u094d\u091a \u0938\u094d\u0935\u0930\u0942\u092a \u0939\u0948\u0964\u201d \u2014 NSF'
-              )}
-            </p>
-          </div>
-        </div>
-      </section>
+      <HomeHero stats={stats} />
 
       {/* ── STATS STRIP ── */}
       {stats && (
@@ -466,53 +382,8 @@ export default function Home() {
                 {t("All Campaigns", "सभी अभियान")} <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              {featuredCampaigns.map((c) => {
-                const pct = Math.min(100, Math.round((c.raisedAmount / c.goalAmount) * 100));
-                const fallbackImg = CATEGORY_IMAGES[c.category] ?? CATEGORY_IMAGES.general;
-                return (
-                  <Link key={c.id} href={`/campaigns/${c.id}`}>
-                    <div className="bg-card border rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group h-full flex flex-col">
-                      <div className="h-48 overflow-hidden relative">
-                        <img
-                          src={c.imageUrl || fallbackImg}
-                          alt={c.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                        <span className="absolute bottom-3 left-3 text-xs font-bold px-3 py-1 rounded-full capitalize bg-white/90 text-primary">
-                          {c.category}
-                        </span>
-                      </div>
-                      <div className="p-5 flex flex-col flex-1">
-                        <h3 className="font-bold text-foreground mb-2 group-hover:text-primary transition-colors font-serif line-clamp-2">
-                          {t(c.title, c.titleHindi ?? c.title)}
-                        </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
-                          {t(c.description, c.descriptionHindi ?? c.description)}
-                        </p>
-                        <div>
-                          <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-                            <span>{t("Raised", "एकत्रित")}: <strong className="text-foreground">₹{c.raisedAmount.toLocaleString("en-IN")}</strong></span>
-                            <span className="font-bold text-primary">{pct}%</span>
-                          </div>
-                          <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                            <div className="bg-primary h-2 rounded-full" style={{ width: `${pct}%` }} />
-                          </div>
-                          <div className="flex justify-between text-xs text-muted-foreground mt-1.5">
-                            <span>{t("Goal", "लक्ष्य")}: ₹{c.goalAmount.toLocaleString("en-IN")}</span>
-                            <span>{c.donorCount} {t("donors", "दानकर्ता")}</span>
-                          </div>
-                        </div>
-                        <Button size="sm" className="mt-4 bg-primary hover:bg-primary/90 w-full">
-                          {t("Donate to Campaign", "अभियान में दान करें")}
-                        </Button>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+            
+            <CampaignsSnapCarousel campaigns={featuredCampaigns} />
             <div className="text-center mt-8 sm:hidden">
               <Button variant="outline" asChild>
                 <Link href="/campaigns">{t("View All Campaigns", "सभी अभियान देखें")}</Link>
@@ -521,6 +392,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+    
+
 
       {/* ── IMPACT AREAS — image cards ── */}
       <section className="py-20 bg-muted/30">

@@ -49,12 +49,12 @@ export function Footer() {
             <p className="text-sm text-muted-foreground mb-3">
               {t("Office Location: Tihar and Rampura", "कार्यालय स्थान: तिहार और रामपुरा")}
             </p>
-            <div className="flex gap-4">
+            {/* <div className="flex gap-4">
               <a href="#" className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">FB</a>
               <a href="#" className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">IG</a>
               <a href="#" className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">TW</a>
               <a href="#" className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">YT</a>
-            </div>
+            </div> */}
           </div>
         </div>
 
