@@ -247,12 +247,12 @@ export function HomeHero({ stats }: HeroParallaxProps) {
               <br />
               <motion.span
                 style={{
-                  background: "linear-gradient(130deg, #fecdd3 0%, #f472b6 48%, #B11226 100%)",
+                  background: "linear-gradient(130deg, #fecdd3 0%, #fecdd3 48%, #fecdd3 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                   fontStyle: "italic",
-                  filter: "drop-shadow(0 0 18px rgba(244,114,182,0.48))",
+                  // filter: "drop-shadow(0 0 18px rgba(244,114,182,0.48))",
                 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
