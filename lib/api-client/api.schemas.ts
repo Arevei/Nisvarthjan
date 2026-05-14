@@ -88,9 +88,12 @@ export type UpdateMemberInputStatus =
   (typeof UpdateMemberInputStatus)[keyof typeof UpdateMemberInputStatus];
 
 export const UpdateMemberInputStatus = {
+  pending: "pending",
+  payment_pending: "payment_pending",
   active: "active",
   suspended: "suspended",
   inactive: "inactive",
+  rejected: "rejected",
 } as const;
 
 export type UpdateMemberInputMembershipType =

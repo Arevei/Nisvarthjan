@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 
 type Tab = "news" | "members" | "donations" | "campaigns" | "gallery" | "contacts";
+type MemberStatus = "pending" | "payment_pending" | "active" | "suspended" | "inactive" | "rejected";
 
 const CAMPAIGN_CATEGORIES = ["education", "health", "environment", "women", "rural", "disaster", "general"];
 
@@ -240,7 +241,7 @@ export default function Admin() {
     );
   };
 
-  const handleMemberStatus = (id: number, status: "active" | "suspended" | "inactive") => {
+  const handleMemberStatus = (id: number, status: MemberStatus) => {
     updateMember.mutate({ memberId: id, data: { status } }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListMembersQueryKey() });
@@ -403,7 +404,7 @@ export default function Admin() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold text-foreground">{m.name}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${m.status === "active" ? "bg-green-100 text-green-800" : m.status === "suspended" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-700"}`}>{m.status}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${m.status === "active" ? "bg-green-100 text-green-800" : m.status === "payment_pending" ? "bg-amber-100 text-amber-800" : m.status === "pending" ? "bg-blue-100 text-blue-800" : m.status === "suspended" || m.status === "rejected" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-700"}`}>{m.status}</span>
                         <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full capitalize">{m.membershipType}</span>
                       </div>
                       <p className="text-sm text-muted-foreground">{m.email} · {m.phone}</p>
@@ -417,12 +418,15 @@ export default function Admin() {
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Select value={m.status} onValueChange={(v) => handleMemberStatus(m.id, v as "active" | "suspended" | "inactive")}>
-                        <SelectTrigger className="w-32 h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <Select value={m.status} onValueChange={(v) => handleMemberStatus(m.id, v as MemberStatus)}>
+                        <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="pending">{t("Pending Review", "Pending Review")}</SelectItem>
+                          <SelectItem value="payment_pending">{t("Payment Pending", "Payment Pending")}</SelectItem>
                           <SelectItem value="active">{t("Active", "सक्रिय")}</SelectItem>
                           <SelectItem value="suspended">{t("Suspended", "निलंबित")}</SelectItem>
                           <SelectItem value="inactive">{t("Inactive", "निष्क्रिय")}</SelectItem>
+                          <SelectItem value="rejected">{t("Rejected", "Rejected")}</SelectItem>
                         </SelectContent>
                       </Select>
                       <Button size="sm" variant="outline" className="h-8 text-xs border-primary text-primary hover:bg-primary/5" onClick={() => handleIssueCert(m.id)} disabled={issueCertificate.isPending}>

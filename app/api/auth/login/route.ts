@@ -27,20 +27,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    if (member.status !== "active") {
-      return NextResponse.json(
-        {
-          error:
-            member.status === "pending"
-              ? "Your membership request is pending admin review."
-              : member.status === "payment_pending"
-                ? "Your membership is approved. Please complete payment from the QR sent to your email."
-                : "Your membership is not active. Please contact support.",
-        },
-        { status: 403 },
-      );
-    }
-
     const token = Buffer.from(`${member.id}:${Date.now()}`).toString("base64");
     const session = await getSession();
     session.memberId = member.id;
