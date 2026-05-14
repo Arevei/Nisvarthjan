@@ -21,7 +21,7 @@ function getMembershipStatus(status: string, hasCertificate: boolean) {
       title: hasCertificate ? "Membership active" : "Membership active, certificate pending",
       description: hasCertificate
         ? "Your membership is complete. You can download your certificate below."
-        : "Your membership is active. The certificate will appear here after it is issued by the admin.",
+        : "Your membership is active. The certificate will appear here after it is issued by the foundation team.",
       tone: "border-green-200 bg-green-50 text-green-900",
       badge: "bg-green-100 text-green-800",
       completedSteps: hasCertificate ? 4 : 3,
@@ -53,7 +53,7 @@ function getMembershipStatus(status: string, hasCertificate: boolean) {
 
   return {
     title: "Application under review",
-    description: "Your membership request has been submitted. Admin approval is the next step.",
+    description: "Your membership request has been submitted. Foundation approval is the next step.",
     tone: "border-blue-200 bg-blue-50 text-blue-950",
     badge: "bg-blue-100 text-blue-800",
     completedSteps: 1,
@@ -100,7 +100,7 @@ export default function Dashboard() {
       icon: CheckCircle2,
     },
     {
-      label: "Admin approval",
+      label: "Foundation approval",
       detail: "Foundation team review.",
       icon: Clock,
     },
@@ -236,6 +236,12 @@ export default function Dashboard() {
               <a href="/api/certificates/download">
                 <Download className="w-4 h-4 mr-2" />
                 {t("Download Certificate", "प्रमाणपत्र डाउनलोड करें")}
+              </a>
+            </Button>
+            <Button asChild data-testid="button-verify-cert" variant="outline" className="mt-3">
+              <a href={`/verify/${encodeURIComponent(user.certificateNumber)}`}>
+                <Shield className="w-4 h-4 mr-2" />
+                {t("Verify Online", "Verify Online")}
               </a>
             </Button>
           </div>

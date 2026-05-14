@@ -5,29 +5,6 @@ function generateReceiptNumber() {
   return `RCP-NSF-${Date.now().toString().slice(-8)}-${Math.floor(Math.random() * 9000) + 1000}`;
 }
 
-export async function GET() {
-  try {
-    const db = await getDb();
-    const donations = await db.collection("donations").find({}).sort({ createdAt: 1 }).toArray();
-    return NextResponse.json(
-      donations.map((d: any) => ({
-        id: d.id,
-        amount: Number(d.amount),
-        donorName: d.donorName,
-        donorEmail: d.donorEmail,
-        donorPhone: d.donorPhone ?? null,
-        campaignId: d.campaignId ?? null,
-        purpose: d.purpose,
-        receiptNumber: d.receiptNumber,
-        createdAt: new Date(d.createdAt).toISOString(),
-      })),
-    );
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Failed to list donations" }, { status: 500 });
-  }
-}
-
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { amount, donorName, donorEmail, donorPhone, campaignId, purpose } = body;

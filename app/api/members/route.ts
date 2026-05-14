@@ -4,7 +4,23 @@ import { getDb, nextSequence } from "@/lib/db";
 function generateMembershipId() {
   return `NSF-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000) + 10000}`;
 }
-function fmt(m: any) {
+
+type MemberDoc = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  membershipType: string;
+  membershipId: string;
+  status: string;
+  certificateNumber?: string | null;
+  joinedAt: Date | string;
+};
+
+function fmt(m: MemberDoc) {
   return {
     id: m.id,
     name: m.name,
@@ -19,17 +35,6 @@ function fmt(m: any) {
     certificateNumber: m.certificateNumber ?? null,
     joinedAt: new Date(m.joinedAt).toISOString(),
   };
-}
-
-export async function GET() {
-  try {
-    const db = await getDb();
-    const members = await db.collection("members").find({}).sort({ joinedAt: 1 }).toArray();
-    return NextResponse.json(members.map(fmt));
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Failed to list members" }, { status: 500 });
-  }
 }
 
 export async function POST(req: NextRequest) {

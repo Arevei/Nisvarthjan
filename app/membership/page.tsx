@@ -75,14 +75,14 @@ export default function Membership() {
             </div>
             <h1 className="text-center text-2xl font-serif font-bold">Request Submitted</h1>
             <p className="mx-auto mt-2 max-w-xl text-center text-sm text-muted-foreground">
-              Your membership application is now in admin review queue.
+              Your membership application is now in the foundation review queue.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               <div className="rounded-xl border bg-zinc-50 p-4 text-center">
                 <Clock3 className="mx-auto h-5 w-5 text-amber-600" />
                 <p className="mt-2 text-xs font-semibold uppercase text-zinc-500">Step 1</p>
-                <p className="text-sm">Admin verification</p>
+                <p className="text-sm">Foundation verification</p>
               </div>
               <div className="rounded-xl border bg-zinc-50 p-4 text-center">
                 <Mail className="mx-auto h-5 w-5 text-blue-600" />
@@ -92,7 +92,7 @@ export default function Membership() {
               <div className="rounded-xl border bg-zinc-50 p-4 text-center">
                 <Users className="mx-auto h-5 w-5 text-emerald-600" />
                 <p className="mt-2 text-xs font-semibold uppercase text-zinc-500">Step 3</p>
-                <p className="text-sm">Manual activation by admin</p>
+                <p className="text-sm">Manual activation by team</p>
               </div>
             </div>
 
@@ -100,7 +100,7 @@ export default function Membership() {
               <p className="font-medium">Registered Email:</p>
               <p className="text-muted-foreground">{submittedEmail}</p>
               <p className="mt-3 text-muted-foreground">
-                Please watch this inbox. After approval, payment details and QR image will be sent by admin.
+                Please watch this inbox. After approval, payment details and QR image will be sent by the foundation team.
               </p>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default function Membership() {
           <Users className="mx-auto mb-4 h-12 w-12" />
           <h1 className="text-4xl font-serif font-bold">Become a Member</h1>
           <p className="mx-auto mt-3 max-w-2xl text-primary-foreground/80">
-            Submit your membership request. Admin will review and send payment QR manually on approval.
+            Submit your membership request. The foundation team will review it and send payment QR manually on approval.
           </p>
         </div>
       </div>

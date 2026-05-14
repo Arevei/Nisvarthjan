@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { jsPDF } from "jspdf";
+import QRCode from "qrcode";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
@@ -84,13 +85,22 @@ function addValueText(doc: jsPDF, text: string, x: number, y: number, maxWidth: 
   doc.text(lines, x, y);
 }
 
-function generateCertificatePdf(member: MemberRecord) {
+function getVerificationBaseUrl(requestUrl: string) {
+  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || new URL(requestUrl).origin;
+}
+
+async function generateCertificatePdf(member: MemberRecord, requestUrl: string) {
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
   const certificateNumber = safeText(member.certificateNumber);
   const issuedAt = formatDate(member.joinedAt);
   const membershipType = formatMembershipType(member.membershipType);
   const location = [member.city, member.state].filter(Boolean).join(", ") || "Not available";
-  const address = safeText(member.address);
+  const verificationUrl = `${getVerificationBaseUrl(requestUrl)}/verify/${encodeURIComponent(certificateNumber)}`;
+  const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
+    errorCorrectionLevel: "M",
+    margin: 1,
+    width: 180,
+  });
 
   doc.setFillColor(255, 252, 248);
   doc.rect(0, 0, 297, 210, "F");
@@ -110,6 +120,12 @@ function generateCertificatePdf(member: MemberRecord) {
 
   doc.setFont("helvetica", "bold");
   addCenteredText(doc, "NISVARTHJAN SEVA FOUNDATION", 60, 22, [28, 28, 28]);
+
+  doc.addImage(qrDataUrl, "PNG", 244, 26, 24, 24);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(190, 0, 39);
+  doc.text("SCAN TO VERIFY", 256, 55, { align: "center" });
 
   doc.setFont("helvetica", "normal");
   addCenteredText(doc, "Membership Certificate", 74, 18, [190, 0, 39]);
@@ -154,22 +170,10 @@ function generateCertificatePdf(member: MemberRecord) {
   addValueText(doc, safeText(member.phone), 207, 166, 58);
   addValueText(doc, location, 207, 178, 58);
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(105, 105, 105);
-  doc.text(doc.splitTextToSize(`Address: ${address}`, 230), 34, 188);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(190, 0, 39);
-  doc.text("Verify this certificate using the certificate number on the official website.", 148.5, 193, {
-    align: "center",
-  });
-
   return doc.output("arraybuffer");
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const session = await getSession();
 
   if (!session.memberId) {
@@ -192,7 +196,7 @@ export async function GET() {
       return NextResponse.json({ error: "Certificate has not been issued yet" }, { status: 404 });
     }
 
-    const pdf = generateCertificatePdf(member);
+    const pdf = await generateCertificatePdf(member, req.url);
     const fileName = `${safeFileName(member.certificateNumber)}.pdf`;
 
     return new NextResponse(pdf, {

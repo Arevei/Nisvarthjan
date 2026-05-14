@@ -3,7 +3,22 @@ import { getDb } from "@/lib/db";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-function fmt(c: any) {
+type CampaignDoc = {
+  id: number;
+  title: string;
+  titleHindi?: string | null;
+  description: string;
+  descriptionHindi?: string | null;
+  goalAmount: number;
+  raisedAmount?: number;
+  category: string;
+  imageUrl?: string | null;
+  isActive: boolean;
+  donorCount?: number;
+  createdAt: Date | string;
+};
+
+function fmt(c: CampaignDoc) {
   return {
     id: c.id,
     title: c.title,
@@ -26,7 +41,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 
   try {
     const db = await getDb();
-    const campaign = await db.collection("campaigns").findOne({ id });
+    const campaign = await db.collection<CampaignDoc>("campaigns").findOne({ id });
     if (!campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     return NextResponse.json(fmt(campaign));
   } catch (err) {

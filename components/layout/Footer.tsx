@@ -14,7 +14,7 @@ export function Footer() {
               {t("Nisvarthjan Seva Foundation", "निस्वार्थजन सेवा फाउंडेशन")}
             </h3>
             <p className="text-sm text-muted-foreground mb-4 font-serif italic">
-              "मानव सेवा ही सर्वोच्च सेवा है"
+              &ldquo;मानव सेवा ही सर्वोच्च सेवा है&rdquo;
             </p>
             <p className="text-sm text-muted-foreground">
               {t(
@@ -40,7 +40,6 @@ export function Footer() {
               <li><Link href="/privacy" className="hover:text-primary">{t("Privacy Policy", "गोपनीयता नीति")}</Link></li>
               <li><Link href="/terms" className="hover:text-primary">{t("Terms & Conditions", "नियम एवं शर्तें")}</Link></li>
               <li><Link href="/verify" className="hover:text-primary">{t("Verify Certificate", "प्रमाणपत्र सत्यापित करें")}</Link></li>
-              <li><Link href="/admin/login" className="hover:text-primary">{t("Admin Login", "व्यवस्थापक लॉगिन")}</Link></li>
             </ul>
           </div>
 

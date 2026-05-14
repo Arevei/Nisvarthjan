@@ -1,8 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getDb, nextSequence } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { NextResponse } from "next/server";
+import { getDb } from "@/lib/db";
 
-function fmt(c: any) {
+type CampaignDoc = {
+  id: number;
+  title: string;
+  titleHindi?: string | null;
+  description: string;
+  descriptionHindi?: string | null;
+  goalAmount: number;
+  raisedAmount?: number;
+  category: string;
+  imageUrl?: string | null;
+  isActive: boolean;
+  donorCount?: number;
+  createdAt: Date | string;
+};
+
+function fmt(c: CampaignDoc) {
   return {
     id: c.id,
     title: c.title,
@@ -22,47 +36,10 @@ function fmt(c: any) {
 export async function GET() {
   try {
     const db = await getDb();
-    const campaigns = await db.collection("campaigns").find({}).sort({ createdAt: 1 }).toArray();
+    const campaigns = await db.collection<CampaignDoc>("campaigns").find({}).sort({ createdAt: 1 }).toArray();
     return NextResponse.json(campaigns.map(fmt));
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to list campaigns" }, { status: 500 });
-  }
-}
-
-export async function POST(req: NextRequest) {
-  const session = await getSession();
-  if (!session.isAdmin) {
-    return NextResponse.json({ error: "Admin authentication required" }, { status: 401 });
-  }
-
-  const body = await req.json();
-  const { title, titleHindi, description, descriptionHindi, goalAmount, category, imageUrl, isActive } = body;
-  if (!title || !description || !goalAmount || !category) {
-    return NextResponse.json({ error: "title, description, goalAmount, category are required" }, { status: 400 });
-  }
-
-  try {
-    const db = await getDb();
-    const campaign = {
-      id: await nextSequence("campaigns"),
-      title,
-      titleHindi: titleHindi ?? null,
-      description,
-      descriptionHindi: descriptionHindi ?? null,
-      goalAmount: Number(goalAmount),
-      raisedAmount: 0,
-      category,
-      imageUrl: imageUrl ?? null,
-      isActive: isActive ?? true,
-      donorCount: 0,
-      createdAt: new Date(),
-    };
-
-    await db.collection("campaigns").insertOne(campaign);
-    return NextResponse.json(fmt(campaign), { status: 201 });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Failed to create campaign" }, { status: 500 });
   }
 }

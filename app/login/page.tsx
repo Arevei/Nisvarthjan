@@ -94,16 +94,6 @@ export default function Login() {
                 Register here
               </Link>
             </div>
-
-            <div className="mt-4 border-t pt-4 text-center">
-              <Link
-                href="/admin-login"
-                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-primary"
-              >
-                <Shield className="h-3 w-3" />
-                Admin Login
-              </Link>
-            </div>
           </div>
         </div>
       </div>

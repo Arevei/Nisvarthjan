@@ -30,7 +30,6 @@ export async function POST(req: NextRequest) {
     const token = Buffer.from(`${member.id}:${Date.now()}`).toString("base64");
     const session = await getSession();
     session.memberId = member.id;
-    session.isAdmin = false;
     await session.save();
 
     return NextResponse.json({

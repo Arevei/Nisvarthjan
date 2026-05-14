@@ -1,8 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getDb, nextSequence } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { NextResponse } from "next/server";
+import { getDb } from "@/lib/db";
 
-function fmt(a: any) {
+type NewsDoc = {
+  id: number;
+  title: string;
+  titleHindi?: string | null;
+  content: string;
+  contentHindi?: string | null;
+  excerpt?: string | null;
+  imageUrl?: string | null;
+  category: string;
+  author?: string | null;
+  publishedAt: Date | string;
+};
+
+function fmt(a: NewsDoc) {
   return {
     id: a.id,
     title: a.title,
@@ -20,45 +32,10 @@ function fmt(a: any) {
 export async function GET() {
   try {
     const db = await getDb();
-    const articles = await db.collection("news").find({}).sort({ publishedAt: -1 }).toArray();
+    const articles = await db.collection<NewsDoc>("news").find({}).sort({ publishedAt: -1 }).toArray();
     return NextResponse.json(articles.map(fmt));
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to list news" }, { status: 500 });
-  }
-}
-
-export async function POST(req: NextRequest) {
-  const session = await getSession();
-  if (!session.isAdmin) {
-    return NextResponse.json({ error: "Admin authentication required" }, { status: 401 });
-  }
-
-  const body = await req.json();
-  const { title, titleHindi, content, contentHindi, excerpt, imageUrl, category, author } = body;
-  if (!title || !content || !category) {
-    return NextResponse.json({ error: "title, content, category are required" }, { status: 400 });
-  }
-
-  try {
-    const db = await getDb();
-    const article = {
-      id: await nextSequence("news"),
-      title,
-      titleHindi: titleHindi ?? null,
-      content,
-      contentHindi: contentHindi ?? null,
-      excerpt: excerpt ?? null,
-      imageUrl: imageUrl ?? null,
-      category,
-      author: author ?? null,
-      publishedAt: new Date(),
-    };
-
-    await db.collection("news").insertOne(article);
-    return NextResponse.json(fmt(article), { status: 201 });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Failed to create news article" }, { status: 500 });
   }
 }

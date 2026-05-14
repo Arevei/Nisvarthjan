@@ -74,59 +74,6 @@ export interface AuthResponse {
   token: string;
 }
 
-export interface AdminAuthResponse {
-  token: string;
-  isAdmin: boolean;
-}
-
-export interface AdminSession {
-  isAdmin: boolean;
-  email: string;
-}
-
-export type UpdateMemberInputStatus =
-  (typeof UpdateMemberInputStatus)[keyof typeof UpdateMemberInputStatus];
-
-export const UpdateMemberInputStatus = {
-  pending: "pending",
-  payment_pending: "payment_pending",
-  active: "active",
-  suspended: "suspended",
-  inactive: "inactive",
-  rejected: "rejected",
-} as const;
-
-export type UpdateMemberInputMembershipType =
-  (typeof UpdateMemberInputMembershipType)[keyof typeof UpdateMemberInputMembershipType];
-
-export const UpdateMemberInputMembershipType = {
-  general: "general",
-  active: "active",
-  lifetime: "lifetime",
-} as const;
-
-export interface UpdateMemberInput {
-  status?: UpdateMemberInputStatus;
-  membershipType?: UpdateMemberInputMembershipType;
-}
-
-export interface UpdateCampaignInput {
-  title?: string;
-  titleHindi?: string;
-  description?: string;
-  descriptionHindi?: string;
-  goalAmount?: number;
-  category?: string;
-  isActive?: boolean;
-  imageUrl?: string;
-}
-
-export interface IssueCertificateResponse {
-  memberId: number;
-  memberName: string;
-  certificateNumber: string;
-}
-
 export interface Campaign {
   id: number;
   title: string;
@@ -143,17 +90,6 @@ export interface Campaign {
   isActive: boolean;
   createdAt: string;
   donorCount: number;
-}
-
-export interface CampaignInput {
-  title: string;
-  titleHindi?: string;
-  description: string;
-  descriptionHindi?: string;
-  goalAmount: number;
-  category: string;
-  imageUrl?: string;
-  isActive?: boolean;
 }
 
 export interface Donation {
@@ -198,22 +134,15 @@ export interface NewsArticle {
   author?: string | null;
 }
 
-export interface NewsArticleInput {
-  title: string;
-  titleHindi?: string;
-  content: string;
-  contentHindi?: string;
-  excerpt?: string;
-  imageUrl?: string;
-  category: string;
-  author?: string;
-}
-
 export interface CertificateVerification {
   isValid: boolean;
+  documentType?: string;
+  verificationId?: string;
   certificateNumber: string;
   /** @nullable */
   memberName?: string | null;
+  /** @nullable */
+  membershipId?: string | null;
   /** @nullable */
   membershipType?: string | null;
   /** @nullable */
@@ -262,6 +191,8 @@ export interface GalleryImage {
 }
 
 export type VerifyCertificateParams = {
-  certificateNumber: string;
+  certificateNumber?: string;
+  verificationId?: string;
+  documentType?: string;
   contact?: string;
 };

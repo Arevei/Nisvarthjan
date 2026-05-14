@@ -3,8 +3,6 @@ import { cookies } from "next/headers";
 
 export interface SessionData {
   memberId?: number;
-  isAdmin?: boolean;
-  adminEmail?: string;
 }
 
 function getSessionSecret() {
