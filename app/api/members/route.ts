@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb, nextSequence } from "@/lib/db";
+import { getSession } from "@/lib/session";
+import { getMembershipFee, getPaymentMode } from "@/lib/membership-payments";
 
 function generateMembershipId() {
   return `NSF-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000) + 10000}`;
@@ -17,8 +19,61 @@ type MemberDoc = {
   membershipId: string;
   status: string;
   certificateNumber?: string | null;
+  password?: string;
+  payment?: {
+    mode: "manual" | "razorpay";
+    status: "manual_review" | "created" | "paid";
+    amount: number;
+    currency: "INR";
+    orderId?: string;
+    receipt?: string;
+    createdAt?: Date;
+  };
   joinedAt: Date | string;
 };
+
+async function createRazorpayOrder(member: { id: number; membershipId: string; membershipType: string }) {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!keyId || !keySecret) {
+    throw new Error("RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET are required for PAYMENT_MODE=razorpay");
+  }
+
+  const amount = getMembershipFee(member.membershipType);
+  const receipt = `MBR-${member.id}-${Date.now()}`;
+  const credentials = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+  const response = await fetch("https://api.razorpay.com/v1/orders", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${credentials}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      amount: amount * 100,
+      currency: "INR",
+      receipt,
+      notes: {
+        memberId: String(member.id),
+        membershipId: member.membershipId,
+        membershipType: member.membershipType,
+      },
+    }),
+  });
+
+  const payload = (await response.json()) as { id?: string; error?: { description?: string } };
+
+  if (!response.ok || !payload.id) {
+    throw new Error(payload.error?.description || "Failed to create Razorpay order");
+  }
+
+  return {
+    amount,
+    receipt,
+    orderId: payload.id,
+    keyId,
+  };
+}
 
 function fmt(m: MemberDoc) {
   return {
@@ -53,7 +108,15 @@ export async function POST(req: NextRequest) {
     }
 
     const id = await nextSequence("members");
-    const member = {
+    const selectedMembershipType = membershipType ?? "general";
+    const paymentMode = getPaymentMode();
+    const amount = getMembershipFee(selectedMembershipType);
+    const membershipId = generateMembershipId();
+    const razorpayOrder =
+      paymentMode === "razorpay"
+        ? await createRazorpayOrder({ id, membershipId, membershipType: selectedMembershipType })
+        : null;
+    const member: MemberDoc = {
       id,
       name,
       email: normalizedEmail,
@@ -61,16 +124,47 @@ export async function POST(req: NextRequest) {
       address: address ?? null,
       city: city ?? null,
       state: state ?? null,
-      membershipType: membershipType ?? "general",
-      membershipId: generateMembershipId(),
-      status: "pending",
+      membershipType: selectedMembershipType,
+      membershipId,
+      status: paymentMode === "razorpay" ? "payment_pending" : "pending",
       certificateNumber: null,
+      payment: {
+        mode: paymentMode,
+        status: paymentMode === "razorpay" ? "created" : "manual_review",
+        amount,
+        currency: "INR",
+        orderId: razorpayOrder?.orderId,
+        receipt: razorpayOrder?.receipt,
+        createdAt: new Date(),
+      },
       password: String(password),
       joinedAt: new Date(),
     };
 
     await db.collection("members").insertOne(member);
-    return NextResponse.json(fmt(member), { status: 201 });
+
+    const session = await getSession();
+    session.memberId = member.id;
+    await session.save();
+
+    if (paymentMode === "razorpay" && razorpayOrder) {
+      return NextResponse.json(
+        {
+          member: fmt(member),
+          paymentMode,
+          payment: {
+            provider: "razorpay",
+            keyId: razorpayOrder.keyId,
+            orderId: razorpayOrder.orderId,
+            amount: razorpayOrder.amount,
+            currency: "INR",
+          },
+        },
+        { status: 201 },
+      );
+    }
+
+    return NextResponse.json({ member: fmt(member), paymentMode }, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to register member" }, { status: 500 });

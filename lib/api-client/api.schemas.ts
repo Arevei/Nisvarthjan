@@ -74,6 +74,18 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface MemberRegistrationResponse {
+  member: Member;
+  paymentMode: "manual" | "razorpay";
+  payment?: {
+    provider: "razorpay";
+    keyId: string;
+    orderId: string;
+    amount: number;
+    currency: "INR";
+  };
+}
+
 export interface Campaign {
   id: number;
   title: string;

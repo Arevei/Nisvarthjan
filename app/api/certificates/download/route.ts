@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { readFileSync } from "fs";
+import path from "path";
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import { getDb } from "@/lib/db";
@@ -89,6 +91,11 @@ function getVerificationBaseUrl(requestUrl: string) {
   return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || new URL(requestUrl).origin;
 }
 
+function getCertificateLogoDataUrl() {
+  const logoPath = path.join(process.cwd(), "public", "brand", "logo-stacked.png");
+  return `data:image/png;base64,${readFileSync(logoPath).toString("base64")}`;
+}
+
 async function generateCertificatePdf(member: MemberRecord, requestUrl: string) {
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
   const certificateNumber = safeText(member.certificateNumber);
@@ -111,15 +118,7 @@ async function generateCertificatePdf(member: MemberRecord, requestUrl: string) 
   doc.setLineWidth(0.35);
   doc.rect(18, 18, 261, 174);
 
-  doc.setFillColor(190, 0, 39);
-  doc.circle(148.5, 35, 13, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("NSF", 148.5, 40, { align: "center" });
-
-  doc.setFont("helvetica", "bold");
-  addCenteredText(doc, "NISVARTHJAN SEVA FOUNDATION", 60, 22, [28, 28, 28]);
+  doc.addImage(getCertificateLogoDataUrl(), "PNG", 123.5, 22, 50, 64);
 
   doc.addImage(qrDataUrl, "PNG", 244, 26, 24, 24);
   doc.setFont("helvetica", "bold");
@@ -128,22 +127,22 @@ async function generateCertificatePdf(member: MemberRecord, requestUrl: string) 
   doc.text("SCAN TO VERIFY", 256, 55, { align: "center" });
 
   doc.setFont("helvetica", "normal");
-  addCenteredText(doc, "Membership Certificate", 74, 18, [190, 0, 39]);
+  addCenteredText(doc, "Membership Certificate", 94, 18, [190, 0, 39]);
 
   doc.setDrawColor(190, 0, 39);
-  doc.line(92, 82, 205, 82);
+  doc.line(92, 102, 205, 102);
 
   doc.setFont("helvetica", "normal");
-  addCenteredText(doc, "This certificate is proudly issued to", 99, 13, [89, 78, 73]);
+  addCenteredText(doc, "This certificate is proudly issued to", 117, 13, [89, 78, 73]);
 
   doc.setFont("helvetica", "bold");
-  addCenteredFitText(doc, safeText(member.name), 116, 28, 16, 210, [25, 25, 25]);
+  addCenteredFitText(doc, safeText(member.name), 134, 28, 16, 210, [25, 25, 25]);
 
   doc.setFont("helvetica", "normal");
   addCenteredText(
     doc,
     `as a ${membershipType} member of Nisvarthjan Seva Foundation.`,
-    132,
+    150,
     13,
     [89, 78, 73],
   );
@@ -151,24 +150,24 @@ async function generateCertificatePdf(member: MemberRecord, requestUrl: string) 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(190, 0, 39);
-  doc.text("Certificate No.", 34, 154);
-  doc.text("Membership ID", 34, 166);
-  doc.text("Issued On", 34, 178);
+  doc.text("Certificate No.", 34, 164);
+  doc.text("Membership ID", 34, 176);
+  doc.text("Issued On", 34, 188);
 
   doc.setTextColor(35, 35, 35);
-  doc.text(certificateNumber, 78, 154);
-  addValueText(doc, safeText(member.membershipId), 78, 166, 72);
-  doc.text(issuedAt, 78, 178);
+  doc.text(certificateNumber, 78, 164);
+  addValueText(doc, safeText(member.membershipId), 78, 176, 72);
+  doc.text(issuedAt, 78, 188);
 
   doc.setTextColor(190, 0, 39);
-  doc.text("Email", 178, 154);
-  doc.text("Phone", 178, 166);
-  doc.text("Location", 178, 178);
+  doc.text("Email", 178, 164);
+  doc.text("Phone", 178, 176);
+  doc.text("Location", 178, 188);
 
   doc.setTextColor(35, 35, 35);
-  addValueText(doc, safeText(member.email), 207, 154, 58);
-  addValueText(doc, safeText(member.phone), 207, 166, 58);
-  addValueText(doc, location, 207, 178, 58);
+  addValueText(doc, safeText(member.email), 207, 164, 58);
+  addValueText(doc, safeText(member.phone), 207, 176, 58);
+  addValueText(doc, location, 207, 188, 58);
 
   return doc.output("arraybuffer");
 }

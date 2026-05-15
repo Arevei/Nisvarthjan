@@ -1,25 +1,89 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
-import { useRegisterMember } from "@/lib/api-client/api";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, Clock3, Mail, Users } from "lucide-react";
+import { CheckCircle2, Clock3, CreditCard, Mail, Users } from "lucide-react";
 
-type Step = "form" | "submitted";
+type Step = "form" | "manual-submitted" | "razorpay-ready" | "paid";
+type MembershipType = "general" | "active" | "lifetime";
+
+type MemberResponse = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  membershipType: string;
+  membershipId: string;
+  status: string;
+};
+
+type RegisterResponse = {
+  member: MemberResponse;
+  paymentMode: "manual" | "razorpay";
+  payment?: {
+    provider: "razorpay";
+    keyId: string;
+    orderId: string;
+    amount: number;
+    currency: "INR";
+  };
+  error?: string;
+};
+
+type RazorpaySuccess = {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+};
+
+type RazorpayCheckout = {
+  open: () => void;
+};
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => RazorpayCheckout;
+  }
+}
+
+const membershipFees: Record<MembershipType, number> = {
+  general: 500,
+  active: 1100,
+  lifetime: 5100,
+};
+
+function loadRazorpayScript() {
+  return new Promise<boolean>((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 export default function Membership() {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const registerMember = useRegisterMember();
+  const router = useRouter();
 
   const [step, setStep] = useState<Step>("form");
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+  const [registration, setRegistration] = useState<RegisterResponse | null>(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -28,19 +92,95 @@ export default function Membership() {
     address: "",
     city: "",
     state: "",
-    membershipType: "general",
+    membershipType: "general" as MembershipType,
   });
 
-  const submit = (event: React.FormEvent) => {
+  const selectedFee = membershipFees[form.membershipType];
+
+  const verifyPayment = async (response: RazorpaySuccess, memberId: number) => {
+    const verifyResponse = await fetch("/api/membership-payments/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        memberId,
+        ...response,
+      }),
+    });
+
+    const payload = await verifyResponse.json();
+    if (!verifyResponse.ok) {
+      throw new Error(payload.error || "Payment verification failed");
+    }
+
+    return payload;
+  };
+
+  const startRazorpayPayment = async (payload: RegisterResponse) => {
+    if (!payload.payment) return;
+
+    setIsPaying(true);
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded || !window.Razorpay) {
+      setIsPaying(false);
+      toast({ title: "Unable to load Razorpay checkout", variant: "destructive" });
+      return;
+    }
+
+    const checkout = new window.Razorpay({
+      key: payload.payment.keyId,
+      amount: payload.payment.amount * 100,
+      currency: payload.payment.currency,
+      name: "Nisvarthjan Seva Foundation",
+      description: `${payload.member.membershipType} membership fee`,
+      order_id: payload.payment.orderId,
+      prefill: {
+        name: payload.member.name,
+        email: payload.member.email,
+        contact: payload.member.phone,
+      },
+      notes: {
+        memberId: String(payload.member.id),
+        membershipId: payload.member.membershipId,
+      },
+      theme: { color: "#be0027" },
+      handler: async (response: RazorpaySuccess) => {
+        try {
+          await verifyPayment(response, payload.member.id);
+          setStep("paid");
+          toast({ title: "Payment confirmed. Membership activated." });
+          router.push("/dashboard");
+        } catch (error) {
+          toast({
+            title: error instanceof Error ? error.message : "Payment verification failed",
+            variant: "destructive",
+          });
+        } finally {
+          setIsPaying(false);
+        }
+      },
+      modal: {
+        ondismiss: () => setIsPaying(false),
+      },
+    });
+
+    checkout.open();
+  };
+
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!form.name || !form.email || !form.phone || !form.password) {
       toast({ title: "Please fill all required fields", variant: "destructive" });
       return;
     }
 
-    registerMember.mutate(
-      {
-        data: {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
           name: form.name,
           email: form.email,
           phone: form.phone,
@@ -48,28 +188,41 @@ export default function Membership() {
           address: form.address || undefined,
           city: form.city || undefined,
           state: form.state || undefined,
-          membershipType: form.membershipType as "general" | "active" | "lifetime",
-        },
-      },
-      {
-        onSuccess: () => {
-          setSubmittedEmail(form.email);
-          setStep("submitted");
-          toast({ title: "Membership request submitted successfully" });
-        },
-        onError: (error: unknown) => {
-          const payload = error as { error?: string };
-          toast({ title: payload?.error || "Registration failed", variant: "destructive" });
-        },
-      },
-    );
+          membershipType: form.membershipType,
+        }),
+      });
+
+      const payload = (await response.json()) as RegisterResponse;
+      if (!response.ok) {
+        throw new Error(payload.error || "Registration failed");
+      }
+
+      setSubmittedEmail(form.email);
+      setRegistration(payload);
+
+      if (payload.paymentMode === "razorpay" && payload.payment) {
+        setStep("razorpay-ready");
+        toast({ title: "Membership request created. Complete payment to activate." });
+        await startRazorpayPayment(payload);
+      } else {
+        setStep("manual-submitted");
+        toast({ title: "Membership request submitted successfully" });
+      }
+    } catch (error) {
+      toast({
+        title: error instanceof Error ? error.message : "Registration failed",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (step === "submitted") {
+  if (step === "manual-submitted") {
     return (
       <Layout>
         <div className="container mx-auto max-w-3xl px-4 py-12">
-          <div className="rounded-2xl border border-emerald-200 bg-white p-8 shadow-sm">
+          <div className="rounded-xl border border-emerald-200 bg-white p-8 shadow-sm">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
               <CheckCircle2 className="h-7 w-7" />
             </div>
@@ -109,20 +262,43 @@ export default function Membership() {
     );
   }
 
+  if (step === "razorpay-ready" && registration?.payment) {
+    return (
+      <Layout>
+        <div className="container mx-auto max-w-xl px-4 py-12">
+          <div className="rounded-xl border bg-card p-8 text-center shadow-sm">
+            <CreditCard className="mx-auto mb-4 h-12 w-12 text-primary" />
+            <h1 className="text-2xl font-serif font-bold">Complete Membership Payment</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Your registration is saved. Complete payment to activate your membership.
+            </p>
+            <div className="my-6 rounded-lg bg-primary/10 p-4">
+              <p className="text-sm text-muted-foreground">Amount Payable</p>
+              <p className="text-3xl font-bold text-primary">₹{registration.payment.amount}</p>
+            </div>
+            <Button className="w-full py-6" disabled={isPaying} onClick={() => startRazorpayPayment(registration)}>
+              {isPaying ? "Opening Razorpay..." : "Pay with Razorpay"}
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
-      <div className="bg-primary text-primary-foreground py-16">
+      <div className="bg-primary py-16 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <Users className="mx-auto mb-4 h-12 w-12" />
           <h1 className="text-4xl font-serif font-bold">Become a Member</h1>
           <p className="mx-auto mt-3 max-w-2xl text-primary-foreground/80">
-            Submit your membership request. The foundation team will review it and send payment QR manually on approval.
+            Submit your membership request and pay the fee according to the selected membership type.
           </p>
         </div>
       </div>
 
       <div className="container mx-auto max-w-4xl px-4 py-12">
-        <div className="rounded-2xl border bg-card p-8 shadow-sm">
+        <div className="rounded-xl border bg-card p-8 shadow-sm">
           <h2 className="mb-6 text-xl font-serif font-bold">{t("Registration Form", "Registration Form")}</h2>
           <form onSubmit={submit} className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
@@ -160,21 +336,24 @@ export default function Membership() {
 
             <div className="md:col-span-2">
               <Label>Membership Type</Label>
-              <Select value={form.membershipType} onValueChange={(value) => setForm((previous) => ({ ...previous, membershipType: value }))}>
+              <Select value={form.membershipType} onValueChange={(value) => setForm((previous) => ({ ...previous, membershipType: value as MembershipType }))}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="general">General</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="lifetime">Lifetime</SelectItem>
+                  <SelectItem value="general">General - ₹500</SelectItem>
+                  <SelectItem value="active">Active - ₹1,100</SelectItem>
+                  <SelectItem value="lifetime">Lifetime - ₹5,100</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Membership fee: <span className="font-semibold text-foreground">₹{selectedFee}</span>
+              </p>
             </div>
 
             <div className="md:col-span-2">
-              <Button type="submit" disabled={registerMember.isPending} className="w-full py-6">
-                {registerMember.isPending ? "Submitting..." : "Submit Membership Request"}
+              <Button type="submit" disabled={isSubmitting || isPaying} className="w-full py-6">
+                {isSubmitting ? "Submitting..." : "Submit & Continue"}
               </Button>
             </div>
           </form>

@@ -31,6 +31,7 @@ import type {
   LoginInput,
   Member,
   MemberInput,
+  MemberRegistrationResponse,
   NewsArticle,
   Testimonial,
   VerifyCertificateParams,
@@ -197,8 +198,8 @@ export const getRegisterMemberUrl = () => {
 export const registerMember = async (
   memberInput: MemberInput,
   options?: RequestInit,
-): Promise<Member> => {
-  return customFetch<Member>(getRegisterMemberUrl(), {
+): Promise<MemberRegistrationResponse> => {
+  return customFetch<MemberRegistrationResponse>(getRegisterMemberUrl(), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...options?.headers },
