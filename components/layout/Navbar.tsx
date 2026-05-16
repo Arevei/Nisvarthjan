@@ -37,6 +37,9 @@ export function Navbar() {
           <Link href="/news" className="text-sm font-medium transition-colors hover:text-primary">
             {t("News", "News")}
           </Link>
+          <Link href="/gallery" className="text-sm font-medium transition-colors hover:text-primary">
+            {t("Gallery", "Gallery")}
+          </Link>
           <Link href="/contact" className="text-sm font-medium transition-colors hover:text-primary">
             {t("Contact", "Contact")}
           </Link>

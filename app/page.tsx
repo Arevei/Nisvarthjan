@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useGetStats, useListNews, useListCampaigns } from "@/lib/api-client/api";
+import { useGetStats, useListNews, useListCampaigns, useListGallery } from "@/lib/api-client/api";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { CampaignsSnapCarousel } from "@/components/home/CampaignsSnapCarousel";
 import { HomeHero } from "@/components/home/HomeHero";
@@ -148,9 +148,19 @@ export default function Home() {
   const { data: stats } = useGetStats();
   const { data: allNews = [] } = useListNews();
   const { data: allCampaigns = [] } = useListCampaigns();
+  const { data: uploadedGallery = [] } = useListGallery();
 
   const latestNews = allNews.slice(0, 3);
   const featuredCampaigns = allCampaigns.filter((c) => c.isActive);
+  const homeGalleryItems = uploadedGallery.length > 0
+    ? uploadedGallery.slice(0, 6).map((item) => ({
+      src: item.imageUrl,
+      titleEn: item.caption ?? "Gallery event",
+      titleHi: item.captionHindi ?? item.caption ?? "Gallery event",
+      detailsEn: item.category,
+      detailsHi: item.category,
+    }))
+    : HOME_GALLERY;
 
 
   
@@ -475,7 +485,7 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {HOME_GALLERY.map((item) => (
+            {homeGalleryItems.map((item) => (
               <article key={item.src} className="group relative h-72 overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
                 <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
