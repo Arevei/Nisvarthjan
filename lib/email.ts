@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import {
   generateMembershipCertificatePdf,
+  generateMembershipIdCardPdf,
   generateMembershipReceiptPdf,
   getMembershipReceiptNumber,
   safeFileName,
@@ -47,6 +48,7 @@ export async function sendMembershipPaymentDocumentsEmail(member: MemberDocument
 
   const certificatePdf = await generateMembershipCertificatePdf(member, requestUrl);
   const receiptPdf = await generateMembershipReceiptPdf(member, requestUrl);
+  const idCardPdf = await generateMembershipIdCardPdf(member, requestUrl);
   const receiptNumber = getMembershipReceiptNumber(member);
   const transporter = getTransporter();
 
@@ -59,7 +61,7 @@ export async function sendMembershipPaymentDocumentsEmail(member: MemberDocument
         <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
         <p style="margin-top: 0; color: #52525b;">Your membership payment has been received.</p>
         <p>Dear ${safeText(member.name)},</p>
-        <p>Your membership is now active. Your receipt and membership certificate PDFs are attached with this email.</p>
+        <p>Your membership is now active. Your receipt, membership certificate, and ID card PDFs are attached with this email.</p>
         <table style="border-collapse: collapse; margin: 16px 0;">
           <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Membership ID</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.membershipId)}</td></tr>
           <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Certificate No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.certificateNumber)}</td></tr>
@@ -78,6 +80,11 @@ export async function sendMembershipPaymentDocumentsEmail(member: MemberDocument
       {
         filename: `${safeFileName(receiptNumber)}.pdf`,
         content: Buffer.from(receiptPdf),
+        contentType: "application/pdf",
+      },
+      {
+        filename: `${safeFileName(`${safeText(member.membershipId)}-id-card`)}.pdf`,
+        content: Buffer.from(idCardPdf),
         contentType: "application/pdf",
       },
     ],

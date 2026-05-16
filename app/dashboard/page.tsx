@@ -5,7 +5,7 @@ import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { User, Award, Calendar, LogOut, Shield, Download, CheckCircle2, Clock, CreditCard, AlertCircle } from "lucide-react";
+import { User, Award, Calendar, LogOut, Shield, Download, CheckCircle2, Clock, CreditCard, AlertCircle, BadgeCheck, QrCode } from "lucide-react";
 
 function formatStatusLabel(status: string) {
   return status
@@ -93,6 +93,7 @@ export default function Dashboard() {
   };
 
   const statusInfo = getMembershipStatus(user.status, Boolean(user.certificateNumber));
+  const isMembershipComplete = user.status === "active" && Boolean(user.certificateNumber);
   const membershipSteps = [
     {
       label: "Application submitted",
@@ -118,7 +119,7 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-12 max-w-3xl">
+      <div className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-serif font-bold text-foreground">{t("Member Dashboard", "सदस्य डैशबोर्ड")}</h1>
           <Button data-testid="button-logout" variant="outline" onClick={handleLogout}>
@@ -126,22 +127,57 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-2xl p-8 mb-6 shadow-lg">
-          <div className="flex items-start gap-4">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-              <User className="w-8 h-8" />
-            </div>
-            <div className="flex-1">
-              <h2 data-testid="text-member-name" className="text-2xl font-serif font-bold mb-1">{user.name}</h2>
-              <p data-testid="text-member-email" className="text-primary-foreground/80 mb-3">{user.email}</p>
-              <div className="flex flex-wrap gap-2">
-                <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full capitalize">{user.membershipType}</span>
-                <span data-testid="status-membership" className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">{user.status}</span>
+        <div className="grid ">
+          <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-2xl p-8 mb-6 shadow-lg">
+            <div className="flex items-start gap-4">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="w-8 h-8" />
+              </div>
+              <div className="flex-1">
+                <h2 data-testid="text-member-name" className="text-2xl font-serif font-bold mb-1">{user.name}</h2>
+                <p data-testid="text-member-email" className="text-primary-foreground/80 mb-3">{user.email}</p>
+                
               </div>
             </div>
           </div>
+
+          {isMembershipComplete && (
+            <div className="mb-6 rounded-2xl border bg-card p-4 shadow-sm">
+              <div className="overflow-hidden rounded-xl border bg-white">
+                <div className="flex items-center gap-2 bg-primary px-3 py-2 text-primary-foreground">
+                  <BadgeCheck className="h-4 w-4" />
+                  <span className="text-xs font-bold uppercase">Membership ID Card</span>
+                </div>
+                <div className="grid grid-cols-[72px_1fr] gap-3 p-3">
+                  <div className="flex h-24 items-center justify-center rounded-md border-2 border-dashed border-primary/40 bg-primary/5 text-center text-[10px] font-semibold uppercase text-primary">
+                    Paste Photo
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-foreground">{user.name}</p>
+                    <p className="mt-1 text-[11px] text-muted-foreground">{formatStatusLabel(user.membershipType)} Member</p>
+                    <p className="mt-2 font-mono text-xs font-semibold text-primary">{user.membershipId}</p>
+                    <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <QrCode className="h-3.5 w-3.5" />
+                      <span>Verification QR on back</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6 px-3 pb-3 text-center text-[10px] text-muted-foreground">
+                  <div className="border-t pt-1">Member Signature</div>
+                  <div className="border-t pt-1">Authority Signature</div>
+                </div>
+              </div>
+              <Button asChild data-testid="button-download-id-card" className="mt-4 w-full">
+                <a href="/api/membership-id-cards/download">
+                  <Download className="w-4 h-4 mr-2" />
+                  {t("Download ID Card", "Download ID Card")}
+                </a>
+              </Button>
+            </div>
+          )}
         </div>
 
+        {!isMembershipComplete && (
         <div data-testid="membership-status-panel" className={`border rounded-xl p-6 mb-6 ${statusInfo.tone}`}>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -199,6 +235,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-4 mb-6">
           <div className="bg-card border rounded-xl p-6">
@@ -242,6 +279,12 @@ export default function Dashboard() {
               <a href="/api/membership-receipts/download">
                 <Download className="w-4 h-4 mr-2" />
                 {t("Download Receipt", "Download Receipt")}
+              </a>
+            </Button>
+            <Button asChild data-testid="button-download-id-card-secondary" variant="outline" className="mt-3 sm:ml-3">
+              <a href="/api/membership-id-cards/download">
+                <Download className="w-4 h-4 mr-2" />
+                {t("Download ID Card", "Download ID Card")}
               </a>
             </Button>
             <Button asChild data-testid="button-verify-cert" variant="outline" className="mt-3">

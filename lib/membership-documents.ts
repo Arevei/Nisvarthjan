@@ -275,3 +275,145 @@ export async function generateMembershipReceiptPdf(member: MemberDocumentRecord,
 
   return doc.output("arraybuffer");
 }
+
+function fitText(doc: jsPDF, text: string, x: number, y: number, maxWidth: number, size: number, minSize = 5) {
+  let fontSize = size;
+  doc.setFontSize(fontSize);
+
+  while (fontSize > minSize && doc.getTextWidth(text) > maxWidth) {
+    fontSize -= 0.5;
+    doc.setFontSize(fontSize);
+  }
+
+  doc.text(text, x, y);
+}
+
+function drawIdCardShell(doc: jsPDF) {
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, 85.6, 54, "F");
+  doc.setDrawColor(190, 0, 39);
+  doc.setLineWidth(0.6);
+  doc.roundedRect(1.5, 1.5, 82.6, 51, 3, 3);
+  doc.setFillColor(190, 0, 39);
+  doc.roundedRect(1.5, 1.5, 82.6, 9.5, 3, 3, "F");
+  doc.rect(1.5, 7.5, 82.6, 3.5, "F");
+}
+
+export async function generateMembershipIdCardPdf(member: MemberDocumentRecord, requestUrl: string) {
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [85.6, 54] });
+  const logo = getCertificateLogo();
+  const logoDataUrl = logo.dataUrl;
+  const certificateNumber = safeText(member.certificateNumber);
+  const verificationUrl = `${getVerificationBaseUrl(requestUrl)}/verify/${encodeURIComponent(certificateNumber)}`;
+  const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
+    errorCorrectionLevel: "M",
+    margin: 1,
+    width: 180,
+  });
+
+  const memberName = safeText(member.name).toUpperCase();
+  const joinedAt = formatDate(member.joinedAt);
+  const location = [member.city, member.state].filter(Boolean).join(", ") || "Not available";
+
+  drawIdCardShell(doc);
+
+  const headerLogoHeight = 6.2;
+  const headerLogoWidth = headerLogoHeight * (logo.width / logo.height);
+  doc.addImage(logoDataUrl, "PNG", 4.2, 3.1, headerLogoWidth, headerLogoHeight);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(255, 255, 255);
+  fitText(doc, "NISVARTHJAN SEVA FOUNDATION", 19, 6.5, 60, 7, 4.5);
+  doc.setFont("helvetica", "normal");
+  fitText(doc, "Membership Identity Card", 19, 9.3, 60, 4.7, 3.8);
+
+  doc.setDrawColor(190, 0, 39);
+  doc.setLineWidth(0.35);
+  doc.roundedRect(5, 15, 20, 24, 2, 2);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(5);
+  doc.setTextColor(190, 0, 39);
+  doc.text("PASTE", 15, 26, { align: "center" });
+  doc.text("PHOTO", 15, 28.7, { align: "center" });
+
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(24, 24, 27);
+  fitText(doc, memberName, 29, 17, 50, 9, 5.5);
+
+  const rows: Array<[string, string]> = [
+    ["Member ID", safeText(member.membershipId)],
+    ["Type", formatMembershipType(member.membershipType)],
+    ["Phone", safeText(member.phone)],
+    ["Joined", joinedAt],
+    ["Location", location],
+  ];
+
+  doc.setFontSize(5.6);
+  rows.forEach(([label, value], index) => {
+    const y = 22 + index * 4.2;
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(190, 0, 39);
+    doc.text(`${label}:`, 29, y);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(39, 39, 42);
+    fitText(doc, value, 43, y, 36, 5.6, 4);
+  });
+
+  doc.setFillColor(255, 245, 247);
+  doc.roundedRect(5, 41, 75.6, 5.2, 1.5, 1.5, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(5.2);
+  doc.setTextColor(190, 0, 39);
+  doc.text("ID NO.", 8, 44.5);
+  doc.setTextColor(24, 24, 27);
+  fitText(doc, safeText(member.membershipId), 18, 44.5, 59, 5.7, 4);
+
+  doc.setDrawColor(82, 82, 91);
+  doc.line(8, 50, 30, 50);
+  doc.line(54, 50, 78, 50);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(3.8);
+  doc.setTextColor(82, 82, 91);
+  doc.text("Member Signature", 19, 52, { align: "center" });
+  doc.text("Authority Signature", 66, 52, { align: "center" });
+
+  doc.addPage([85.6, 54], "landscape");
+  drawIdCardShell(doc);
+
+  doc.setGState(doc.GState({ opacity: 0.08 }));
+  const watermarkHeight = 25;
+  const watermarkWidth = watermarkHeight * (logo.width / logo.height);
+  doc.addImage(logoDataUrl, "PNG", (85.6 - watermarkWidth) / 2, 16, watermarkWidth, watermarkHeight);
+  doc.setGState(doc.GState({ opacity: 1 }));
+
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(7);
+  doc.text("VERIFY MEMBERSHIP", 42.8, 7.3, { align: "center" });
+
+  doc.addImage(qrDataUrl, "PNG", 6, 14, 23, 23);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(190, 0, 39);
+  doc.setFontSize(4.5);
+  doc.text("SCAN TO VERIFY", 17.5, 40, { align: "center" });
+
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(24, 24, 27);
+  doc.setFontSize(6);
+  doc.text("Nisvarthjan Seva Foundation", 34, 17);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(4.7);
+  doc.setTextColor(63, 63, 70);
+  doc.text(doc.splitTextToSize(`Certificate: ${certificateNumber}`, 45), 34, 22);
+  doc.text(doc.splitTextToSize(`Email: ${safeText(member.email)}`, 45), 34, 28);
+  doc.text(doc.splitTextToSize(`Address: ${safeText(member.address)}`, 45).slice(0, 2), 34, 34);
+
+  doc.setDrawColor(190, 0, 39);
+  doc.line(34, 43, 78, 43);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(190, 0, 39);
+  doc.setFontSize(4.3);
+  doc.text("This card remains property of the foundation.", 56, 47, { align: "center" });
+  doc.text("If found, please contact the issuing authority.", 56, 50, { align: "center" });
+
+  return doc.output("arraybuffer");
+}
