@@ -238,6 +238,12 @@ export default function Dashboard() {
                 {t("Download Certificate", "प्रमाणपत्र डाउनलोड करें")}
               </a>
             </Button>
+            <Button asChild data-testid="button-download-receipt" variant="outline" className="mt-3 sm:ml-3">
+              <a href="/api/membership-receipts/download">
+                <Download className="w-4 h-4 mr-2" />
+                {t("Download Receipt", "Download Receipt")}
+              </a>
+            </Button>
             <Button asChild data-testid="button-verify-cert" variant="outline" className="mt-3">
               <a href={`/verify/${encodeURIComponent(user.certificateNumber)}`}>
                 <Shield className="w-4 h-4 mr-2" />

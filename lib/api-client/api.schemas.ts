@@ -115,6 +115,15 @@ export interface Donation {
   campaignId?: number | null;
   purpose: string;
   receiptNumber: string;
+  status?: string;
+  paymentStatus?: string;
+  payment?: {
+    provider: "razorpay";
+    keyId: string;
+    orderId: string;
+    amount: number;
+    currency: "INR";
+  };
   createdAt: string;
 }
 

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { generateCertificateNumber } from "@/lib/membership-payments";
+import { sendMembershipPaymentDocumentsEmail } from "@/lib/email";
 
 type PaymentVerifyBody = {
   memberId?: number;
@@ -29,7 +30,9 @@ type MemberPaymentDoc = {
     status?: string;
     orderId?: string;
     paymentId?: string;
+    receipt?: string;
     amount?: number;
+    currency?: string;
     paidAt?: Date;
   };
 };
@@ -112,7 +115,15 @@ export async function POST(req: NextRequest) {
     session.memberId = updated.id;
     await session.save();
 
-    return NextResponse.json({ member: toResponse(updated) });
+    let emailSent = true;
+    try {
+      await sendMembershipPaymentDocumentsEmail(updated, req.url);
+    } catch (emailError) {
+      emailSent = false;
+      console.error("Membership documents email failed:", emailError);
+    }
+
+    return NextResponse.json({ member: toResponse(updated), emailSent });
   } catch (error) {
     console.error("Payment verification failed:", error);
     return NextResponse.json({ error: "Payment verification failed" }, { status: 500 });

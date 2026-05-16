@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { useGetCampaign, getGetCampaignQueryKey, useCreateDonation } from "@/lib/api-client/api";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Users, Target, Heart } from "lucide-react";
+import { loadRazorpayScript, type RazorpaySuccess } from "@/lib/razorpay-client";
 
 const escapeHtml = (value: string) =>
   value
@@ -33,17 +35,92 @@ const toRenderableHtml = (value: string) => {
 export default function CampaignDetail() {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const params = useParams<{ id: string }>();
   const id = parseInt(params?.id ?? "0");
   const [donorName, setDonorName] = useState("");
   const [donorEmail, setDonorEmail] = useState("");
   const [amount, setAmount] = useState("");
+  const [isPaying, setIsPaying] = useState(false);
 
   const { data: campaign, isLoading } = useGetCampaign(id, {
     query: { enabled: !!id, queryKey: getGetCampaignQueryKey(id) },
   });
 
   const createDonation = useCreateDonation();
+
+  const verifyDonationPayment = async (donationId: number, response: RazorpaySuccess) => {
+    const verifyResponse = await fetch("/api/donation-payments/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        donationId,
+        ...response,
+      }),
+    });
+
+    const payload = await verifyResponse.json();
+    if (!verifyResponse.ok) {
+      throw new Error(payload.error || "Payment verification failed");
+    }
+
+    return payload;
+  };
+
+  const startRazorpayPayment = async (donation: NonNullable<typeof createDonation.data>) => {
+    if (!donation.payment) {
+      toast({ title: t("Thank you for your support!", "आपके सहयोग के लिए धन्यवाद!") });
+      await queryClient.invalidateQueries({ queryKey: getGetCampaignQueryKey(id) });
+      return;
+    }
+
+    setIsPaying(true);
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded || !window.Razorpay) {
+      setIsPaying(false);
+      toast({ title: "Unable to load Razorpay checkout", variant: "destructive" });
+      return;
+    }
+
+    const checkout = new window.Razorpay({
+      key: donation.payment.keyId,
+      amount: donation.payment.amount * 100,
+      currency: donation.payment.currency,
+      name: "Nisvarthjan Seva Foundation",
+      description: donation.purpose,
+      order_id: donation.payment.orderId,
+      prefill: {
+        name: donation.donorName,
+        email: donation.donorEmail,
+      },
+      notes: {
+        donationId: String(donation.id),
+        receiptNumber: donation.receiptNumber,
+        campaignId: donation.campaignId ? String(donation.campaignId) : "",
+      },
+      theme: { color: "#be0027" },
+      handler: async (response: RazorpaySuccess) => {
+        try {
+          await verifyDonationPayment(donation.id, response);
+          await queryClient.invalidateQueries({ queryKey: getGetCampaignQueryKey(id) });
+          toast({ title: t("Payment confirmed. Thank you for your support!", "भुगतान की पुष्टि हुई। आपके सहयोग के लिए धन्यवाद!") });
+        } catch (error) {
+          toast({
+            title: error instanceof Error ? error.message : "Payment verification failed",
+            variant: "destructive",
+          });
+        } finally {
+          setIsPaying(false);
+        }
+      },
+      modal: {
+        ondismiss: () => setIsPaying(false),
+      },
+    });
+
+    checkout.open();
+  };
 
   const handleDonate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +131,7 @@ export default function CampaignDetail() {
     createDonation.mutate(
       { data: { amount: parseFloat(amount), donorName, donorEmail, campaignId: id, purpose: campaign?.title ?? "Campaign donation" } },
       {
-        onSuccess: () => toast({ title: t("Thank you for your support!", "आपके सहयोग के लिए धन्यवाद!") }),
+        onSuccess: (donation) => startRazorpayPayment(donation),
         onError: () => toast({ title: t("Donation failed", "दान विफल"), variant: "destructive" }),
       }
     );
@@ -126,9 +203,9 @@ export default function CampaignDetail() {
               <div>
                 <Input data-testid="input-email" type="email" placeholder={t("Email Address *", "ईमेल पता *")} value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} required />
               </div>
-              <Button data-testid="button-donate" type="submit" className="w-full bg-primary hover:bg-primary/90 py-6 text-lg" disabled={createDonation.isPending}>
+              <Button data-testid="button-donate" type="submit" className="w-full bg-primary hover:bg-primary/90 py-6 text-lg" disabled={createDonation.isPending || isPaying}>
                 <Heart className="w-5 h-5 mr-2 fill-current" />
-                {createDonation.isPending ? t("Processing...", "प्रसंस्करण...") : t("Donate Now", "अभी दान करें")}
+                {createDonation.isPending || isPaying ? t("Processing...", "प्रसंस्करण...") : t("Donate Now", "अभी दान करें")}
               </Button>
             </form>
           </div>

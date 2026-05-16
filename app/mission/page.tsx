@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Heart, QrCode, CheckCircle } from "lucide-react";
+import { loadRazorpayScript, type RazorpaySuccess } from "@/lib/razorpay-client";
 
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000, 25000];
 
@@ -22,8 +23,83 @@ export default function Donate() {
   const [donorPhone, setDonorPhone] = useState("");
   const [purpose, setPurpose] = useState("");
   const [receipt, setReceipt] = useState<string | null>(null);
+  const [isPaying, setIsPaying] = useState(false);
 
   const createDonation = useCreateDonation();
+
+  const verifyDonationPayment = async (donationId: number, response: RazorpaySuccess) => {
+    const verifyResponse = await fetch("/api/donation-payments/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        donationId,
+        ...response,
+      }),
+    });
+
+    const payload = await verifyResponse.json();
+    if (!verifyResponse.ok) {
+      throw new Error(payload.error || "Payment verification failed");
+    }
+
+    return payload;
+  };
+
+  const startRazorpayPayment = async (donation: NonNullable<typeof createDonation.data>) => {
+    if (!donation.payment) {
+      setReceipt(donation.receiptNumber);
+      toast({ title: t("Donation recorded! Thank you.", "दान दर्ज किया गया! धन्यवाद।") });
+      return;
+    }
+
+    setIsPaying(true);
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded || !window.Razorpay) {
+      setIsPaying(false);
+      toast({ title: "Unable to load Razorpay checkout", variant: "destructive" });
+      return;
+    }
+
+    const checkout = new window.Razorpay({
+      key: donation.payment.keyId,
+      amount: donation.payment.amount * 100,
+      currency: donation.payment.currency,
+      name: "Nisvarthjan Seva Foundation",
+      description: donation.purpose,
+      order_id: donation.payment.orderId,
+      prefill: {
+        name: donation.donorName,
+        email: donation.donorEmail,
+        contact: donation.donorPhone || "",
+      },
+      notes: {
+        donationId: String(donation.id),
+        receiptNumber: donation.receiptNumber,
+        purpose: donation.purpose,
+      },
+      theme: { color: "#be0027" },
+      handler: async (response: RazorpaySuccess) => {
+        try {
+          await verifyDonationPayment(donation.id, response);
+          setReceipt(donation.receiptNumber);
+          toast({ title: t("Donation payment confirmed. Thank you.", "दान भुगतान की पुष्टि हुई। धन्यवाद।") });
+        } catch (error) {
+          toast({
+            title: error instanceof Error ? error.message : "Payment verification failed",
+            variant: "destructive",
+          });
+        } finally {
+          setIsPaying(false);
+        }
+      },
+      modal: {
+        ondismiss: () => setIsPaying(false),
+      },
+    });
+
+    checkout.open();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,10 +116,7 @@ export default function Donate() {
     createDonation.mutate(
       { data: { amount: finalAmount, donorName, donorEmail, donorPhone, purpose } },
       {
-        onSuccess: (donation) => {
-          setReceipt(donation.receiptNumber);
-          toast({ title: t("Donation recorded! Thank you.", "दान दर्ज किया गया! धन्यवाद।") });
-        },
+        onSuccess: (donation) => startRazorpayPayment(donation),
         onError: () => {
           toast({ title: t("Failed to record donation", "दान दर्ज करने में विफल"), variant: "destructive" });
         },
@@ -144,9 +217,9 @@ export default function Donate() {
                 data-testid="button-donate-submit"
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90 text-lg py-6"
-                disabled={createDonation.isPending}
+                disabled={createDonation.isPending || isPaying}
               >
-                {createDonation.isPending ? t("Processing...", "प्रसंस्करण...") : t("Donate Now", "अभी दान करें")}
+                {createDonation.isPending || isPaying ? t("Processing...", "प्रसंस्करण...") : t("Donate Now", "अभी दान करें")}
               </Button>
             </form>
           </div>

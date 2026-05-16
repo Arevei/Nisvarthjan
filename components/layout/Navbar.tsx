@@ -15,12 +15,12 @@ export function Navbar() {
       <div className="container mx-auto flex h-20 items-center justify-between px-4">
         <Link href="/" className="flex items-center">
           <Image
-            src="/brand/logo-navbar.png"
+            src="/brand/navbar-logo.png"
             alt="Nisvarthjan Seva Foundation"
             width={270}
             height={70}
             priority
-            className="h-20 w-auto"
+            className="h-16 w-auto"
           />
         </Link>
 

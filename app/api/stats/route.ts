@@ -6,7 +6,10 @@ export async function GET() {
     const db = await getDb();
     const [totalMembers, donationsAgg, activeCampaigns] = await Promise.all([
       db.collection("members").countDocuments(),
-      db.collection("donations").aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }]).toArray(),
+      db.collection("donations").aggregate([
+        { $match: { $or: [{ "payment.status": "paid" }, { payment: { $exists: false } }] } },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]).toArray(),
       db.collection("campaigns").countDocuments({ isActive: true }),
     ]);
 

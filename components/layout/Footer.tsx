@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +13,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
             <Image
-              src="/brand/logo-stacked.png"
+              src="/brand/footer-logo.png"
               alt="Nisvarthjan Seva Foundation"
               width={160}
               height={206}
