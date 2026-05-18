@@ -30,6 +30,8 @@ export interface Member {
   email: string;
   phone: string;
   /** @nullable */
+  dateOfBirth?: string | null;
+  /** @nullable */
   address?: string | null;
   /** @nullable */
   city?: string | null;
@@ -40,7 +42,17 @@ export interface Member {
   status: string;
   /** @nullable */
   certificateNumber?: string | null;
+  /** @nullable */
+  referral?: ReferralInfo | null;
   joinedAt: string;
+}
+
+export interface ReferralInfo {
+  code: string;
+  memberId: number;
+  membershipId: string;
+  memberName: string;
+  referredAt: string;
 }
 
 export type MemberInputMembershipType =
@@ -58,10 +70,12 @@ export interface MemberInput {
   email: string;
   phone: string;
   password: string;
+  dateOfBirth?: string;
   address?: string;
   city?: string;
   state?: string;
   membershipType: MemberInputMembershipType;
+  referralCode?: string;
 }
 
 export interface LoginInput {
@@ -117,6 +131,8 @@ export interface Donation {
   receiptNumber: string;
   status?: string;
   paymentStatus?: string;
+  /** @nullable */
+  referral?: ReferralInfo | null;
   payment?: {
     provider: "razorpay";
     keyId: string;
@@ -135,6 +151,7 @@ export interface DonationInput {
   donorPhone?: string;
   campaignId?: number;
   purpose: string;
+  referralCode?: string;
 }
 
 export interface NewsArticle {

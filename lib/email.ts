@@ -133,3 +133,31 @@ export async function sendDonationReceiptEmail(donation: DonationReceiptRecord, 
     ],
   });
 }
+
+export async function sendBirthdayWishEmail(member: { name?: string; email?: string }) {
+  const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER;
+
+  if (!fromAddress) {
+    throw new Error("SMTP_FROM or SMTP_USER is not configured.");
+  }
+
+  if (!member.email) {
+    throw new Error("Member email is not available.");
+  }
+
+  const transporter = getTransporter();
+
+  await transporter.sendMail({
+    from: fromAddress,
+    to: member.email,
+    subject: "Happy birthday from Nisvarthjan Seva Foundation",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #18181b;">
+        <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
+        <p>Dear ${safeText(member.name)},</p>
+        <p>Wishing you a very happy birthday. May your year ahead be filled with health, joy, and meaningful service.</p>
+        <p style="color: #52525b;">Thank you for being part of the Nisvarthjan Seva Foundation family.</p>
+      </div>
+    `,
+  });
+}

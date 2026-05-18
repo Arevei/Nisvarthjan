@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { useCreateDonation } from "@/lib/api-client/api";
@@ -27,8 +27,17 @@ export default function Donate() {
   const [receipt, setReceipt] = useState<string | null>(null);
   const [receiptContact, setReceiptContact] = useState("");
   const [isPaying, setIsPaying] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
 
   const createDonation = useCreateDonation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      window.setTimeout(() => setReferralCode(ref.trim().toUpperCase()), 0);
+    }
+  }, []);
 
   const verifyDonationPayment = async (donationId: number, response: RazorpaySuccess) => {
     const verifyResponse = await fetch("/api/donation-payments/verify", {
@@ -119,7 +128,7 @@ export default function Donate() {
     }
 
     createDonation.mutate(
-      { data: { amount: finalAmount, donorName, donorEmail, donorPhone, purpose } },
+      { data: { amount: finalAmount, donorName, donorEmail, donorPhone, purpose, referralCode: referralCode || undefined } },
       {
         onSuccess: (donation) => startRazorpayPayment(donation),
         onError: () => {
@@ -176,6 +185,11 @@ export default function Donate() {
         <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
           <div>
             <h2 className="text-2xl font-serif font-bold text-foreground mb-6">{t("Make a Donation", "दान करें")}</h2>
+            {referralCode && (
+              <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+                Member referral applied: <span className="font-semibold">{referralCode}</span>
+              </div>
+            )}
 
             <div className="mb-6">
               <Label className="text-sm font-medium text-foreground mb-3 block">{t("Select Amount (₹)", "राशि चुनें (₹)")}</Label>

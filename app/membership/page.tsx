@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
@@ -84,10 +84,12 @@ export default function Membership() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [registration, setRegistration] = useState<RegisterResponse | null>(null);
+  const [referralCode, setReferralCode] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
+    dateOfBirth: "",
     password: "",
     address: "",
     city: "",
@@ -96,6 +98,14 @@ export default function Membership() {
   });
 
   const selectedFee = membershipFees[form.membershipType];
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      window.setTimeout(() => setReferralCode(ref.trim().toUpperCase()), 0);
+    }
+  }, []);
 
   const verifyPayment = async (response: RazorpaySuccess, memberId: number) => {
     const verifyResponse = await fetch("/api/membership-payments/verify", {
@@ -184,11 +194,13 @@ export default function Membership() {
           name: form.name,
           email: form.email,
           phone: form.phone,
+          dateOfBirth: form.dateOfBirth || undefined,
           password: form.password,
           address: form.address || undefined,
           city: form.city || undefined,
           state: form.state || undefined,
           membershipType: form.membershipType,
+          referralCode: referralCode || undefined,
         }),
       });
 
@@ -300,6 +312,11 @@ export default function Membership() {
       <div className="container mx-auto max-w-4xl px-4 py-12">
         <div className="rounded-xl border bg-card p-8 shadow-sm">
           <h2 className="mb-6 text-xl font-serif font-bold">{t("Registration Form", "Registration Form")}</h2>
+          {referralCode && (
+            <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+              Member referral applied: <span className="font-semibold">{referralCode}</span>
+            </div>
+          )}
           <form onSubmit={submit} className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
               <Label htmlFor="name">Full Name *</Label>
@@ -315,7 +332,12 @@ export default function Membership() {
               <Input id="phone" value={form.phone} onChange={(event) => setForm((previous) => ({ ...previous, phone: event.target.value }))} required />
             </div>
 
-            <div className="md:col-span-2">
+            <div>
+              <Label htmlFor="dateOfBirth">Date of Birth</Label>
+              <Input id="dateOfBirth" type="date" value={form.dateOfBirth} onChange={(event) => setForm((previous) => ({ ...previous, dateOfBirth: event.target.value }))} />
+            </div>
+
+            <div>
               <Label htmlFor="password">Password *</Label>
               <Input id="password" type="password" value={form.password} onChange={(event) => setForm((previous) => ({ ...previous, password: event.target.value }))} required />
             </div>

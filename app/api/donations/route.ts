@@ -16,6 +16,7 @@ type DonationDoc = {
   purpose: string;
   receiptNumber: string;
   status: "created" | "paid";
+  referral?: ReferralInfo | null;
   payment: {
     mode: "manual" | "razorpay";
     status: "created" | "paid";
@@ -27,6 +28,37 @@ type DonationDoc = {
   };
   createdAt: Date;
 };
+
+type ReferralInfo = {
+  code: string;
+  memberId: number;
+  membershipId: string;
+  memberName: string;
+  referredAt: Date;
+};
+
+function normalizeReferralCode(value: unknown) {
+  const code = String(value ?? "").trim().toUpperCase();
+  return code.length > 0 ? code : null;
+}
+
+async function getReferralInfo(db: Awaited<ReturnType<typeof getDb>>, code: string | null): Promise<ReferralInfo | null> {
+  if (!code) return null;
+
+  const referringMember = await db.collection<{ id: number; membershipId: string; name: string }>("members").findOne({
+    $or: [{ membershipId: code }, { id: Number(code) || -1 }],
+  });
+
+  if (!referringMember) return null;
+
+  return {
+    code,
+    memberId: referringMember.id,
+    membershipId: referringMember.membershipId,
+    memberName: referringMember.name,
+    referredAt: new Date(),
+  };
+}
 
 function getDonationPaymentMode(): "manual" | "razorpay" {
   return process.env.DONATION_PAYMENT_MODE === "manual" ? "manual" : "razorpay";
@@ -86,6 +118,7 @@ function toResponse(donation: DonationDoc, payment?: { provider: "razorpay"; key
     receiptNumber: donation.receiptNumber,
     status: donation.status,
     paymentStatus: donation.payment.status,
+    referral: donation.referral ?? null,
     payment,
     createdAt: donation.createdAt.toISOString(),
   };
@@ -93,7 +126,7 @@ function toResponse(donation: DonationDoc, payment?: { provider: "razorpay"; key
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { amount, donorName, donorEmail, donorPhone, campaignId, purpose } = body;
+  const { amount, donorName, donorEmail, donorPhone, campaignId, purpose, referralCode } = body;
   const donationAmount = Number(amount);
 
   if (!donationAmount || donationAmount <= 0 || !donorName || !donorEmail || !purpose) {
@@ -106,6 +139,7 @@ export async function POST(req: NextRequest) {
     const donationId = await nextSequence("donations");
     const receiptNumber = generateReceiptNumber();
     const normalizedCampaignId = campaignId ? Number(campaignId) : null;
+    const referral = await getReferralInfo(db, normalizeReferralCode(referralCode));
     const razorpayOrder =
       paymentMode === "razorpay"
         ? await createRazorpayOrder({
@@ -127,6 +161,7 @@ export async function POST(req: NextRequest) {
       purpose,
       receiptNumber,
       status: paymentMode === "razorpay" ? "created" : "paid",
+      referral,
       payment: {
         mode: paymentMode,
         status: paymentMode === "razorpay" ? "created" : "paid",

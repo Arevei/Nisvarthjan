@@ -12,6 +12,7 @@ type MemberDoc = {
   name: string;
   email: string;
   phone: string;
+  dateOfBirth?: string | null;
   address?: string | null;
   city?: string | null;
   state?: string | null;
@@ -19,6 +20,7 @@ type MemberDoc = {
   membershipId: string;
   status: string;
   certificateNumber?: string | null;
+  referral?: ReferralInfo | null;
   password?: string;
   payment?: {
     mode: "manual" | "razorpay";
@@ -31,6 +33,37 @@ type MemberDoc = {
   };
   joinedAt: Date | string;
 };
+
+type ReferralInfo = {
+  code: string;
+  memberId: number;
+  membershipId: string;
+  memberName: string;
+  referredAt: Date;
+};
+
+function normalizeReferralCode(value: unknown) {
+  const code = String(value ?? "").trim().toUpperCase();
+  return code.length > 0 ? code : null;
+}
+
+async function getReferralInfo(db: Awaited<ReturnType<typeof getDb>>, code: string | null): Promise<ReferralInfo | null> {
+  if (!code) return null;
+
+  const referringMember = await db.collection<MemberDoc>("members").findOne({
+    $or: [{ membershipId: code }, { id: Number(code) || -1 }],
+  });
+
+  if (!referringMember) return null;
+
+  return {
+    code,
+    memberId: referringMember.id,
+    membershipId: referringMember.membershipId,
+    memberName: referringMember.name,
+    referredAt: new Date(),
+  };
+}
 
 async function createRazorpayOrder(member: { id: number; membershipId: string; membershipType: string }) {
   const keyId = process.env.RAZORPAY_KEY_ID;
@@ -81,6 +114,7 @@ function fmt(m: MemberDoc) {
     name: m.name,
     email: m.email,
     phone: m.phone,
+    dateOfBirth: m.dateOfBirth ?? null,
     address: m.address ?? null,
     city: m.city ?? null,
     state: m.state ?? null,
@@ -88,13 +122,14 @@ function fmt(m: MemberDoc) {
     membershipId: m.membershipId,
     status: m.status,
     certificateNumber: m.certificateNumber ?? null,
+    referral: m.referral ?? null,
     joinedAt: new Date(m.joinedAt).toISOString(),
   };
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, email, phone, address, city, state, membershipType, password } = body;
+  const { name, email, phone, dateOfBirth, address, city, state, membershipType, password, referralCode } = body;
   if (!name || !email || !phone || !password) {
     return NextResponse.json({ error: "name, email, phone, password are required" }, { status: 400 });
   }
@@ -112,6 +147,7 @@ export async function POST(req: NextRequest) {
     const paymentMode = getPaymentMode();
     const amount = getMembershipFee(selectedMembershipType);
     const membershipId = generateMembershipId();
+    const referral = await getReferralInfo(db, normalizeReferralCode(referralCode));
     const razorpayOrder =
       paymentMode === "razorpay"
         ? await createRazorpayOrder({ id, membershipId, membershipType: selectedMembershipType })
@@ -121,6 +157,7 @@ export async function POST(req: NextRequest) {
       name,
       email: normalizedEmail,
       phone,
+      dateOfBirth: dateOfBirth || null,
       address: address ?? null,
       city: city ?? null,
       state: state ?? null,
@@ -137,6 +174,7 @@ export async function POST(req: NextRequest) {
         receipt: razorpayOrder?.receipt,
         createdAt: new Date(),
       },
+      referral,
       password: String(password),
       joinedAt: new Date(),
     };

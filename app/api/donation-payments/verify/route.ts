@@ -20,6 +20,13 @@ type DonationPaymentDoc = {
   purpose: string;
   receiptNumber: string;
   status?: string;
+  referral?: {
+    code: string;
+    memberId: number;
+    membershipId: string;
+    memberName: string;
+    referredAt: Date | string;
+  } | null;
   createdAt: Date | string;
   payment?: {
     mode?: string;
@@ -61,6 +68,7 @@ function toResponse(donation: DonationPaymentDoc) {
     status: donation.status ?? "paid",
     paymentStatus: donation.payment?.status ?? "paid",
     paymentId: donation.payment?.paymentId ?? null,
+    referral: donation.referral ?? null,
     createdAt: new Date(donation.createdAt).toISOString(),
   };
 }

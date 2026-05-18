@@ -18,6 +18,7 @@ export async function GET() {
       name: member.name,
       email: member.email,
       phone: member.phone,
+      dateOfBirth: member.dateOfBirth ?? null,
       address: member.address,
       city: member.city,
       state: member.state,
@@ -25,6 +26,7 @@ export async function GET() {
       membershipId: member.membershipId,
       status: member.status,
       certificateNumber: member.certificateNumber,
+      referral: member.referral ?? null,
       joinedAt: new Date(member.joinedAt).toISOString(),
     });
   } catch (err) {

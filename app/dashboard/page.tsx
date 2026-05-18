@@ -1,11 +1,11 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { User, Award, Calendar, LogOut, Shield, Download, CheckCircle2, Clock, CreditCard, AlertCircle, BadgeCheck, QrCode } from "lucide-react";
+import { User, Award, Calendar, LogOut, Shield, Download, CheckCircle2, Clock, CreditCard, AlertCircle, BadgeCheck, QrCode, Gift, Copy, HeartHandshake, Users } from "lucide-react";
 
 function formatStatusLabel(status: string) {
   return status
@@ -61,16 +61,55 @@ function getMembershipStatus(status: string, hasCertificate: boolean) {
   };
 }
 
+function isBirthdayToday(dateOfBirth?: string | null) {
+  if (!dateOfBirth) return false;
+
+  const date = new Date(dateOfBirth);
+  if (Number.isNaN(date.getTime())) return false;
+
+  const today = new Date();
+  return date.getUTCDate() === today.getDate() && date.getUTCMonth() === today.getMonth();
+}
+
 export default function Dashboard() {
   const { t } = useLanguage();
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
+  const [birthdayEmailStatus, setBirthdayEmailStatus] = useState<"idle" | "sent" | "failed" | "alreadySent">("idle");
+  const [copiedLink, setCopiedLink] = useState<"membership" | "donation" | null>(null);
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login");
     }
   }, [user, isLoading, router]);
+
+  const hasBirthdayToday = isBirthdayToday(user?.dateOfBirth);
+
+  useEffect(() => {
+    if (!user || !hasBirthdayToday) return;
+
+    const sendWish = async () => {
+      try {
+        const response = await fetch("/api/birthday-wishes", {
+          method: "POST",
+          credentials: "include",
+        });
+        const payload = (await response.json()) as { emailSent?: boolean; alreadySent?: boolean };
+        if (payload.emailSent) {
+          setBirthdayEmailStatus("sent");
+        } else if (payload.alreadySent) {
+          setBirthdayEmailStatus("alreadySent");
+        } else {
+          setBirthdayEmailStatus(response.ok ? "idle" : "failed");
+        }
+      } catch {
+        setBirthdayEmailStatus("failed");
+      }
+    };
+
+    void sendWish();
+  }, [user, hasBirthdayToday]);
 
   if (isLoading) {
     return (
@@ -94,6 +133,17 @@ export default function Dashboard() {
 
   const statusInfo = getMembershipStatus(user.status, Boolean(user.certificateNumber));
   const isMembershipComplete = user.status === "active" && Boolean(user.certificateNumber);
+  const baseUrl = typeof window === "undefined" ? "" : window.location.origin;
+  const referralCode = encodeURIComponent(user.membershipId);
+  const referralLinks = {
+    membership: `${baseUrl}/membership?ref=${referralCode}`,
+    donation: `${baseUrl}/donate?ref=${referralCode}`,
+  };
+  const copyReferralLink = async (type: "membership" | "donation") => {
+    await navigator.clipboard.writeText(referralLinks[type]);
+    setCopiedLink(type);
+    window.setTimeout(() => setCopiedLink(null), 1800);
+  };
   const membershipSteps = [
     {
       label: "Application submitted",
@@ -137,6 +187,66 @@ export default function Dashboard() {
                 <h2 data-testid="text-member-name" className="text-2xl font-serif font-bold mb-1">{user.name}</h2>
                 <p data-testid="text-member-email" className="text-primary-foreground/80 mb-3">{user.email}</p>
                 
+              </div>
+            </div>
+          </div>
+
+          {hasBirthdayToday && (
+            <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-950 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-rose-100 text-rose-700">
+                  <Gift className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">Happy birthday, {user.name}!</h2>
+                  <p className="mt-1 text-sm text-rose-900/80">
+                    Wishing you health, joy, and a meaningful year of service with Nisvarthjan Seva Foundation.
+                  </p>
+                  {birthdayEmailStatus === "sent" && (
+                    <p className="mt-2 text-xs font-semibold text-rose-800">A birthday wish email has also been sent to you.</p>
+                  )}
+                  {birthdayEmailStatus === "alreadySent" && (
+                    <p className="mt-2 text-xs font-semibold text-rose-800">Your birthday wish email was already sent for this year.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="mb-6 rounded-2xl border bg-card p-6 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <HeartHandshake className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold text-foreground">Referral Links</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Share these links so new members and donations are tracked against your membership ID.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl border bg-background p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">Membership Referral</h3>
+                </div>
+                <p className="break-all rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">{referralLinks.membership}</p>
+                <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => copyReferralLink("membership")}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  {copiedLink === "membership" ? "Copied" : "Copy Link"}
+                </Button>
+              </div>
+              <div className="rounded-xl border bg-background p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <HeartHandshake className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">Donation Referral</h3>
+                </div>
+                <p className="break-all rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">{referralLinks.donation}</p>
+                <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => copyReferralLink("donation")}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  {copiedLink === "donation" ? "Copied" : "Copy Link"}
+                </Button>
               </div>
             </div>
           </div>
@@ -309,8 +419,5 @@ export default function Dashboard() {
     </Layout>
   );
 }
-
-
-
 
 
