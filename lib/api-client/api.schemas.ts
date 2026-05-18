@@ -207,6 +207,10 @@ export interface GalleryImage {
   caption?: string | null;
   /** @nullable */
   captionHindi?: string | null;
+  /** @nullable */
+  detailsEn?: string | null;
+  /** @nullable */
+  detailsHi?: string | null;
   category: string;
   createdAt: string;
 }

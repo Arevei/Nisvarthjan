@@ -157,8 +157,8 @@ export default function Home() {
       src: item.imageUrl,
       titleEn: item.caption ?? "Gallery event",
       titleHi: item.captionHindi ?? item.caption ?? "Gallery event",
-      detailsEn: item.category,
-      detailsHi: item.category,
+      detailsEn: item.detailsEn ?? item.category,
+      detailsHi: item.detailsHi ?? item.detailsEn ?? item.category,
     }))
     : HOME_GALLERY;
 

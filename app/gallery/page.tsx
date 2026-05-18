@@ -45,6 +45,8 @@ export default function Gallery() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {galleryItems.map((item) => {
               const title = t(item.caption ?? "Gallery image", item.captionHindi ?? item.caption ?? "गैलरी छवि");
+              const detailsEn = "detailsEn" in item ? item.detailsEn : null;
+              const detailsHi = "detailsHi" in item ? item.detailsHi : null;
               return (
                 <article
                   key={item.id}
@@ -58,6 +60,11 @@ export default function Gallery() {
                       {item.category}
                     </span>
                     <h3 className="font-serif text-xl font-bold leading-snug">{title}</h3>
+                    {(detailsEn || detailsHi) && (
+                      <p className="mt-2 line-clamp-2 text-sm text-white/80">
+                        {t(detailsEn ?? "", detailsHi ?? detailsEn ?? "")}
+                      </p>
+                    )}
                   </div>
                 </article>
               );

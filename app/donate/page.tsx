@@ -25,6 +25,7 @@ export default function Donate() {
   const [donorPhone, setDonorPhone] = useState("");
   const [purpose, setPurpose] = useState("");
   const [receipt, setReceipt] = useState<string | null>(null);
+  const [receiptContact, setReceiptContact] = useState("");
   const [isPaying, setIsPaying] = useState(false);
 
   const createDonation = useCreateDonation();
@@ -51,6 +52,7 @@ export default function Donate() {
   const startRazorpayPayment = async (donation: NonNullable<typeof createDonation.data>) => {
     if (!donation.payment) {
       setReceipt(donation.receiptNumber);
+      setReceiptContact(donation.donorEmail);
       toast({ title: t("Donation recorded! Thank you.", "दान दर्ज किया गया! धन्यवाद।") });
       return;
     }
@@ -85,6 +87,7 @@ export default function Donate() {
         try {
           await verifyDonationPayment(donation.id, response);
           setReceipt(donation.receiptNumber);
+          setReceiptContact(donation.donorEmail);
           toast({ title: t("Donation payment confirmed. Thank you.", "दान भुगतान की पुष्टि हुई। धन्यवाद।") });
         } catch (error) {
           toast({
@@ -135,8 +138,20 @@ export default function Donate() {
             <h2 className="text-2xl font-serif font-bold text-foreground mb-2">{t("Donation Successful!", "दान सफल!")}</h2>
             <p className="text-muted-foreground mb-4">{t("Your receipt number:", "आपकी रसीद संख्या:")}</p>
             <div className="bg-primary/10 text-primary font-mono text-lg font-bold py-3 px-6 rounded-lg mb-6">{receipt}</div>
-            <p className="text-sm text-muted-foreground mb-6">{t("Please save this receipt number for your records.", "कृपया इस रसीद संख्या को अपने रिकॉर्ड के लिए सुरक्षित रखें।")}</p>
-            <Button className="bg-primary hover:bg-primary/90" onClick={() => { setReceipt(null); setAmount(""); setCustomAmount(""); setDonorName(""); setDonorEmail(""); setDonorPhone(""); setPurpose(""); }}>
+            <p className="text-sm text-muted-foreground mb-6">{t("A QR-coded receipt PDF has been sent to your email.", "A QR-coded receipt PDF has been sent to your email.")}</p>
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button asChild variant="outline">
+                <a href={`/api/donation-receipts/download?receiptNumber=${encodeURIComponent(receipt)}&contact=${encodeURIComponent(receiptContact)}`}>
+                  {t("Download Receipt", "Download Receipt")}
+                </a>
+              </Button>
+              <Button asChild variant="outline">
+                <a href={`/verify?certificateNumber=${encodeURIComponent(receipt)}&documentType=donation-receipt`}>
+                  {t("Verify Receipt", "Verify Receipt")}
+                </a>
+              </Button>
+            </div>
+            <Button className="bg-primary hover:bg-primary/90" onClick={() => { setReceipt(null); setReceiptContact(""); setAmount(""); setCustomAmount(""); setDonorName(""); setDonorEmail(""); setDonorPhone(""); setPurpose(""); }}>
               {t("Donate Again", "फिर से दान करें")}
             </Button>
           </div>

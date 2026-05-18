@@ -22,15 +22,17 @@ function VerifyContent() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const initialCertificateNumber = searchParams.get("certificateNumber")?.trim() || "";
+  const initialDocumentType = searchParams.get("documentType")?.trim() || undefined;
   const initialContact = searchParams.get("contact")?.trim() || "";
   const [certificateNumber, setCertificateNumber] = useState(initialCertificateNumber);
   const [contact, setContact] = useState(initialContact);
   const [submitted, setSubmitted] = useState(Boolean(initialCertificateNumber));
-  const [queryParams, setQueryParams] = useState<{ certificateNumber: string; contact?: string } | null>(
+  const [queryParams, setQueryParams] = useState<{ certificateNumber: string; contact?: string; documentType?: string } | null>(
     initialCertificateNumber
       ? {
           certificateNumber: initialCertificateNumber,
           contact: initialContact || undefined,
+          documentType: initialDocumentType,
         }
       : null,
   );
@@ -48,7 +50,7 @@ function VerifyContent() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setQueryParams({ certificateNumber: certificateNumber.trim(), contact: contact.trim() || undefined });
+    setQueryParams({ certificateNumber: certificateNumber.trim(), contact: contact.trim() || undefined, documentType: initialDocumentType });
     setSubmitted(true);
   };
 

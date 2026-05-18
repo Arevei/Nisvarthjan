@@ -7,6 +7,8 @@ type GalleryDoc = {
   imageUrl: string;
   caption?: string | null;
   captionHindi?: string | null;
+  detailsEn?: string | null;
+  detailsHi?: string | null;
   category: string;
   createdAt: Date | string;
 };
@@ -17,6 +19,8 @@ function fmt(g: WithId<GalleryDoc> | GalleryDoc) {
     imageUrl: g.imageUrl,
     caption: g.caption ?? null,
     captionHindi: g.captionHindi ?? null,
+    detailsEn: g.detailsEn ?? null,
+    detailsHi: g.detailsHi ?? null,
     category: g.category,
     createdAt: new Date(g.createdAt).toISOString(),
   };

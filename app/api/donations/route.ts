@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb, nextSequence } from "@/lib/db";
+import { sendDonationReceiptEmail } from "@/lib/email";
 
 function generateReceiptNumber() {
   return `RCP-NSF-${Date.now().toString().slice(-8)}-${Math.floor(Math.random() * 9000) + 1000}`;
@@ -147,8 +148,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let emailSent = false;
+    if (paymentMode === "manual") {
+      try {
+        await sendDonationReceiptEmail(donation, req.url);
+        emailSent = true;
+      } catch (emailError) {
+        console.error("Donation receipt email failed:", emailError);
+      }
+    }
+
     return NextResponse.json(
-      toResponse(
+      {
+        ...toResponse(
         donation,
         razorpayOrder
           ? {
@@ -159,7 +171,9 @@ export async function POST(req: NextRequest) {
               currency: "INR",
             }
           : undefined,
-      ),
+        ),
+        emailSent,
+      },
       { status: 201 },
     );
   } catch (err) {

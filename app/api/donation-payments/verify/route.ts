@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { sendDonationReceiptEmail } from "@/lib/email";
 
 type PaymentVerifyBody = {
   donationId?: number;
@@ -112,7 +113,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ donation: toResponse(updated) });
+    let emailSent = true;
+    try {
+      await sendDonationReceiptEmail(updated, req.url);
+    } catch (emailError) {
+      emailSent = false;
+      console.error("Donation receipt email failed:", emailError);
+    }
+
+    return NextResponse.json({ donation: toResponse(updated), emailSent });
   } catch (error) {
     console.error("Donation payment verification failed:", error);
     return NextResponse.json({ error: "Payment verification failed" }, { status: 500 });
