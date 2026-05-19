@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { sendDonationReceiptEmail } from "@/lib/email";
+import { issueReferralAchievementIfEligible } from "@/lib/referral-achievement-service";
 
 type PaymentVerifyBody = {
   donationId?: number;
@@ -119,6 +120,10 @@ export async function POST(req: NextRequest) {
         { id: updated.campaignId },
         { $inc: { raisedAmount: updated.amount, donorCount: 1 } },
       );
+    }
+
+    if (updated.referral) {
+      await issueReferralAchievementIfEligible(db, updated.referral.memberId, req.url);
     }
 
     let emailSent = true;

@@ -10,6 +10,12 @@ type MemberVerificationDoc = {
   status?: string;
   certificateNumber?: string;
   joinedAt?: Date | string;
+  referralAchievement?: {
+    tier?: string;
+    certificateNumber?: string;
+    donationAmount?: number;
+    issuedAt?: Date | string;
+  } | null;
 };
 
 type VisitorCertificateVerificationDoc = {
@@ -131,6 +137,46 @@ export async function GET(req: NextRequest) {
             ? new Date(donation.createdAt).toISOString()
             : null,
         status,
+      });
+    }
+
+    if (documentType === "referral-achievement") {
+      const member = await db
+        .collection<MemberVerificationDoc>("members")
+        .findOne({ "referralAchievement.certificateNumber": lookupValue });
+
+      if (!member?.referralAchievement) {
+        return NextResponse.json({
+          isValid: false,
+          documentType,
+          verificationId: lookupValue,
+          certificateNumber: lookupValue,
+          status: "not_found",
+        });
+      }
+
+      if (contact && member.email !== contact && member.phone !== contact) {
+        return NextResponse.json({
+          isValid: false,
+          documentType,
+          verificationId: lookupValue,
+          certificateNumber: lookupValue,
+          status: "not_found",
+        });
+      }
+
+      return NextResponse.json({
+        isValid: true,
+        documentType,
+        verificationId: lookupValue,
+        certificateNumber: member.referralAchievement.certificateNumber ?? lookupValue,
+        memberName: member.name,
+        membershipId: member.membershipId,
+        membershipType: `${member.referralAchievement.tier ?? "referral"} badge`,
+        issuedAt: member.referralAchievement.issuedAt
+          ? new Date(member.referralAchievement.issuedAt).toISOString()
+          : null,
+        status: "issued",
       });
     }
 

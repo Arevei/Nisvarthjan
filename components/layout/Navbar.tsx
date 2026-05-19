@@ -38,7 +38,7 @@ export function Navbar() {
             {t("News", "News")}
           </Link>
           <Link href="/gallery" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("Gallery", "Gallery")}
+            {t("Activity Post", "Activity Post")}
           </Link>
           <Link href="/contact" className="text-sm font-medium transition-colors hover:text-primary">
             {t("Contact", "Contact")}

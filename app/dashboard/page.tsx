@@ -5,7 +5,7 @@ import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { User, Award, Calendar, LogOut, Shield, Download, CheckCircle2, Clock, CreditCard, AlertCircle, BadgeCheck, QrCode, Gift, Copy, HeartHandshake, Users } from "lucide-react";
+import { User, Award, Calendar, LogOut, Shield, Download, CheckCircle2, Clock, CreditCard, AlertCircle, BadgeCheck, QrCode, Gift, Copy, HeartHandshake, Users, Medal } from "lucide-react";
 
 function formatStatusLabel(status: string) {
   return status
@@ -69,6 +69,14 @@ function isBirthdayToday(dateOfBirth?: string | null) {
 
   const today = new Date();
   return date.getUTCDate() === today.getDate() && date.getUTCMonth() === today.getMonth();
+}
+
+function formatMoney(amount: number) {
+  return `Rs ${amount.toLocaleString("en-IN")}`;
+}
+
+function formatAchievementTier(tier: string) {
+  return tier.charAt(0).toUpperCase() + tier.slice(1);
 }
 
 export default function Dashboard() {
@@ -251,6 +259,32 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {user.referralAchievement && (
+            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-950 shadow-sm">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
+                    <Medal className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold">
+                      {formatAchievementTier(user.referralAchievement.tier)} Referral Achievement
+                    </h2>
+                    <p className="mt-1 text-sm text-amber-900/80">
+                      Certificate {user.referralAchievement.certificateNumber} for {formatMoney(user.referralAchievement.donationAmount)} donation collection.
+                    </p>
+                  </div>
+                </div>
+                <Button asChild variant="outline" className="border-amber-300 bg-white text-amber-800 hover:bg-amber-100">
+                  <a href="/api/referral-achievement/download">
+                    <Download className="mr-2 h-4 w-4" />
+                    Download Certificate
+                  </a>
+                </Button>
+              </div>
+            </div>
+          )}
+
           {isMembershipComplete && (
             <div className="mb-6 rounded-2xl border bg-card p-4 shadow-sm">
               <div className="overflow-hidden rounded-xl border bg-white">
@@ -415,9 +449,24 @@ export default function Dashboard() {
             {user.address && <div className="md:col-span-2"><dt className="text-muted-foreground">{t("Address", "पता")}</dt><dd className="font-medium text-foreground mt-1">{user.address}</dd></div>}
           </dl>
         </div>
+
+        <div className="mt-6 bg-card border rounded-xl p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-semibold text-foreground">{t("Donation History", "Donation History")}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t("Download a PDF statement of paid donations made with your registered email.", "Download a PDF statement of paid donations made with your registered email.")}
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <a href="/api/donation-history/download">
+                <Download className="w-4 h-4 mr-2" />
+                {t("Download History PDF", "Download History PDF")}
+              </a>
+            </Button>
+          </div>
+        </div>
       </div>
     </Layout>
   );
 }
-
-

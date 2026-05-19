@@ -23,7 +23,7 @@ export default function Gallery() {
       <div className="bg-primary/5 py-12 md:py-20 border-b">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4">
-            {t("Photo Gallery", "फोटो गैलरी")}
+            {t("Activity Posts", "Activity Posts")}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-serif">
             {t(
@@ -44,7 +44,7 @@ export default function Gallery() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {galleryItems.map((item) => {
-              const title = t(item.caption ?? "Gallery image", item.captionHindi ?? item.caption ?? "गैलरी छवि");
+              const title = t(item.caption ?? "Activity post image", item.captionHindi ?? item.caption ?? "Activity post image");
               const detailsEn = "detailsEn" in item ? item.detailsEn : null;
               const detailsHi = "detailsHi" in item ? item.detailsHi : null;
               return (

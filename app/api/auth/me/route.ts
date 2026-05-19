@@ -27,6 +27,7 @@ export async function GET() {
       status: member.status,
       certificateNumber: member.certificateNumber,
       referral: member.referral ?? null,
+      referralAchievement: member.referralAchievement ?? null,
       joinedAt: new Date(member.joinedAt).toISOString(),
     });
   } catch (err) {

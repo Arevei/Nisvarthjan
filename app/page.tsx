@@ -155,8 +155,8 @@ export default function Home() {
   const homeGalleryItems = uploadedGallery.length > 0
     ? uploadedGallery.slice(0, 6).map((item) => ({
       src: item.imageUrl,
-      titleEn: item.caption ?? "Gallery event",
-      titleHi: item.captionHindi ?? item.caption ?? "Gallery event",
+      titleEn: item.caption ?? "Activity post",
+      titleHi: item.captionHindi ?? item.caption ?? "Activity post",
       detailsEn: item.detailsEn ?? item.category,
       detailsHi: item.detailsHi ?? item.detailsEn ?? item.category,
     }))
@@ -470,7 +470,7 @@ export default function Home() {
                 {t("Ground Activities", "मैदानी गतिविधियाँ")}
               </p>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-                {t("Recent Gallery Highlights", "हाल की गैलरी झलकियाँ")}
+                {t("Recent Activity Posts", "Recent Activity Posts")}
               </h2>
               <p className="text-muted-foreground mt-2 max-w-2xl">
                 {t(
@@ -480,7 +480,7 @@ export default function Home() {
               </p>
             </div>
             <Link href="/gallery" className="hidden sm:flex items-center gap-1 text-primary font-medium text-sm hover:underline">
-              {t("View Full Gallery", "पूरी गैलरी देखें")} <ArrowRight className="w-4 h-4" />
+              {t("View Activity Posts", "View Activity Posts")} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -503,7 +503,7 @@ export default function Home() {
 
           <div className="text-center mt-8 sm:hidden">
             <Button variant="outline" asChild>
-              <Link href="/gallery">{t("View Full Gallery", "पूरी गैलरी देखें")}</Link>
+              <Link href="/gallery">{t("View Activity Posts", "View Activity Posts")}</Link>
             </Button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb, nextSequence } from "@/lib/db";
+import { sendEnquiryAutoResponseEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -13,12 +14,27 @@ export async function POST(req: NextRequest) {
     const doc = {
       id: await nextSequence("contacts"),
       name,
-      email,
+      email: String(email).trim().toLowerCase(),
       phone: phone ?? null,
       message,
+      status: "new",
+      autoResponseSent: false,
+      replies: [],
       createdAt: new Date(),
     };
     await db.collection("contacts").insertOne(doc);
+
+    let autoResponseSent = false;
+    try {
+      await sendEnquiryAutoResponseEmail(doc);
+      autoResponseSent = true;
+      await db.collection("contacts").updateOne(
+        { id: doc.id },
+        { $set: { autoResponseSent: true, autoResponseSentAt: new Date() } },
+      );
+    } catch (emailError) {
+      console.error("Enquiry auto response failed:", emailError);
+    }
 
     return NextResponse.json(
       {
@@ -27,6 +43,8 @@ export async function POST(req: NextRequest) {
         email: doc.email,
         phone: doc.phone,
         message: doc.message,
+        status: doc.status,
+        autoResponseSent,
         createdAt: doc.createdAt.toISOString(),
       },
       { status: 201 },

@@ -44,6 +44,8 @@ export interface Member {
   certificateNumber?: string | null;
   /** @nullable */
   referral?: ReferralInfo | null;
+  /** @nullable */
+  referralAchievement?: ReferralAchievement | null;
   joinedAt: string;
 }
 
@@ -53,6 +55,18 @@ export interface ReferralInfo {
   membershipId: string;
   memberName: string;
   referredAt: string;
+}
+
+export interface ReferralAchievement {
+  tier: "silver" | "gold" | "platinum" | "diamond";
+  certificateNumber: string;
+  donationAmount: number;
+  thresholdAmount: number;
+  issuedAt: string;
+  updatedAt?: string;
+  source: "automatic" | "admin";
+  emailSent?: boolean;
+  lastEmailSentAt?: string;
 }
 
 export type MemberInputMembershipType =

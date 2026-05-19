@@ -21,6 +21,7 @@ type MemberDoc = {
   status: string;
   certificateNumber?: string | null;
   referral?: ReferralInfo | null;
+  referralAchievement?: unknown;
   password?: string;
   payment?: {
     mode: "manual" | "razorpay";
@@ -123,6 +124,7 @@ function fmt(m: MemberDoc) {
     status: m.status,
     certificateNumber: m.certificateNumber ?? null,
     referral: m.referral ?? null,
+    referralAchievement: m.referralAchievement ?? null,
     joinedAt: new Date(m.joinedAt).toISOString(),
   };
 }

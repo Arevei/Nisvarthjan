@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb, nextSequence } from "@/lib/db";
 import { sendDonationReceiptEmail } from "@/lib/email";
+import { issueReferralAchievementIfEligible } from "@/lib/referral-achievement-service";
 
 function generateReceiptNumber() {
   return `RCP-NSF-${Date.now().toString().slice(-8)}-${Math.floor(Math.random() * 9000) + 1000}`;
@@ -181,6 +182,10 @@ export async function POST(req: NextRequest) {
         { id: normalizedCampaignId },
         { $inc: { raisedAmount: donationAmount, donorCount: 1 } },
       );
+    }
+
+    if (paymentMode === "manual" && referral) {
+      await issueReferralAchievementIfEligible(db, referral.memberId, req.url);
     }
 
     let emailSent = false;
