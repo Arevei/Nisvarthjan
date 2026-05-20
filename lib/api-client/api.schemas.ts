@@ -60,7 +60,11 @@ export interface ReferralInfo {
 export interface ReferralAchievement {
   tier: "silver" | "gold" | "platinum" | "diamond";
   certificateNumber: string;
+  membershipReferralCount?: number;
+  donationReferralCount?: number;
   donationAmount: number;
+  requiredMembershipReferrals?: number;
+  requiredDonationReferrals?: number;
   thresholdAmount: number;
   issuedAt: string;
   updatedAt?: string;

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -42,12 +42,20 @@ export default function CampaignDetail() {
   const [donorEmail, setDonorEmail] = useState("");
   const [amount, setAmount] = useState("");
   const [isPaying, setIsPaying] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
 
   const { data: campaign, isLoading } = useGetCampaign(id, {
     query: { enabled: !!id, queryKey: getGetCampaignQueryKey(id) },
   });
 
   const createDonation = useCreateDonation();
+
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (ref) {
+      setReferralCode(ref.trim().toUpperCase());
+    }
+  }, []);
 
   const verifyDonationPayment = async (donationId: number, response: RazorpaySuccess) => {
     const verifyResponse = await fetch("/api/donation-payments/verify", {
@@ -129,7 +137,16 @@ export default function CampaignDetail() {
       return;
     }
     createDonation.mutate(
-      { data: { amount: parseFloat(amount), donorName, donorEmail, campaignId: id, purpose: campaign?.title ?? "Campaign donation" } },
+      {
+        data: {
+          amount: parseFloat(amount),
+          donorName,
+          donorEmail,
+          campaignId: id,
+          purpose: campaign?.title ?? "Campaign donation",
+          referralCode: referralCode || undefined,
+        },
+      },
       {
         onSuccess: (donation) => startRazorpayPayment(donation),
         onError: () => toast({ title: t("Donation failed", "दान विफल"), variant: "destructive" }),
@@ -186,6 +203,11 @@ export default function CampaignDetail() {
 
           <div className="bg-card border rounded-2xl p-8 shadow-sm h-fit">
             <h2 className="text-xl font-serif font-bold text-foreground mb-6">{t("Support This Campaign", "इस अभियान का समर्थन करें")}</h2>
+            {referralCode && (
+              <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
+                Member referral applied: <span className="font-semibold">{referralCode}</span>
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-2 mb-4">
               {[500, 1000, 2500].map((a) => (
                 <button key={a} data-testid={`button-amount-${a}`} onClick={() => setAmount(String(a))} className={`py-2 rounded-lg border-2 font-semibold text-sm transition-all ${amount === String(a) ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary text-foreground"}`}>

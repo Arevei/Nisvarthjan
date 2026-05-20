@@ -6,28 +6,36 @@ import {
   getReferralAchievementTier,
   type ReferralAchievement,
   type ReferralAchievementMember,
+  type ReferralAchievementStats,
 } from "@/lib/referral-achievements";
 
-async function getPaidReferralDonationTotal(db: Db, memberId: number) {
-  const rows = await db
-    .collection("donations")
-    .aggregate<{ total: number }>([
-      {
-        $match: {
-          "referral.memberId": memberId,
-          $or: [{ status: "paid" }, { "payment.status": "paid" }, { payment: { $exists: false } }],
+export async function getReferralAchievementStats(db: Db, memberId: number): Promise<ReferralAchievementStats> {
+  const [membershipReferralCount, donationRows] = await Promise.all([
+    db.collection("members").countDocuments({ "referral.memberId": memberId }),
+    db
+      .collection("donations")
+      .aggregate<{ count: number; total: number }>([
+        {
+          $match: {
+            "referral.memberId": memberId,
+            $or: [{ status: "paid" }, { "payment.status": "paid" }, { payment: { $exists: false } }],
+          },
         },
-      },
-      { $group: { _id: null, total: { $sum: "$amount" } } },
-    ])
-    .toArray();
+        { $group: { _id: null, count: { $sum: 1 }, total: { $sum: "$amount" } } },
+      ])
+      .toArray(),
+  ]);
 
-  return Number(rows[0]?.total ?? 0);
+  return {
+    membershipReferralCount,
+    donationReferralCount: Number(donationRows[0]?.count ?? 0),
+    donationAmount: Number(donationRows[0]?.total ?? 0),
+  };
 }
 
 export async function issueReferralAchievementIfEligible(db: Db, memberId: number, requestUrl: string) {
-  const donationAmount = await getPaidReferralDonationTotal(db, memberId);
-  const tier = getReferralAchievementTier(donationAmount);
+  const stats = await getReferralAchievementStats(db, memberId);
+  const tier = getReferralAchievementTier(stats);
   if (!tier) return null;
 
   const members = db.collection<ReferralAchievementMember>("members");
@@ -43,7 +51,11 @@ export async function issueReferralAchievementIfEligible(db: Db, memberId: numbe
   const achievement: ReferralAchievement = {
     tier: tier.tier,
     certificateNumber: current?.certificateNumber || generateReferralAchievementCertificateNumber(tier.tier),
-    donationAmount,
+    membershipReferralCount: stats.membershipReferralCount,
+    donationReferralCount: stats.donationReferralCount,
+    donationAmount: stats.donationAmount,
+    requiredMembershipReferrals: tier.membershipReferralCount,
+    requiredDonationReferrals: tier.donationReferralCount,
     thresholdAmount: tier.thresholdAmount,
     issuedAt: current?.issuedAt || now,
     updatedAt: now,
