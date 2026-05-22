@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function GET() {
   const session = await getSession();
   if (!session.memberId) {
@@ -12,6 +16,26 @@ export async function GET() {
     const db = await getDb();
     const member = await db.collection("members").findOne({ id: session.memberId });
     if (!member) return NextResponse.json({ error: "Member not found" }, { status: 401 });
+
+    const donationRows = await db
+      .collection("donations")
+      .aggregate<{ totalAmount: number; count: number }>([
+        {
+          $match: {
+            donorEmail: { $regex: `^${escapeRegex(member.email)}$`, $options: "i" },
+            $or: [{ status: "paid" }, { "payment.status": "paid" }, { payment: { $exists: false } }],
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$amount" },
+            count: { $sum: 1 },
+          },
+        },
+      ])
+      .toArray();
+    const donationStats = donationRows[0] ?? { totalAmount: 0, count: 0 };
 
     return NextResponse.json({
       id: member.id,
@@ -28,6 +52,10 @@ export async function GET() {
       certificateNumber: member.certificateNumber,
       referral: member.referral ?? null,
       referralAchievement: member.referralAchievement ?? null,
+      donationStats: {
+        totalAmount: Number(donationStats.totalAmount ?? 0),
+        count: Number(donationStats.count ?? 0),
+      },
       joinedAt: new Date(member.joinedAt).toISOString(),
     });
   } catch (err) {

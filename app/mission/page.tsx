@@ -12,6 +12,7 @@ import { Heart, QrCode, CheckCircle } from "lucide-react";
 import { loadRazorpayScript, type RazorpaySuccess } from "@/lib/razorpay-client";
 
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000, 25000];
+const MIN_DONATION_AMOUNT = 100;
 
 export default function Donate() {
   const { t } = useLanguage();
@@ -104,7 +105,11 @@ export default function Donate() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalAmount = parseFloat(customAmount || amount);
-    if (!finalAmount || finalAmount <= 0) {
+    if (!finalAmount || finalAmount < MIN_DONATION_AMOUNT) {
+      toast({ title: t("Minimum donation amount is Rs 100", "न्यूनतम दान राशि Rs 100 है"), variant: "destructive" });
+      return;
+    }
+    if (finalAmount <= 0) {
       toast({ title: t("Please select or enter an amount", "कृपया राशि चुनें या दर्ज करें"), variant: "destructive" });
       return;
     }
@@ -167,8 +172,8 @@ export default function Donate() {
                   <button
                     key={amt}
                     data-testid={`button-amount-${amt}`}
-                    onClick={() => { setAmount(String(amt)); setCustomAmount(""); }}
-                    className={`py-3 rounded-lg border-2 font-semibold transition-all ${amount === String(amt) && !customAmount ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary text-foreground"}`}
+                    onClick={() => { setAmount(String(amt)); setCustomAmount(String(amt)); }}
+                    className={`py-3 rounded-lg border-2 font-semibold transition-all ${amount === String(amt) ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary text-foreground"}`}
                   >
                     ₹{amt.toLocaleString("en-IN")}
                   </button>
@@ -177,9 +182,17 @@ export default function Donate() {
               <Input
                 data-testid="input-custom-amount"
                 type="number"
+                min={MIN_DONATION_AMOUNT}
                 placeholder={t("Or enter custom amount", "या कस्टम राशि दर्ज करें")}
                 value={customAmount}
-                onChange={(e) => { setCustomAmount(e.target.value); setAmount(""); }}
+                onChange={(e) => { setCustomAmount(e.target.value); setAmount(e.target.value); }}
+                onBlur={(e) => {
+                  const value = Number(e.target.value);
+                  if (e.target.value && value < MIN_DONATION_AMOUNT) {
+                    setCustomAmount(String(MIN_DONATION_AMOUNT));
+                    setAmount(String(MIN_DONATION_AMOUNT));
+                  }
+                }}
                 className="mt-2"
               />
             </div>

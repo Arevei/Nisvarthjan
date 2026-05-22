@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb, nextSequence } from "@/lib/db";
 import { sendDonationReceiptEmail } from "@/lib/email";
 import { issueReferralAchievementIfEligible } from "@/lib/referral-achievement-service";
+import { getSession } from "@/lib/session";
 
 function generateReceiptNumber() {
   return `RCP-NSF-${Date.now().toString().slice(-8)}-${Math.floor(Math.random() * 9000) + 1000}`;
 }
+
+const MIN_DONATION_AMOUNT = 100;
 
 type DonationDoc = {
   id: number;
@@ -130,12 +133,24 @@ export async function POST(req: NextRequest) {
   const { amount, donorName, donorEmail, donorPhone, campaignId, purpose, referralCode } = body;
   const donationAmount = Number(amount);
 
-  if (!donationAmount || donationAmount <= 0 || !donorName || !donorEmail || !purpose) {
-    return NextResponse.json({ error: "amount, donorName, donorEmail, purpose are required" }, { status: 400 });
+  if (!donationAmount || donationAmount < MIN_DONATION_AMOUNT || !purpose) {
+    return NextResponse.json({ error: `Minimum donation amount is Rs ${MIN_DONATION_AMOUNT}` }, { status: 400 });
   }
 
   try {
     const db = await getDb();
+    const session = await getSession();
+    const signedInMember = session.memberId
+      ? await db.collection<{ id: number; name: string; email: string; phone?: string | null }>("members").findOne({ id: session.memberId })
+      : null;
+    const finalDonorName = signedInMember?.name || String(donorName ?? "").trim();
+    const finalDonorEmail = signedInMember?.email || String(donorEmail ?? "").trim();
+    const finalDonorPhone = signedInMember?.phone || String(donorPhone ?? "").trim();
+
+    if (!finalDonorName || !finalDonorEmail) {
+      return NextResponse.json({ error: "donor name and email are required" }, { status: 400 });
+    }
+
     const paymentMode = getDonationPaymentMode();
     const donationId = await nextSequence("donations");
     const receiptNumber = generateReceiptNumber();
@@ -155,9 +170,9 @@ export async function POST(req: NextRequest) {
     const donation: DonationDoc = {
       id: donationId,
       amount: donationAmount,
-      donorName,
-      donorEmail,
-      donorPhone: donorPhone || null,
+      donorName: finalDonorName,
+      donorEmail: finalDonorEmail,
+      donorPhone: finalDonorPhone || null,
       campaignId: normalizedCampaignId,
       purpose,
       receiptNumber,

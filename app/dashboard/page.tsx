@@ -10,7 +10,6 @@ import {
   AlertCircle,
   Award,
   BadgeCheck,
-  Calendar,
   CheckCircle2,
   Clock,
   Copy,
@@ -24,7 +23,6 @@ import {
   QrCode,
   Shield,
   User,
-  Users,
 } from "lucide-react";
 
 type AchievementTier = "silver" | "gold" | "platinum" | "diamond";
@@ -157,8 +155,9 @@ function formatMoney(amount: number) {
   return `Rs ${amount.toLocaleString("en-IN")}`;
 }
 
-function formatAchievementTier(tier: string) {
-  return tier.charAt(0).toUpperCase() + tier.slice(1);
+function progressPercent(value: number, total: number) {
+  if (!total || total <= 0) return 0;
+  return Math.min(100, Math.round((value / total) * 100));
 }
 
 function formatDate(value?: string | null) {
@@ -173,7 +172,7 @@ export default function Dashboard() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
   const [birthdayEmailStatus, setBirthdayEmailStatus] = useState<"idle" | "sent" | "failed" | "alreadySent">("idle");
-  const [copiedLink, setCopiedLink] = useState<"membership" | "donation" | "code" | null>(null);
+  const [copiedLink, setCopiedLink] = useState<"website" | "code" | null>(null);
   const [achievementStatus, setAchievementStatus] = useState<AchievementStatus | null>(null);
 
   useEffect(() => {
@@ -251,20 +250,17 @@ export default function Dashboard() {
   };
 
   const referralAchievement = achievementStatus?.currentAchievement ?? user.referralAchievement;
-  const currentTier = referralAchievement?.tier ?? "pending";
-  const currentTierStyle = tierStyles[currentTier];
+  const donationStats = user.donationStats ?? { totalAmount: 0, count: 0 };
+  const currentTier = referralAchievement?.tier ?? null;
+  const currentTierStyle = currentTier ? tierStyles[currentTier] : null;
   const statusInfo = getMembershipStatus(user.status, Boolean(user.certificateNumber));
   const isMembershipComplete = user.status === "active" && Boolean(user.certificateNumber);
   const baseUrl = typeof window === "undefined" ? "" : window.location.origin;
   const referralCode = encodeURIComponent(user.membershipId);
   const displayReferralCode = user.membershipId;
-  const referralLinks = {
-    membership: `${baseUrl}/membership?ref=${referralCode}`,
-    donation: `${baseUrl}/donate?ref=${referralCode}`,
-    campaignExample: `${baseUrl}/campaigns/[campaign-id]?ref=${referralCode}`,
-  };
-  const copyReferralLink = async (type: "membership" | "donation" | "code") => {
-    const text = type === "code" ? displayReferralCode : referralLinks[type];
+  const referralLink = `${baseUrl}/?ref=${referralCode}`;
+  const copyReferralLink = async (type: "website" | "code") => {
+    const text = type === "code" ? displayReferralCode : referralLink;
     await navigator.clipboard.writeText(text);
     setCopiedLink(type);
     window.setTimeout(() => setCopiedLink(null), 1800);
@@ -281,13 +277,15 @@ export default function Dashboard() {
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
+  const nextAchievement = achievementStatus?.tiers.find((tier) => !tier.unlocked) ?? null;
+  const completedAchievementCount = achievementStatus?.tiers.filter((tier) => tier.unlocked).length ?? 0;
 
   return (
     <Layout>
       <div className="container mx-auto max-w-6xl px-4 py-10">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary">Member workspace</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("Member workspace", "Member workspace")}</p>
             <h1 className="text-3xl font-serif font-bold text-foreground">{t("Member Dashboard", "Member Dashboard")}</h1>
           </div>
           <Button data-testid="button-logout" variant="outline" onClick={handleLogout}>
@@ -305,10 +303,12 @@ export default function Dashboard() {
               </div>
               <div className="min-w-0">
                 <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold uppercase ${currentTierStyle.badge}`}>
-                    <Medal className="mr-1.5 h-3.5 w-3.5" />
-                    {currentTierStyle.label}
-                  </span>
+                  {currentTierStyle && (
+                    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold uppercase ${currentTierStyle.badge}`}>
+                      <Medal className="mr-1.5 h-3.5 w-3.5" />
+                      {currentTierStyle.label}
+                    </span>
+                  )}
                   <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold uppercase text-white">
                     {formatStatusLabel(user.status)}
                   </span>
@@ -319,43 +319,41 @@ export default function Dashboard() {
                 <p data-testid="text-member-email" className="mt-2 break-all text-sm text-white/75">{user.email}</p>
                 <div className="mt-5 grid gap-3 text-sm text-white/80 sm:grid-cols-3">
                   <div>
-                    <p className="text-white/50">Membership ID</p>
+                    <p className="text-white/50">{t("Membership ID", "Membership ID")}</p>
                     <p data-testid="text-membership-id" className="font-mono font-bold text-white">{user.membershipId}</p>
                   </div>
                   <div>
-                    <p className="text-white/50">Member Type</p>
-                    <p className="font-semibold text-white">{formatStatusLabel(user.membershipType)} Member</p>
+                    <p className="text-white/50">{t("Member Type", "Member Type")}</p>
+                    <p className="font-semibold text-white">{formatStatusLabel(user.membershipType)} {t("Member", "सदस्य")}</p>
                   </div>
                   <div>
-                    <p className="text-white/50">Joined On</p>
+                    <p className="text-white/50">{t("Joined On", "Joined On")}</p>
                     <p className="font-semibold text-white">{formatDate(user.joinedAt)}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className={`rounded-xl border p-4 text-foreground ${currentTierStyle.panel}`}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-bold uppercase text-muted-foreground">Profile Badge</p>
-                  <h3 className="mt-1 text-lg font-bold">{currentTierStyle.label}</h3>
-                </div>
-                <span className={`flex h-10 w-10 items-center justify-center rounded-full ${currentTierStyle.mark}`}>
-                  <Medal className="h-5 w-5" />
-                </span>
-              </div>
-              {referralAchievement ? (
+            <div className={referralAchievement && currentTierStyle ? `rounded-xl border p-4 text-foreground ${currentTierStyle.panel}` : "hidden md:block"} aria-hidden={!referralAchievement}>
+              {referralAchievement && currentTierStyle && (
+                <>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase text-muted-foreground">{t("Profile Badge", "Profile Badge")}</p>
+                      <h3 className="mt-1 text-lg font-bold">{currentTierStyle.label}</h3>
+                    </div>
+                    <span className={`flex h-10 w-10 items-center justify-center rounded-full ${currentTierStyle.mark}`}>
+                      <Medal className="h-5 w-5" />
+                    </span>
+                  </div>
                 <div className="mt-4 space-y-2 text-sm">
-                  <p className="text-muted-foreground">Allotted certificate</p>
+                  <p className="text-muted-foreground">{t("Allotted certificate", "आवंटित प्रमाणपत्र")}</p>
                   <p className="break-all font-mono font-semibold text-foreground">{referralAchievement.certificateNumber}</p>
                   <p className="text-xs text-muted-foreground">
-                    Donation collection: {formatMoney(referralAchievement.donationAmount)}
+                    {t("Donation collection", "दान संग्रह")}: {formatMoney(referralAchievement.donationAmount)}
                   </p>
                 </div>
-              ) : (
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Silver, Gold, Platinum, and Diamond badges unlock from referral and donation achievements.
-                </p>
+                </>
               )}
             </div>
           </div>
@@ -435,19 +433,75 @@ export default function Dashboard() {
           </section>
         )}
 
+        
+
+        <section className="mt-6 grid gap-4 lg:grid-cols-3">
+          <div className="rounded-2xl border bg-card p-5 shadow-sm lg:col-span-2">
+            <h3 className="font-semibold text-foreground">{t("Personal Information", "Personal Information")}</h3>
+            <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="text-muted-foreground">{t("Mobile", "Mobile")}</dt>
+                <dd className="mt-1 font-medium text-foreground">{user.phone || t("Not available", "Not available")}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">{t("Date of Birth", "Date of Birth")}</dt>
+                <dd className="mt-1 font-medium text-foreground">{formatDate(user.dateOfBirth)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">{t("City", "City")}</dt>
+                <dd className="mt-1 font-medium text-foreground">{user.city || t("Not available", "Not available")}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">{t("State", "State")}</dt>
+                <dd className="mt-1 font-medium text-foreground">{user.state || t("Not available", "Not available")}</dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-muted-foreground">{t("Address", "Address")}</dt>
+                <dd className="mt-1 font-medium text-foreground">{user.address || t("Not available", "Not available")}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="rounded-2xl border bg-card p-5 shadow-sm">
+            <h3 className="font-semibold text-foreground">{t("Donation History", "Donation History")}</h3>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-lg border bg-background p-3">
+                <p className="text-xs text-muted-foreground">{t("Donations", "दान")}</p>
+                <p className="mt-1 text-xl font-bold text-foreground">{donationStats.count}</p>
+              </div>
+              <div className="rounded-lg border bg-background p-3">
+                <p className="text-xs text-muted-foreground">{t("Total Given", "कुल दान")}</p>
+                <p className="mt-1 text-xl font-bold text-foreground">{formatMoney(donationStats.totalAmount)}</p>
+              </div>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t(
+                "Download your paid donation statement linked to your registered email.",
+                "अपने पंजीकृत ईमेल से जुड़ा भुगतान किया गया दान विवरण डाउनलोड करें।",
+              )}
+            </p>
+            <Button asChild variant="outline" className="mt-5 w-full">
+              <a href="/api/donation-history/download">
+                <Download className="mr-2 h-4 w-4" />
+                {t("Download History PDF", "Download History PDF")}
+              </a>
+            </Button>
+          </div>
+        </section>
+
         <section className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           {isMembershipComplete && (
             <div className="rounded-2xl border bg-card p-5 shadow-sm">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-sm font-semibold uppercase text-primary">Digital ID</p>
-                  <h3 className="mt-1 text-xl font-bold text-foreground">Membership ID Card</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">Professional member identity card with QR verification.</p>
+                  <p className="text-sm font-semibold uppercase text-primary">{t("Digital ID", "डिजिटल आईडी")}</p>
+                  <h3 className="mt-1 text-xl font-bold text-foreground">{t("Membership ID Card", "सदस्यता आईडी कार्ड")}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t("Professional member identity card with QR verification.", "QR सत्यापन के साथ पेशेवर सदस्य पहचान पत्र।")}</p>
                 </div>
                 <Button asChild data-testid="button-download-id-card">
                   <a href="/api/membership-id-cards/download">
                     <Download className="mr-2 h-4 w-4" />
-                    Download ID Card
+                    {t("Download ID Card", "आईडी कार्ड डाउनलोड करें")}
                   </a>
                 </Button>
               </div>
@@ -462,41 +516,41 @@ export default function Dashboard() {
                 </div>
                 <div className="grid gap-4 p-4 sm:grid-cols-[88px_1fr]">
                   <div className="flex h-28 items-center justify-center rounded-lg border-2 border-dashed border-primary/35 bg-primary/5 text-center text-[10px] font-bold uppercase text-primary">
-                    Member Photo
+                    {t("Member Photo", "सदस्य फोटो")}
                   </div>
                   <div className="min-w-0">
                     <p className="break-words text-lg font-bold uppercase text-foreground">{user.name}</p>
-                    <p className="mt-1 text-xs font-semibold uppercase text-muted-foreground">{formatStatusLabel(user.membershipType)} Member</p>
+                    <p className="mt-1 text-xs font-semibold uppercase text-muted-foreground">{formatStatusLabel(user.membershipType)} {t("Member", "सदस्य")}</p>
                     <dl className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
                       <div>
-                        <dt className="text-muted-foreground">Membership ID</dt>
+                        <dt className="text-muted-foreground">{t("Membership ID", "सदस्यता आईडी")}</dt>
                         <dd className="font-mono font-bold text-primary">{user.membershipId}</dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground">Certificate</dt>
+                        <dt className="text-muted-foreground">{t("Certificate", "प्रमाणपत्र")}</dt>
                         <dd className="break-all font-mono font-bold text-primary">{user.certificateNumber}</dd>
                       </div>
                     </dl>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-8 px-4 pb-4 text-center text-[10px] text-muted-foreground">
-                  <div className="border-t pt-1">Member Signature</div>
-                  <div className="border-t pt-1">Authority Signature</div>
+                  <div className="border-t pt-1">{t("Member Signature", "सदस्य हस्ताक्षर")}</div>
+                  <div className="border-t pt-1">{t("Authority Signature", "प्राधिकृत हस्ताक्षर")}</div>
                 </div>
               </div>
             </div>
           )}
 
           <div className="rounded-2xl border bg-card p-5 shadow-sm">
-            <p className="text-sm font-semibold uppercase text-primary">Download Center</p>
-            <h3 className="mt-1 text-xl font-bold text-foreground">Allotted Documents</h3>
+            <p className="text-sm font-semibold uppercase text-primary">{t("Download Center", "डाउनलोड केंद्र")}</p>
+            <h3 className="mt-1 text-xl font-bold text-foreground">{t("Allotted Documents", "आवंटित दस्तावेज़")}</h3>
             <div className="mt-5 space-y-3">
               <div className="rounded-xl border bg-background p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-foreground">Membership Certificate</p>
+                    <p className="font-semibold text-foreground">{t("Membership Certificate", "सदस्यता प्रमाणपत्र")}</p>
                     <p data-testid="text-certificate-number" className="mt-1 break-all font-mono text-sm font-bold text-primary">
-                      {user.certificateNumber || "Certificate pending"}
+                      {user.certificateNumber || t("Certificate pending", "प्रमाणपत्र लंबित")}
                     </p>
                   </div>
                   <Award className="h-5 w-5 text-primary" />
@@ -506,13 +560,13 @@ export default function Dashboard() {
                     <Button asChild data-testid="button-download-cert" size="sm" variant="outline">
                       <a href="/api/certificates/download">
                         <Download className="mr-2 h-4 w-4" />
-                        Certificate
+                        {t("Certificate", "प्रमाणपत्र")}
                       </a>
                     </Button>
                     <Button asChild data-testid="button-verify-cert" size="sm" variant="outline">
                       <a href={`/verify/${encodeURIComponent(user.certificateNumber)}`}>
                         <Shield className="mr-2 h-4 w-4" />
-                        Verify
+                        {t("Verify", "सत्यापित करें")}
                       </a>
                     </Button>
                   </div>
@@ -522,8 +576,8 @@ export default function Dashboard() {
               <div className="rounded-xl border bg-background p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-foreground">Membership Receipt</p>
-                    <p className="mt-1 text-sm text-muted-foreground">Fee receipt PDF with QR verification.</p>
+                    <p className="font-semibold text-foreground">{t("Membership Receipt", "सदस्यता रसीद")}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{t("Fee receipt PDF with QR verification.", "QR सत्यापन के साथ शुल्क रसीद PDF।")}</p>
                   </div>
                   <CreditCard className="h-5 w-5 text-primary" />
                 </div>
@@ -531,7 +585,7 @@ export default function Dashboard() {
                   <Button asChild data-testid="button-download-receipt" size="sm" variant="outline" className="mt-3">
                     <a href="/api/membership-receipts/download">
                       <Download className="mr-2 h-4 w-4" />
-                      Receipt
+                      {t("Receipt", "रसीद")}
                     </a>
                   </Button>
                 )}
@@ -540,9 +594,9 @@ export default function Dashboard() {
               <div className="rounded-xl border bg-background p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-foreground">Achievement Certificate</p>
+                    <p className="font-semibold text-foreground">{t("Achievement Certificate", "उपलब्धि प्रमाणपत्र")}</p>
                     <p className="mt-1 break-all font-mono text-sm font-bold text-primary">
-                      {referralAchievement?.certificateNumber || "Not allotted yet"}
+                      {referralAchievement?.certificateNumber || t("Not allotted yet", "अभी आवंटित नहीं")}
                     </p>
                   </div>
                   <Medal className="h-5 w-5 text-primary" />
@@ -551,53 +605,12 @@ export default function Dashboard() {
                   <Button asChild size="sm" variant="outline" className="mt-3">
                     <a href="/api/referral-achievement/download">
                       <Download className="mr-2 h-4 w-4" />
-                      Achievement
+                      {t("Achievement", "उपलब्धि")}
                     </a>
                   </Button>
                 )}
               </div>
             </div>
-          </div>
-        </section>
-
-        <section className="mt-6 grid gap-4 lg:grid-cols-3">
-          <div className="rounded-2xl border bg-card p-5 shadow-sm lg:col-span-2">
-            <h3 className="font-semibold text-foreground">Personal Information</h3>
-            <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
-              <div>
-                <dt className="text-muted-foreground">Mobile</dt>
-                <dd className="mt-1 font-medium text-foreground">{user.phone || "Not available"}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Date of Birth</dt>
-                <dd className="mt-1 font-medium text-foreground">{formatDate(user.dateOfBirth)}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">City</dt>
-                <dd className="mt-1 font-medium text-foreground">{user.city || "Not available"}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">State</dt>
-                <dd className="mt-1 font-medium text-foreground">{user.state || "Not available"}</dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-muted-foreground">Address</dt>
-                <dd className="mt-1 font-medium text-foreground">{user.address || "Not available"}</dd>
-              </div>
-            </dl>
-          </div>
-
-          <div className="rounded-2xl border bg-card p-5 shadow-sm">
-            <h3 className="font-semibold text-foreground">Donation History</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Download your paid donation statement linked to your registered email.
-            </p>
-            <Button asChild variant="outline" className="mt-5 w-full">
-              <a href="/api/donation-history/download">
-                <Download className="mr-2 h-4 w-4" />
-                Download History PDF
-              </a>
-            </Button>
           </div>
         </section>
 
@@ -607,90 +620,143 @@ export default function Dashboard() {
               <Medal className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">Badge & Certificate Progress</h3>
+              <h3 className="font-semibold text-foreground">{t("Badge & Certificate Progress", "बैज और प्रमाणपत्र प्रगति")}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Silver, Gold, Platinum, and Diamond certificates unlock when referral and donation targets are reached.
+                {t(
+                  "Follow the next badge target. Future achievements open after the current badge is reached.",
+                  "अगले बैज लक्ष्य को पूरा करें। वर्तमान बैज पूरा होने के बाद आगे की उपलब्धियां खुलेंगी।",
+                )}
               </p>
             </div>
           </div>
 
           {achievementStatus ? (
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              {achievementStatus.tiers.map((tier) => {
-                const style = tierStyles[tier.tier];
-                const membershipProgress = Math.min(
-                  100,
-                  (achievementStatus.stats.membershipReferralCount / tier.membershipReferralCount) * 100,
-                );
-                const donationProgress = Math.min(
-                  100,
-                  (achievementStatus.stats.donationReferralCount / tier.donationReferralCount) * 100,
-                );
-                const amountProgress = Math.min(100, (achievementStatus.stats.donationAmount / tier.thresholdAmount) * 100);
+            <div className="mt-6 space-y-5">
+              <div className="overflow-x-auto pb-2">
+                <div className="grid min-w-[680px] grid-cols-4 items-start gap-3">
+                  {achievementStatus.tiers.map((tier, index) => {
+                    const isCurrent = nextAchievement?.tier === tier.tier;
+                    const isCompleted = tier.unlocked;
+                    const style = tierStyles[tier.tier];
 
-                return (
-                  <div key={tier.tier} className={`rounded-xl border p-4 ${style.panel}`}>
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <span className={`flex h-9 w-9 items-center justify-center rounded-full ${style.mark}`}>
-                          <Medal className="h-4 w-4" />
+                    return (
+                      <div key={tier.tier} className="relative flex flex-col items-center text-center">
+                        {index > 0 && (
+                          <div
+                            className={`absolute right-1/2 top-5 h-0.5 w-full ${
+                              index <= completedAchievementCount ? "bg-primary" : "bg-border"
+                            }`}
+                          />
+                        )}
+                        <span
+                          className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 ${
+                            isCompleted
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : isCurrent
+                                ? `${style.mark} border-transparent`
+                                : "border-border bg-background text-muted-foreground"
+                          }`}
+                        >
+                          {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : isCurrent ? <Medal className="h-5 w-5" /> : <Lock className="h-4 w-4" />}
                         </span>
-                        <div>
-                          <p className="font-semibold text-foreground">{tier.label} Badge</p>
-                          <p className="text-xs text-muted-foreground">Achievement Certificate</p>
-                        </div>
+                        <p className={`mt-2 text-sm font-semibold ${isCurrent || isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
+                          {tier.label}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {isCompleted ? t("Completed", "पूर्ण") : isCurrent ? t("Current target", "वर्तमान लक्ष्य") : t("Upcoming", "आगामी")}
+                        </p>
                       </div>
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          tier.unlocked ? "bg-green-100 text-green-800" : "bg-white/80 text-zinc-700"
-                        }`}
-                      >
-                        {tier.unlocked ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                        {tier.unlocked ? "Unlocked" : "Locked"}
-                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {nextAchievement ? (
+                <div className={`rounded-xl border p-5 ${tierStyles[nextAchievement.tier].panel}`}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-xs font-bold uppercase text-muted-foreground">{t("Next achievement", "अगली उपलब्धि")}</p>
+                      <h4 className="mt-1 text-xl font-bold text-foreground">{nextAchievement.label} Badge</h4>
+                      <p className="mt-1 text-sm text-muted-foreground">{t("Complete these targets to unlock your next certificate.", "अपना अगला प्रमाणपत्र खोलने के लिए ये लक्ष्य पूरे करें।")}</p>
+                    </div>
+                    <span className="inline-flex w-fit items-center gap-1 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-zinc-700">
+                      <Lock className="h-3.5 w-3.5" />
+                      {t("In progress", "प्रगति में")}
+                    </span>
+                  </div>
+
+                  <div className="mt-5 grid gap-4 md:grid-cols-3">
+                    <div>
+                      <div className="mb-2 flex justify-between gap-3 text-sm">
+                        <span className="text-muted-foreground">{t("Membership referrals", "सदस्यता रेफरल")}</span>
+                        <span className="font-medium text-foreground">
+                          {achievementStatus.stats.membershipReferralCount}/{nextAchievement.membershipReferralCount}
+                        </span>
+                      </div>
+                      <div className="h-3 overflow-hidden rounded-full bg-rose-100 ring-1 ring-rose-200">
+                        <div
+                          className="h-full rounded-full bg-rose-700"
+                          style={{
+                            width: `${progressPercent(achievementStatus.stats.membershipReferralCount, nextAchievement.membershipReferralCount)}%`,
+                          }}
+                        />
+                      </div>
                     </div>
 
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <div className="mb-1 flex justify-between gap-3">
-                          <span className="text-muted-foreground">Membership referrals</span>
-                          <span className="font-medium text-foreground">
-                            {achievementStatus.stats.membershipReferralCount}/{tier.membershipReferralCount}
-                          </span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-white">
-                          <div className="h-full rounded-full bg-primary" style={{ width: `${membershipProgress}%` }} />
-                        </div>
+                    <div>
+                      <div className="mb-2 flex justify-between gap-3 text-sm">
+                        <span className="text-muted-foreground">{t("Donation referrals", "दान रेफरल")}</span>
+                        <span className="font-medium text-foreground">
+                          {achievementStatus.stats.donationReferralCount}/{nextAchievement.donationReferralCount}
+                        </span>
                       </div>
-                      <div>
-                        <div className="mb-1 flex justify-between gap-3">
-                          <span className="text-muted-foreground">Donation referrals</span>
-                          <span className="font-medium text-foreground">
-                            {achievementStatus.stats.donationReferralCount}/{tier.donationReferralCount}
-                          </span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-white">
-                          <div className="h-full rounded-full bg-primary" style={{ width: `${donationProgress}%` }} />
-                        </div>
+                      <div className="h-3 overflow-hidden rounded-full bg-amber-100 ring-1 ring-amber-200">
+                        <div
+                          className="h-full rounded-full bg-amber-600"
+                          style={{
+                            width: `${progressPercent(achievementStatus.stats.donationReferralCount, nextAchievement.donationReferralCount)}%`,
+                          }}
+                        />
                       </div>
-                      <div>
-                        <div className="mb-1 flex justify-between gap-3">
-                          <span className="text-muted-foreground">Donation collection</span>
-                          <span className="font-medium text-foreground">
-                            {formatMoney(achievementStatus.stats.donationAmount)}/{formatMoney(tier.thresholdAmount)}
-                          </span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-white">
-                          <div className="h-full rounded-full bg-primary" style={{ width: `${amountProgress}%` }} />
-                        </div>
+                    </div>
+
+                    <div>
+                      <div className="mb-2 flex justify-between gap-3 text-sm">
+                        <span className="text-muted-foreground">{t("Donation collection", "दान संग्रह")}</span>
+                        <span className="font-medium text-foreground">
+                          {formatMoney(achievementStatus.stats.donationAmount)}/{formatMoney(nextAchievement.thresholdAmount)}
+                        </span>
+                      </div>
+                      <div className="h-3 overflow-hidden rounded-full bg-emerald-100 ring-1 ring-emerald-200">
+                        <div
+                          className="h-full rounded-full bg-emerald-600"
+                          style={{ width: `${progressPercent(achievementStatus.stats.donationAmount, nextAchievement.thresholdAmount)}%` }}
+                        />
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-950">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                      <CheckCircle2 className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <h4 className="font-bold">{t("All badge achievements unlocked", "सभी बैज उपलब्धियां खुल गईं")}</h4>
+                      <p className="mt-1 text-sm text-emerald-900/80">
+                        {t(
+                          "Your Silver, Gold, Platinum, and Diamond achievement certificates are complete.",
+                          "आपके सिल्वर, गोल्ड, प्लैटिनम और डायमंड उपलब्धि प्रमाणपत्र पूरे हो गए हैं।",
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
-            <p className="mt-5 rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">Loading certificate progress...</p>
+            <p className="mt-5 rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">{t("Loading certificate progress...", "प्रमाणपत्र प्रगति लोड हो रही है...")}</p>
           )}
         </section>
 
@@ -700,56 +766,38 @@ export default function Dashboard() {
               <HeartHandshake className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">Referral Links</h3>
+              <h3 className="font-semibold text-foreground">{t("Referral Link", "रेफरल लिंक")}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Share these links so new members and donations are credited to your membership ID.
+                {t(
+                  "Share one link for the whole website. When someone opens it, your referral code is saved and used for membership, donation, and campaign forms.",
+                  "पूरी वेबसाइट के लिए एक लिंक साझा करें। कोई इसे खोले तो आपका रेफरल कोड सुरक्षित होकर सदस्यता, दान और अभियान फॉर्म में उपयोग होगा।",
+                )}
               </p>
             </div>
           </div>
 
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <div className="rounded-xl border bg-background p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <Users className="h-4 w-4 text-primary" />
-                <h4 className="text-sm font-semibold text-foreground">Membership Referral</h4>
-              </div>
-              <p className="break-all rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">{referralLinks.membership}</p>
-              <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => copyReferralLink("membership")}>
-                <Copy className="mr-2 h-4 w-4" />
-                {copiedLink === "membership" ? "Copied" : "Copy Link"}
-              </Button>
-            </div>
-
-            <div className="rounded-xl border bg-background p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <HeartHandshake className="h-4 w-4 text-primary" />
-                <h4 className="text-sm font-semibold text-foreground">Donation Referral</h4>
-              </div>
-              <p className="break-all rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">{referralLinks.donation}</p>
-              <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => copyReferralLink("donation")}>
-                <Copy className="mr-2 h-4 w-4" />
-                {copiedLink === "donation" ? "Copied" : "Copy Link"}
-              </Button>
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-xl border bg-muted/40 p-4 text-sm text-muted-foreground">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="mt-5 rounded-xl border bg-background p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="font-semibold text-foreground">Campaign donation referral</p>
-                <p className="mt-1">
-                  For any campaign, share the campaign URL with <span className="font-mono text-foreground">?ref={displayReferralCode}</span>.
-                  Example: <span className="break-all font-mono text-foreground">{referralLinks.campaignExample}</span>
-                </p>
-                <p className="mt-2">
-                  When the donor completes payment, the donation is stored with your referral code. Admin can then see how many members you added,
-                  how many donors you referred, and how much donation amount was collected through you.
+                <div className="mb-3 flex items-center gap-2">
+                  <HeartHandshake className="h-4 w-4 text-primary" />
+                  <h4 className="text-sm font-semibold text-foreground">{t("Website Referral", "वेबसाइट रेफरल")}</h4>
+                </div>
+                <p className="break-all rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">{referralLink}</p>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {t("Referral code", "रेफरल कोड")}: <span className="font-mono font-semibold text-foreground">{displayReferralCode}</span>
                 </p>
               </div>
-              <Button type="button" variant="outline" onClick={() => copyReferralLink("code")} className="shrink-0">
-                <Copy className="mr-2 h-4 w-4" />
-                {copiedLink === "code" ? "Copied" : "Copy Code"}
-              </Button>
+              <div className="grid gap-2 sm:grid-cols-2 lg:w-80">
+                <Button type="button" variant="outline" onClick={() => copyReferralLink("website")}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  {copiedLink === "website" ? t("Copied", "कॉपी हुआ") : t("Copy Link", "लिंक कॉपी करें")}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => copyReferralLink("code")}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  {copiedLink === "code" ? t("Copied", "कॉपी हुआ") : t("Copy Code", "कोड कॉपी करें")}
+                </Button>
+              </div>
             </div>
           </div>
         </section>

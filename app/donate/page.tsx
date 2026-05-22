@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
+import { useAuth } from "@/lib/auth-context";
 import { useCreateDonation } from "@/lib/api-client/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,12 +12,15 @@ import { useToast } from "@/hooks/use-toast";
 import { Heart, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import { loadRazorpayScript, type RazorpaySuccess } from "@/lib/razorpay-client";
+import { captureReferralCodeFromUrl } from "@/lib/referral-code";
 
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000, 25000];
 const DONATION_QR_IMAGE = "/QR-image.png";
+const MIN_DONATION_AMOUNT = 100;
 
 export default function Donate() {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
   const [customAmount, setCustomAmount] = useState("");
@@ -32,12 +36,17 @@ export default function Donate() {
   const createDonation = useCreateDonation();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get("ref");
-    if (ref) {
-      window.setTimeout(() => setReferralCode(ref.trim().toUpperCase()), 0);
-    }
+    window.setTimeout(() => setReferralCode(captureReferralCodeFromUrl()), 0);
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    window.setTimeout(() => {
+      setDonorName(user.name);
+      setDonorEmail(user.email);
+      setDonorPhone(user.phone || "");
+    }, 0);
+  }, [user]);
 
   const verifyDonationPayment = async (donationId: number, response: RazorpaySuccess) => {
     const verifyResponse = await fetch("/api/donation-payments/verify", {
@@ -118,11 +127,15 @@ export default function Donate() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalAmount = parseFloat(customAmount || amount);
-    if (!finalAmount || finalAmount <= 0) {
+    if (!finalAmount || finalAmount < MIN_DONATION_AMOUNT) {
+      toast({ title: t("Minimum donation amount is Rs 100", "न्यूनतम दान राशि Rs 100 है"), variant: "destructive" });
+      return;
+    }
+    if (finalAmount <= 0) {
       toast({ title: t("Please select or enter an amount", "कृपया राशि चुनें या दर्ज करें"), variant: "destructive" });
       return;
     }
-    if (!donorName || !donorEmail || !purpose) {
+    if ((!user && (!donorName || !donorEmail)) || !purpose) {
       toast({ title: t("Please fill all required fields", "कृपया सभी आवश्यक फ़ील्ड भरें"), variant: "destructive" });
       return;
     }
@@ -160,7 +173,7 @@ export default function Donate() {
                 </a>
               </Button>
             </div>
-            <Button className="bg-primary hover:bg-primary/90" onClick={() => { setReceipt(null); setReceiptContact(""); setAmount(""); setCustomAmount(""); setDonorName(""); setDonorEmail(""); setDonorPhone(""); setPurpose(""); }}>
+            <Button className="bg-primary hover:bg-primary/90" onClick={() => { setReceipt(null); setReceiptContact(""); setAmount(""); setCustomAmount(""); setDonorName(user?.name || ""); setDonorEmail(user?.email || ""); setDonorPhone(user?.phone || ""); setPurpose(""); }}>
               {t("Donate Again", "फिर से दान करें")}
             </Button>
           </div>
@@ -198,8 +211,8 @@ export default function Donate() {
                   <button
                     key={amt}
                     data-testid={`button-amount-${amt}`}
-                    onClick={() => { setAmount(String(amt)); setCustomAmount(""); }}
-                    className={`py-3 rounded-lg border-2 font-semibold transition-all ${amount === String(amt) && !customAmount ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary text-foreground"}`}
+                    onClick={() => { setAmount(String(amt)); setCustomAmount(String(amt)); }}
+                    className={`py-3 rounded-lg border-2 font-semibold transition-all ${amount === String(amt) ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary text-foreground"}`}
                   >
                     ₹{amt.toLocaleString("en-IN")}
                   </button>
@@ -208,26 +221,42 @@ export default function Donate() {
               <Input
                 data-testid="input-custom-amount"
                 type="number"
+                min={MIN_DONATION_AMOUNT}
                 placeholder={t("Or enter custom amount", "या कस्टम राशि दर्ज करें")}
                 value={customAmount}
-                onChange={(e) => { setCustomAmount(e.target.value); setAmount(""); }}
+                onChange={(e) => { setCustomAmount(e.target.value); setAmount(e.target.value); }}
+                onBlur={(e) => {
+                  const value = Number(e.target.value);
+                  if (e.target.value && value < MIN_DONATION_AMOUNT) {
+                    setCustomAmount(String(MIN_DONATION_AMOUNT));
+                    setAmount(String(MIN_DONATION_AMOUNT));
+                  }
+                }}
                 className="mt-2"
               />
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="name">{t("Full Name *", "पूरा नाम *")}</Label>
-                <Input data-testid="input-name" id="name" value={donorName} onChange={(e) => setDonorName(e.target.value)} required />
-              </div>
-              <div>
-                <Label htmlFor="email">{t("Email *", "ईमेल *")}</Label>
-                <Input data-testid="input-email" id="email" type="email" value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} required />
-              </div>
-              <div>
-                <Label htmlFor="phone">{t("Mobile Number", "मोबाइल नंबर")}</Label>
-                <Input data-testid="input-phone" id="phone" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} />
-              </div>
+              {user ? (
+                <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+                  {t("Donating as", "दानकर्ता")}: <span className="font-semibold">{user.name}</span> ({user.email})
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <Label htmlFor="name">{t("Full Name *", "पूरा नाम *")}</Label>
+                    <Input data-testid="input-name" id="name" value={donorName} onChange={(e) => setDonorName(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">{t("Email *", "ईमेल *")}</Label>
+                    <Input data-testid="input-email" id="email" type="email" value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">{t("Mobile Number", "मोबाइल नंबर")}</Label>
+                    <Input data-testid="input-phone" id="phone" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} />
+                  </div>
+                </>
+              )}
               <div>
                 <Label htmlFor="purpose">{t("Donation Purpose *", "दान का उद्देश्य *")}</Label>
                 <Select value={purpose} onValueChange={setPurpose}>

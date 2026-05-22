@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
+import { useAuth } from "@/lib/auth-context";
 import { useGetCampaign, getGetCampaignQueryKey, useCreateDonation } from "@/lib/api-client/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,9 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Users, Target, Heart } from "lucide-react";
 import { loadRazorpayScript, type RazorpaySuccess } from "@/lib/razorpay-client";
+import { captureReferralCodeFromUrl } from "@/lib/referral-code";
+
+const MIN_DONATION_AMOUNT = 100;
 
 const escapeHtml = (value: string) =>
   value
@@ -34,6 +38,7 @@ const toRenderableHtml = (value: string) => {
 
 export default function CampaignDetail() {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const params = useParams<{ id: string }>();
@@ -51,11 +56,16 @@ export default function CampaignDetail() {
   const createDonation = useCreateDonation();
 
   useEffect(() => {
-    const ref = new URLSearchParams(window.location.search).get("ref");
-    if (ref) {
-      setReferralCode(ref.trim().toUpperCase());
-    }
+    window.setTimeout(() => setReferralCode(captureReferralCodeFromUrl()), 0);
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    window.setTimeout(() => {
+      setDonorName(user.name);
+      setDonorEmail(user.email);
+    }, 0);
+  }, [user]);
 
   const verifyDonationPayment = async (donationId: number, response: RazorpaySuccess) => {
     const verifyResponse = await fetch("/api/donation-payments/verify", {
@@ -132,14 +142,19 @@ export default function CampaignDetail() {
 
   const handleDonate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !donorName || !donorEmail) {
+    const donationAmount = Number(amount);
+    if (!donationAmount || donationAmount < MIN_DONATION_AMOUNT) {
+      toast({ title: t("Minimum donation amount is Rs 100", "न्यूनतम दान राशि Rs 100 है"), variant: "destructive" });
+      return;
+    }
+    if (!amount || (!user && (!donorName || !donorEmail))) {
       toast({ title: t("Please fill all fields", "कृपया सभी फ़ील्ड भरें"), variant: "destructive" });
       return;
     }
     createDonation.mutate(
       {
         data: {
-          amount: parseFloat(amount),
+          amount: donationAmount,
           donorName,
           donorEmail,
           campaignId: id,
@@ -217,14 +232,35 @@ export default function CampaignDetail() {
             </div>
             <form onSubmit={handleDonate} className="space-y-4">
               <div>
-                <Input data-testid="input-amount" type="number" placeholder={t("Enter amount (₹)", "राशि दर्ज करें (₹)")} value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <Input
+                  data-testid="input-amount"
+                  type="number"
+                  min={MIN_DONATION_AMOUNT}
+                  placeholder={t("Enter amount (₹)", "राशि दर्ज करें (₹)")}
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  onBlur={(e) => {
+                    const value = Number(e.target.value);
+                    if (e.target.value && value < MIN_DONATION_AMOUNT) {
+                      setAmount(String(MIN_DONATION_AMOUNT));
+                    }
+                  }}
+                />
               </div>
-              <div>
-                <Input data-testid="input-name" placeholder={t("Your Name *", "आपका नाम *")} value={donorName} onChange={(e) => setDonorName(e.target.value)} required />
-              </div>
-              <div>
-                <Input data-testid="input-email" type="email" placeholder={t("Email Address *", "ईमेल पता *")} value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} required />
-              </div>
+              {user ? (
+                <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
+                  {t("Donating as", "दानकर्ता")}: <span className="font-semibold">{user.name}</span> ({user.email})
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <Input data-testid="input-name" placeholder={t("Your Name *", "आपका नाम *")} value={donorName} onChange={(e) => setDonorName(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Input data-testid="input-email" type="email" placeholder={t("Email Address *", "ईमेल पता *")} value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} required />
+                  </div>
+                </>
+              )}
               <Button data-testid="button-donate" type="submit" className="w-full bg-primary hover:bg-primary/90 py-6 text-lg" disabled={createDonation.isPending || isPaying}>
                 <Heart className="w-5 h-5 mr-2 fill-current" />
                 {createDonation.isPending || isPaying ? t("Processing...", "प्रसंस्करण...") : t("Donate Now", "अभी दान करें")}

@@ -26,22 +26,22 @@ export function Navbar() {
 
         <div className="hidden items-center gap-6 md:flex">
           <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("About Us", "About Us")}
+            {t("About Us", "हमारे बारे में")}
           </Link>
           <Link href="/services" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("Programs", "Programs")}
+            {t("Programs", "कार्यक्रम")}
           </Link>
           <Link href="/campaigns" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("Campaigns", "Campaigns")}
+            {t("Campaigns", "अभियान")}
           </Link>
           <Link href="/news" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("News", "News")}
+            {t("News", "समाचार")}
           </Link>
           <Link href="/gallery" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("Activity Post", "Activity Post")}
+            {t("Activity Post", "गतिविधि पोस्ट")}
           </Link>
           <Link href="/contact" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("Contact", "Contact")}
+            {t("Contact", "संपर्क")}
           </Link>
         </div>
 
@@ -54,15 +54,15 @@ export function Navbar() {
           </button>
           {user ? (
             <Link href="/dashboard" className="text-sm font-medium hover:text-primary">
-              {t("Dashboard", "Dashboard")}
+              {t("Dashboard", "डैशबोर्ड")}
             </Link>
           ) : (
             <Link href="/login" className="text-sm font-medium hover:text-primary">
-              {t("Login", "Login")}
+              {t("Login", "लॉगिन")}
             </Link>
           )}
           <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link href="/donate">{t("Donate Now", "Donate Now")}</Link>
+            <Link href="/donate">{t("Donate Now", "अभी दान करें")}</Link>
           </Button>
         </div>
       </div>

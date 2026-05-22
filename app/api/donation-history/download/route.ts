@@ -17,6 +17,10 @@ type CampaignDoc = {
   title: string;
 };
 
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function GET() {
   const session = await getSession();
   if (!session.memberId) {
@@ -34,7 +38,7 @@ export async function GET() {
     const donations = await db
       .collection<DonationHistoryRecord>("donations")
       .find({
-        donorEmail: member.email,
+        donorEmail: { $regex: `^${escapeRegex(member.email)}$`, $options: "i" },
         $or: [{ status: "paid" }, { "payment.status": "paid" }, { payment: { $exists: false } }],
       })
       .sort({ createdAt: -1 })

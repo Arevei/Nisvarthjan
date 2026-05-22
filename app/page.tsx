@@ -470,7 +470,7 @@ export default function Home() {
                 {t("Ground Activities", "मैदानी गतिविधियाँ")}
               </p>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-                {t("Recent Activity Posts", "Recent Activity Posts")}
+                {t("Recent Activity Posts", "हाल की गतिविधि पोस्ट")}
               </h2>
               <p className="text-muted-foreground mt-2 max-w-2xl">
                 {t(
@@ -480,7 +480,7 @@ export default function Home() {
               </p>
             </div>
             <Link href="/gallery" className="hidden sm:flex items-center gap-1 text-primary font-medium text-sm hover:underline">
-              {t("View Activity Posts", "View Activity Posts")} <ArrowRight className="w-4 h-4" />
+              {t("View Activity Posts", "गतिविधि पोस्ट देखें")} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -503,7 +503,7 @@ export default function Home() {
 
           <div className="text-center mt-8 sm:hidden">
             <Button variant="outline" asChild>
-              <Link href="/gallery">{t("View Activity Posts", "View Activity Posts")}</Link>
+              <Link href="/gallery">{t("View Activity Posts", "गतिविधि पोस्ट देखें")}</Link>
             </Button>
           </div>
         </div>

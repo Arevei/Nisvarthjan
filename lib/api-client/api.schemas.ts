@@ -46,6 +46,10 @@ export interface Member {
   referral?: ReferralInfo | null;
   /** @nullable */
   referralAchievement?: ReferralAchievement | null;
+  donationStats?: {
+    totalAmount: number;
+    count: number;
+  };
   joinedAt: string;
 }
 
