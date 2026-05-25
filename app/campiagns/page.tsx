@@ -24,6 +24,22 @@ const toPreviewText = (input: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+function formatCampaignDate(value?: string | null) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function campaignDuration(startDate?: string | null, endDate?: string | null) {
+  const start = formatCampaignDate(startDate);
+  const end = formatCampaignDate(endDate);
+  if (start && end) return `${start} - ${end}`;
+  if (start) return `Starts ${start}`;
+  if (end) return `Ends ${end}`;
+  return null;
+}
+
 export default function Campaigns() {
   const { t, language } = useLanguage();
   const { data: campaigns, isLoading } = useListCampaigns();
@@ -60,6 +76,7 @@ export default function Campaigns() {
             {campaigns.map((campaign) => {
               const progress = Math.min(100, Math.round((campaign.raisedAmount / campaign.goalAmount) * 100));
               const category = CATEGORY_LABELS[campaign.category] ?? CATEGORY_LABELS.general;
+              const duration = campaignDuration(campaign.startDate, campaign.endDate);
               return (
                 <div key={campaign.id} className="bg-card rounded-2xl border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col">
                   {campaign.imageUrl && (
@@ -75,6 +92,7 @@ export default function Campaigns() {
                     <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full w-fit mb-4">
                       {t(category.en, category.hi)}
                     </div>
+                    {duration && <p className="mb-3 text-xs font-medium text-muted-foreground">{duration}</p>}
                     <h3 className="text-xl font-bold font-serif mb-2 line-clamp-2">
                       {language === "hi" && campaign.titleHindi ? campaign.titleHindi : campaign.title}
                     </h3>

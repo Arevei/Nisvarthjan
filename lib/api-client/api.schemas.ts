@@ -151,6 +151,10 @@ export interface Campaign {
   /** @nullable */
   imageUrl?: string | null;
   isActive: boolean;
+  /** @nullable */
+  startDate?: string | null;
+  /** @nullable */
+  endDate?: string | null;
   createdAt: string;
   donorCount: number;
 }

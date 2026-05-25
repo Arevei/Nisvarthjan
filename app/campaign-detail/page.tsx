@@ -36,6 +36,22 @@ const toRenderableHtml = (value: string) => {
     .join("");
 };
 
+function formatCampaignDate(value?: string | null) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function campaignDuration(startDate?: string | null, endDate?: string | null) {
+  const start = formatCampaignDate(startDate);
+  const end = formatCampaignDate(endDate);
+  if (start && end) return `${start} - ${end}`;
+  if (start) return `Starts ${start}`;
+  if (end) return `Ends ${end}`;
+  return null;
+}
+
 export default function CampaignDetail() {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -178,6 +194,7 @@ export default function CampaignDetail() {
   }
 
   const pct = Math.min(100, (campaign.raisedAmount / campaign.goalAmount) * 100);
+  const duration = campaignDuration(campaign.startDate, campaign.endDate);
 
   return (
     <Layout>
@@ -197,6 +214,7 @@ export default function CampaignDetail() {
             )}
 
             <div className="inline-block bg-primary/10 text-primary text-sm font-semibold px-3 py-1 rounded-full mb-3 capitalize">{campaign.category}</div>
+            {duration && <p className="mb-3 text-sm font-medium text-muted-foreground">{duration}</p>}
             <h1 className="text-3xl font-serif font-bold text-foreground mb-4">{t(campaign.title, campaign.titleHindi)}</h1>
             <div
               className="prose prose-sm mb-6 max-w-none text-foreground prose-p:text-muted-foreground prose-headings:text-foreground prose-a:text-primary"

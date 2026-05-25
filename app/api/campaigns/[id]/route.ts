@@ -15,6 +15,8 @@ type CampaignDoc = {
   imageUrl?: string | null;
   isActive: boolean;
   donorCount?: number;
+  startDate?: Date | string | null;
+  endDate?: Date | string | null;
   createdAt: Date | string;
 };
 
@@ -31,6 +33,8 @@ function fmt(c: CampaignDoc) {
     imageUrl: c.imageUrl ?? null,
     isActive: Boolean(c.isActive),
     donorCount: Number(c.donorCount ?? 0),
+    startDate: c.startDate ? new Date(c.startDate).toISOString() : null,
+    endDate: c.endDate ? new Date(c.endDate).toISOString() : null,
     createdAt: new Date(c.createdAt).toISOString(),
   };
 }
