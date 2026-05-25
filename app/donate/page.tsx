@@ -264,12 +264,12 @@ export default function Donate() {
                     <SelectValue placeholder={t("Select purpose", "उद्देश्य चुनें")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="शिक्षा सहायता">{t("Education Support", "शिक्षा सहायता")}</SelectItem>
-                    <SelectItem value="स्वास्थ्य सेवा">{t("Health Services", "स्वास्थ्य सेवा")}</SelectItem>
-                    <SelectItem value="गरीब एवं जरूरतमंद सहायता">{t("Poor & Needy Support", "गरीब एवं जरूरतमंद सहायता")}</SelectItem>
-                    <SelectItem value="पर्यावरण अभियान">{t("Environment Campaign", "पर्यावरण अभियान")}</SelectItem>
-                    <SelectItem value="आपदा राहत कार्य">{t("Disaster Relief", "आपदा राहत कार्य")}</SelectItem>
-                    <SelectItem value="सामान्य दान">{t("General Donation", "सामान्य दान")}</SelectItem>
+                    <SelectItem value="Education Support">{t("Education Support", "शिक्षा सहायता")}</SelectItem>
+                    <SelectItem value="Health Services">{t("Health Services", "स्वास्थ्य सेवा")}</SelectItem>
+                    <SelectItem value="Poor & Needy Support">{t("Poor & Needy Support", "गरीब एवं जरूरतमंद सहायता")}</SelectItem>
+                    <SelectItem value="Environment Campaign">{t("Environment Campaign", "पर्यावरण अभियान")}</SelectItem>
+                    <SelectItem value="Disaster Relief">{t("Disaster Relief", "आपदा राहत कार्य")}</SelectItem>
+                    <SelectItem value="General Donation">{t("General Donation", "सामान्य दान")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -294,6 +294,19 @@ export default function Donate() {
                 className="mx-auto h-auto w-full max-w-sm rounded-lg border bg-white"
                 priority
               />
+              <div className="mt-5 rounded-xl border border-primary/20 bg-primary/5 p-4 text-left text-sm text-muted-foreground">
+                <p className="font-semibold text-foreground">{t("Direct QR payment note", "सीधे QR भुगतान के लिए नोट")}</p>
+                <p className="mt-2">
+                  {t(
+                    "If you want to donate directly, scan this QR code and complete the payment. After payment, email the payment screenshot or transaction details to",
+                    "यदि आप सीधे दान करना चाहते हैं, तो इस QR कोड को स्कैन करके भुगतान पूरा करें। भुगतान के बाद पेमेंट स्क्रीनशॉट या ट्रांजैक्शन विवरण इस ईमेल पर भेजें",
+                  )}{" "}
+                  <a className="font-semibold text-primary underline-offset-4 hover:underline" href="mailto:rishabh@arevei.com">
+                    rishabh@arevei.com
+                  </a>
+                  {t(" so the team can verify your donation and issue the receipt.", " ताकि टीम आपका दान सत्यापित करके रसीद जारी कर सके।")}
+                </p>
+              </div>
             </div>
 
             <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6">

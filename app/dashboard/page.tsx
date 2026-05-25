@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
@@ -26,6 +27,13 @@ import {
 } from "lucide-react";
 
 type AchievementTier = "silver" | "gold" | "platinum" | "diamond";
+
+const tierBadgeImages: Record<AchievementTier, string> = {
+  silver: "/achievement-badges/silver.png",
+  gold: "/achievement-badges/gold.png",
+  platinum: "/achievement-badges/platinum.png",
+  diamond: "/achievement-badges/diamond.png",
+};
 
 type AchievementStatus = {
   stats: {
@@ -279,6 +287,13 @@ export default function Dashboard() {
     .join("");
   const nextAchievement = achievementStatus?.tiers.find((tier) => !tier.unlocked) ?? null;
   const completedAchievementCount = achievementStatus?.tiers.filter((tier) => tier.unlocked).length ?? 0;
+  const tierDisplayNames: Record<AchievementTier, string> = {
+    silver: t("Silver", "सिल्वर"),
+    gold: t("Gold", "गोल्ड"),
+    platinum: t("Platinum", "प्लैटिनम"),
+    diamond: t("Diamond", "डायमंड"),
+  };
+  const badgeLabel = (tier: AchievementTier) => `${tierDisplayNames[tier]} ${t("Badge", "बैज")}`;
 
   return (
     <Layout>
@@ -303,10 +318,10 @@ export default function Dashboard() {
               </div>
               <div className="min-w-0">
                 <div className="mb-3 flex flex-wrap items-center gap-2">
-                  {currentTierStyle && (
+                  {currentTier && currentTierStyle && (
                     <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold uppercase ${currentTierStyle.badge}`}>
                       <Medal className="mr-1.5 h-3.5 w-3.5" />
-                      {currentTierStyle.label}
+                      {badgeLabel(currentTier)}
                     </span>
                   )}
                   <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold uppercase text-white">
@@ -340,7 +355,7 @@ export default function Dashboard() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-xs font-bold uppercase text-muted-foreground">{t("Profile Badge", "Profile Badge")}</p>
-                      <h3 className="mt-1 text-lg font-bold">{currentTierStyle.label}</h3>
+                      <h3 className="mt-1 text-lg font-bold">{badgeLabel(referralAchievement.tier)}</h3>
                     </div>
                     <span className={`flex h-10 w-10 items-center justify-center rounded-full ${currentTierStyle.mark}`}>
                       <Medal className="h-5 w-5" />
@@ -350,7 +365,7 @@ export default function Dashboard() {
                   <p className="text-muted-foreground">{t("Allotted certificate", "आवंटित प्रमाणपत्र")}</p>
                   <p className="break-all font-mono font-semibold text-foreground">{referralAchievement.certificateNumber}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t("Donation collection", "दान संग्रह")}: {formatMoney(referralAchievement.donationAmount)}
+                    {t("Donation amount from your referrals", "आपके रेफरल से दान राशि")}: {formatMoney(referralAchievement.donationAmount)}
                   </p>
                 </div>
                 </>
@@ -617,16 +632,58 @@ export default function Dashboard() {
         <section className="mt-6 rounded-2xl border bg-card p-5 shadow-sm">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Medal className="h-5 w-5" />
+              <HeartHandshake className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">{t("Badge & Certificate Progress", "बैज और प्रमाणपत्र प्रगति")}</h3>
+              <h3 className="font-semibold text-foreground">{t("Referral Link", "रेफरल लिंक")}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 {t(
-                  "Follow the next badge target. Future achievements open after the current badge is reached.",
-                  "अगले बैज लक्ष्य को पूरा करें। वर्तमान बैज पूरा होने के बाद आगे की उपलब्धियां खुलेंगी।",
+                  "Share this referral link. Memberships, donations, and campaign donations completed through it increase your badge progress.",
+                  "यह रेफरल लिंक साझा करें। इसके जरिए पूरी हुई सदस्यता, दान और अभियान दान आपकी बैज प्रगति बढ़ाते हैं।",
                 )}
               </p>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-xl border bg-background p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div className="mb-3 flex items-center gap-2">
+                  <HeartHandshake className="h-4 w-4 text-primary" />
+                  <h4 className="text-sm font-semibold text-foreground">{t("Website Referral", "वेबसाइट रेफरल")}</h4>
+                </div>
+                <p className="break-all rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">{referralLink}</p>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {t("Referral code", "रेफरल कोड")}: <span className="font-mono font-semibold text-foreground">{displayReferralCode}</span>
+                </p>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 lg:w-80">
+                <Button type="button" variant="outline" onClick={() => copyReferralLink("website")}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  {copiedLink === "website" ? t("Copied", "कॉपी हुआ") : t("Copy Link", "लिंक कॉपी करें")}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => copyReferralLink("code")}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  {copiedLink === "code" ? t("Copied", "कॉपी हुआ") : t("Copy Code", "कोड कॉपी करें")}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 border-t pt-5">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Medal className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">{t("Achievements", "उपलब्धियां")}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t(
+                    "Your referrals unlock achievement badges. Complete the next targets to receive the next certificate.",
+                    "आपके रेफरल उपलब्धि बैज खोलते हैं। अगला प्रमाणपत्र पाने के लिए अगले लक्ष्य पूरे करें।",
+                  )}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -643,24 +700,31 @@ export default function Dashboard() {
                       <div key={tier.tier} className="relative flex flex-col items-center text-center">
                         {index > 0 && (
                           <div
-                            className={`absolute right-1/2 top-5 h-0.5 w-full ${
+                            className={`absolute right-1/2 top-6 h-0.5 w-full ${
                               index <= completedAchievementCount ? "bg-primary" : "bg-border"
                             }`}
                           />
                         )}
                         <span
-                          className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 ${
+                          className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 bg-white p-1.5 shadow-sm ${
                             isCompleted
-                              ? "border-primary bg-primary text-primary-foreground"
+                              ? "border-primary"
                               : isCurrent
-                                ? `${style.mark} border-transparent`
-                                : "border-border bg-background text-muted-foreground"
+                                ? "border-primary"
+                                : "border-border opacity-70 grayscale"
                           }`}
                         >
-                          {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : isCurrent ? <Medal className="h-5 w-5" /> : <Lock className="h-4 w-4" />}
+                          <Image src={tierBadgeImages[tier.tier]} alt={badgeLabel(tier.tier)} width={36} height={36} className="h-9 w-9 object-contain" />
+                          <span
+                            className={`absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white ${
+                              isCompleted ? "bg-primary text-primary-foreground" : isCurrent ? style.mark : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {isCompleted ? <CheckCircle2 className="h-3 w-3" /> : isCurrent ? <Medal className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                          </span>
                         </span>
                         <p className={`mt-2 text-sm font-semibold ${isCurrent || isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
-                          {tier.label}
+                          {tierDisplayNames[tier.tier]}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {isCompleted ? t("Completed", "पूर्ण") : isCurrent ? t("Current target", "वर्तमान लक्ष्य") : t("Upcoming", "आगामी")}
@@ -676,7 +740,7 @@ export default function Dashboard() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-xs font-bold uppercase text-muted-foreground">{t("Next achievement", "अगली उपलब्धि")}</p>
-                      <h4 className="mt-1 text-xl font-bold text-foreground">{nextAchievement.label} Badge</h4>
+                      <h4 className="mt-1 text-xl font-bold text-foreground">{badgeLabel(nextAchievement.tier)}</h4>
                       <p className="mt-1 text-sm text-muted-foreground">{t("Complete these targets to unlock your next certificate.", "अपना अगला प्रमाणपत्र खोलने के लिए ये लक्ष्य पूरे करें।")}</p>
                     </div>
                     <span className="inline-flex w-fit items-center gap-1 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-zinc-700">
@@ -722,7 +786,7 @@ export default function Dashboard() {
 
                     <div>
                       <div className="mb-2 flex justify-between gap-3 text-sm">
-                        <span className="text-muted-foreground">{t("Donation collection", "दान संग्रह")}</span>
+                        <span className="text-muted-foreground">{t("Donation amount from referred donors", "रेफर किए गए दाताओं से दान राशि")}</span>
                         <span className="font-medium text-foreground">
                           {formatMoney(achievementStatus.stats.donationAmount)}/{formatMoney(nextAchievement.thresholdAmount)}
                         </span>
@@ -760,47 +824,6 @@ export default function Dashboard() {
           )}
         </section>
 
-        <section className="mt-6 rounded-2xl border bg-card p-5 shadow-sm">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <HeartHandshake className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground">{t("Referral Link", "रेफरल लिंक")}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t(
-                  "Share one link for the whole website. When someone opens it, your referral code is saved and used for membership, donation, and campaign forms.",
-                  "पूरी वेबसाइट के लिए एक लिंक साझा करें। कोई इसे खोले तो आपका रेफरल कोड सुरक्षित होकर सदस्यता, दान और अभियान फॉर्म में उपयोग होगा।",
-                )}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-xl border bg-background p-4">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <div className="mb-3 flex items-center gap-2">
-                  <HeartHandshake className="h-4 w-4 text-primary" />
-                  <h4 className="text-sm font-semibold text-foreground">{t("Website Referral", "वेबसाइट रेफरल")}</h4>
-                </div>
-                <p className="break-all rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">{referralLink}</p>
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {t("Referral code", "रेफरल कोड")}: <span className="font-mono font-semibold text-foreground">{displayReferralCode}</span>
-                </p>
-              </div>
-              <div className="grid gap-2 sm:grid-cols-2 lg:w-80">
-                <Button type="button" variant="outline" onClick={() => copyReferralLink("website")}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  {copiedLink === "website" ? t("Copied", "कॉपी हुआ") : t("Copy Link", "लिंक कॉपी करें")}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => copyReferralLink("code")}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  {copiedLink === "code" ? t("Copied", "कॉपी हुआ") : t("Copy Code", "कोड कॉपी करें")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
     </Layout>
   );

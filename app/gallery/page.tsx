@@ -23,7 +23,7 @@ export default function Gallery() {
       <div className="bg-primary/5 py-12 md:py-20 border-b">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4">
-            {t("Activity Posts", "Activity Posts")}
+            {t("Activity Posts", "गतिविधि पोस्ट")}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-serif">
             {t(

@@ -217,12 +217,12 @@ export default function Donate() {
                     <SelectValue placeholder={t("Select purpose", "उद्देश्य चुनें")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="शिक्षा सहायता">{t("Education Support", "शिक्षा सहायता")}</SelectItem>
-                    <SelectItem value="स्वास्थ्य सेवा">{t("Health Services", "स्वास्थ्य सेवा")}</SelectItem>
-                    <SelectItem value="गरीब एवं जरूरतमंद सहायता">{t("Poor & Needy Support", "गरीब एवं जरूरतमंद सहायता")}</SelectItem>
-                    <SelectItem value="पर्यावरण अभियान">{t("Environment Campaign", "पर्यावरण अभियान")}</SelectItem>
-                    <SelectItem value="आपदा राहत कार्य">{t("Disaster Relief", "आपदा राहत कार्य")}</SelectItem>
-                    <SelectItem value="सामान्य दान">{t("General Donation", "सामान्य दान")}</SelectItem>
+                    <SelectItem value="Education Support">{t("Education Support", "शिक्षा सहायता")}</SelectItem>
+                    <SelectItem value="Health Services">{t("Health Services", "स्वास्थ्य सेवा")}</SelectItem>
+                    <SelectItem value="Poor & Needy Support">{t("Poor & Needy Support", "गरीब एवं जरूरतमंद सहायता")}</SelectItem>
+                    <SelectItem value="Environment Campaign">{t("Environment Campaign", "पर्यावरण अभियान")}</SelectItem>
+                    <SelectItem value="Disaster Relief">{t("Disaster Relief", "आपदा राहत कार्य")}</SelectItem>
+                    <SelectItem value="General Donation">{t("General Donation", "सामान्य दान")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -8,11 +8,11 @@ export default function About() {
   return (
     <Layout>
       <div className="bg-primary/5 py-12 md:py-20 border-b">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4">
             {t("About Us", "हमारे बारे में")}
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl font-serif">
+          <p className="text-xl text-muted-foreground mx-auto max-w-2xl font-serif">
             {t(
               "A journey of selfless service dedicated to uplifting the most vulnerable sections of society.",
               "समाज के सबसे कमजोर वर्गों के उत्थान के लिए समर्पित निस्वार्थ सेवा की एक यात्रा।"
