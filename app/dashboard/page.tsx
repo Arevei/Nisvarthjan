@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { useAuth } from "@/lib/auth-context";
+import type { ActiveEnquiry } from "@/lib/api-client/api";
 import { Button } from "@/components/ui/button";
 import {
   AlertCircle,
@@ -21,7 +22,9 @@ import {
   Lock,
   LogOut,
   Medal,
+  MessageSquare,
   QrCode,
+  Send,
   Shield,
   User,
 } from "lucide-react";
@@ -175,6 +178,20 @@ function formatDate(value?: string | null) {
   return date.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" });
 }
 
+function formatDateTime(value?: string | null) {
+  if (!value) return "Not available";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Not available";
+  return date.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+function enquiryStatusClass(status: ActiveEnquiry["status"]) {
+  if (status === "new") return "bg-blue-100 text-blue-800";
+  if (status === "in_review") return "bg-amber-100 text-amber-800";
+  if (status === "replied") return "bg-emerald-100 text-emerald-800";
+  return "bg-muted text-muted-foreground";
+}
+
 export default function Dashboard() {
   const { t } = useLanguage();
   const { user, isLoading, logout } = useAuth();
@@ -182,6 +199,10 @@ export default function Dashboard() {
   const [birthdayEmailStatus, setBirthdayEmailStatus] = useState<"idle" | "sent" | "failed" | "alreadySent">("idle");
   const [copiedLink, setCopiedLink] = useState<"website" | "code" | null>(null);
   const [achievementStatus, setAchievementStatus] = useState<AchievementStatus | null>(null);
+  const [updatedEnquiries, setUpdatedEnquiries] = useState<Record<number, ActiveEnquiry>>({});
+  const [enquiryReplyDrafts, setEnquiryReplyDrafts] = useState<Record<number, string>>({});
+  const [enquiryBusyId, setEnquiryBusyId] = useState<number | null>(null);
+  const [enquiryError, setEnquiryError] = useState("");
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -252,9 +273,38 @@ export default function Dashboard() {
 
   if (!user) return null;
 
+  const activeEnquiries = (user.activeEnquiries ?? []).map((enquiry) => updatedEnquiries[enquiry.id] ?? enquiry);
+
   const handleLogout = () => {
     logout();
     router.push("/");
+  };
+
+  const sendEnquiryReply = async (enquiryId: number) => {
+    const message = enquiryReplyDrafts[enquiryId]?.trim();
+    if (!message) return;
+
+    setEnquiryBusyId(enquiryId);
+    setEnquiryError("");
+    try {
+      const response = await fetch(`/api/enquiries/${enquiryId}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ message }),
+      });
+      const payload = (await response.json()) as { error?: string; enquiry?: ActiveEnquiry };
+      if (!response.ok || !payload.enquiry) {
+        throw new Error(payload.error || "Failed to send reply");
+      }
+
+      setUpdatedEnquiries((current) => ({ ...current, [enquiryId]: payload.enquiry! }));
+      setEnquiryReplyDrafts((current) => ({ ...current, [enquiryId]: "" }));
+    } catch (replyError) {
+      setEnquiryError(replyError instanceof Error ? replyError.message : "Failed to send reply");
+    } finally {
+      setEnquiryBusyId(null);
+    }
   };
 
   const referralAchievement = achievementStatus?.currentAchievement ?? user.referralAchievement;
@@ -448,7 +498,90 @@ export default function Dashboard() {
           </section>
         )}
 
-        
+        {activeEnquiries.length > 0 && (
+          <section className="mt-6 rounded-2xl border bg-card p-5 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <MessageSquare className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold uppercase text-primary">{t("Active Enquiries", "Active Enquiries")}</p>
+                  <h3 className="mt-1 text-xl font-bold text-foreground">{t("Your conversations with the foundation", "Your conversations with the foundation")}</h3>
+                </div>
+              </div>
+              <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                {activeEnquiries.length} {activeEnquiries.length === 1 ? t("open", "open") : t("open", "open")}
+              </span>
+            </div>
+
+            {enquiryError && <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{enquiryError}</p>}
+
+            <div className="mt-5 space-y-4">
+              {activeEnquiries.map((enquiry) => (
+                <div key={enquiry.id} className="rounded-xl border bg-background p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{t("Enquiry", "Enquiry")} #{enquiry.id}</p>
+                      <p className="text-xs text-muted-foreground">{formatDateTime(enquiry.updatedAt ?? enquiry.createdAt)}</p>
+                    </div>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${enquiryStatusClass(enquiry.status)}`}>
+                      {formatStatusLabel(enquiry.status)}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div className="flex justify-end">
+                      <div className="max-w-[88%] rounded-2xl rounded-tr-sm bg-primary px-4 py-3 text-primary-foreground">
+                        <p className="whitespace-pre-wrap text-sm">{enquiry.message}</p>
+                        <p className="mt-2 text-[11px] opacity-80">{t("You", "You")} | {formatDateTime(enquiry.createdAt)}</p>
+                      </div>
+                    </div>
+
+                    {enquiry.replies.map((reply, index) => {
+                      const isMine = reply.sentBy.toLowerCase() === user.email.toLowerCase();
+                      return (
+                        <div key={`${reply.sentAt}-${index}`} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+                          <div
+                            className={`max-w-[88%] rounded-2xl px-4 py-3 ${
+                              isMine
+                                ? "rounded-tr-sm bg-primary text-primary-foreground"
+                                : "rounded-tl-sm border bg-card text-card-foreground"
+                            }`}
+                          >
+                            <p className="whitespace-pre-wrap text-sm">{reply.message}</p>
+                            <p className={`mt-2 text-[11px] ${isMine ? "opacity-80" : "text-muted-foreground"}`}>
+                              {isMine ? t("You", "You") : t("Foundation Team", "Foundation Team")} | {formatDateTime(reply.sentAt)}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                    <textarea
+                      value={enquiryReplyDrafts[enquiry.id] ?? ""}
+                      onChange={(event) => setEnquiryReplyDrafts((current) => ({ ...current, [enquiry.id]: event.target.value }))}
+                      className="min-h-20 flex-1 rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                      placeholder={t("Write a reply...", "Write a reply...")}
+                    />
+                    <Button
+                      type="button"
+                      className="sm:self-end"
+                      disabled={enquiryBusyId === enquiry.id || !(enquiryReplyDrafts[enquiry.id] ?? "").trim()}
+                      onClick={() => sendEnquiryReply(enquiry.id)}
+                    >
+                      <Send className="mr-2 h-4 w-4" />
+                      {enquiryBusyId === enquiry.id ? t("Sending", "Sending") : t("Send", "Send")}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
 
         <section className="mt-6 grid gap-4 lg:grid-cols-3">
           <div className="rounded-2xl border bg-card p-5 shadow-sm lg:col-span-2">

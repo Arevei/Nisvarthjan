@@ -50,7 +50,22 @@ export interface Member {
     totalAmount: number;
     count: number;
   };
+  activeEnquiries?: ActiveEnquiry[];
   joinedAt: string;
+}
+
+export interface ActiveEnquiry {
+  id: number;
+  message: string;
+  status: "new" | "in_review" | "replied" | "closed";
+  replies: Array<{
+    message: string;
+    sentBy: string;
+    sentAt: string;
+  }>;
+  createdAt: string;
+  /** @nullable */
+  updatedAt?: string | null;
 }
 
 export interface ReferralInfo {
