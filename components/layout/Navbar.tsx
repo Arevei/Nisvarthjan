@@ -39,7 +39,13 @@ export function Navbar() {
         const response = await fetch("/api/member-messages/latest");
         if (!response.ok) return;
         const payload = (await response.json()) as { message: MemberMessage | null };
-        if (cancelled || !payload.message) return;
+        if (cancelled) return;
+        if (!payload.message) {
+          setMemberMessage(null);
+          setMessageOpen(false);
+          setMessageDismissed(true);
+          return;
+        }
 
         const dismissedId = window.localStorage.getItem("nsf_latest_member_message_id");
         const alreadyDismissed = dismissedId === String(payload.message.id);
