@@ -52,7 +52,7 @@ export function Footer() {
           <div>
             <h4 className="mb-4 font-bold">{t("Connect", "संपर्क")}</h4>
             <p className="mb-3 text-sm text-muted-foreground">
-              {t("Office Location: Tihar and Rampura", "कार्यालय स्थान: तिहार और रामपुरा")}
+              {t("Office Location: Tihar and Rampura", "कार्यालय स्थान: ठिहार और रामपुरा")}
             </p>
           </div>
         </div>

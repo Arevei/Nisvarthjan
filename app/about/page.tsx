@@ -55,9 +55,10 @@ export default function About() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { roleEn: "Founder", roleHi: "संस्थापक", image: "/leadership/Founder.jpg" },
-              { roleEn: "Treasurer", roleHi: "सचिव", image: "/leadership/Treasurer.jpg" },
-              { roleEn: "Secretary", roleHi: "कोषाध्यक्ष", image: "/leadership/Secretary.jpg" },
+              {name:"Mayank Singh", roleEn: "Founder", roleHi: "संस्थापक", image: "/leadership/Founder.jpg" },
+              {name:"Hemant Pratap Singh", roleEn: "Vice president", roleHi: "संस्थापक", image: "/leadership/vice-president.jpeg" },
+              {name:"Punit Tiwari", roleEn: "Treasurer", roleHi: "सचिव", image: "/leadership/Treasurer.jpg" },
+              {name:"Himani Tiwari", roleEn: "Secretary , Social Affairs", roleHi: "कोषाध्यक्ष", image: "/leadership/Secretary.jpg" },
               
             ].map((member) => (
               <div key={member.roleEn} className="bg-card border rounded-2xl overflow-hidden shadow-sm">
@@ -67,7 +68,8 @@ export default function About() {
                   className="w-full aspect-[4/5] object-cover"
                 />
                 <div className="p-4 text-center">
-                  <h3 className="text-xl font-serif font-semibold text-foreground">
+                  <p className=" font-semibold text-xl">{member.name}</p>
+                  <h3 className=" text-lg font-serif  text-foreground">
                     {t(member.roleEn, member.roleHi)}
                   </h3>
                 </div>

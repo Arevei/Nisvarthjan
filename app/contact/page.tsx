@@ -45,7 +45,7 @@ export default function Contact() {
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
           {[
             { icon: MapPin, title: t("Address", "पता"), text: "Nisvarthjan Seva Foundation, Civil Lines, Prayagraj, Uttar Pradesh - 211001" },
-            { icon: Phone, title: t("Phone", "फोन"), text: "+91 94150 00000 / +91 94150 11111" },
+            { icon: Phone, title: t("Phone", "फोन"), text: "+91 73806 26179 / +91 88516 26084" },
             { icon: Mail, title: t("Email", "ईमेल"), text: "info@nisvarthjan.org / nsf@nisvarthjan.org" },
           ].map(({ icon: Icon, title, text }) => (
             <div key={title} className="bg-card border rounded-xl p-6 flex gap-4">
