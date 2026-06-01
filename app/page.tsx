@@ -226,7 +226,7 @@ export default function Home() {
             <div className="relative">
               <div className="rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=1200"
+                  src="/images/Vision.png"
                   alt="Vision — children learning"
                   className="w-full h-80 lg:h-[420px] object-cover"
                 />
@@ -235,10 +235,7 @@ export default function Home() {
                 <div className="text-2xl font-bold font-serif">2014</div>
                 <div className="text-xs opacity-80">{t("Est. — Serving India", "स्थापित — भारत सेवा")}</div>
               </div>
-              {/* second accent photo */}
-              <div className="absolute -top-5 -left-5 w-24 h-24 rounded-xl overflow-hidden border-4 border-white shadow-xl hidden md:block">
-                <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=300" alt="" className="w-full h-full object-cover" />
-              </div>
+              
             </div>
             <div>
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-2 text-sm font-semibold mb-5">
@@ -314,15 +311,12 @@ export default function Home() {
             <div className="order-1 lg:order-2 relative">
               <div className="rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=1200"
+                  src="/images/mission.png"
                   alt="Mission — volunteers serving"
                   className="w-full h-80 lg:h-[420px] object-cover"
                 />
               </div>
-              {/* second accent photo */}
-              <div className="absolute -top-5 -right-5 w-24 h-24 rounded-xl overflow-hidden border-4 border-white shadow-xl hidden md:block">
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300" alt="" className="w-full h-full object-cover" />
-              </div>
+              
               <div className="absolute -bottom-5 -left-5 bg-card border shadow-xl rounded-2xl p-5 max-w-xs hidden md:block">
                 <p className="text-sm text-muted-foreground italic leading-relaxed">
                   {t('\u201cSelfless service is the highest form of humanity.\u201d', '\u201cनिस्वार्थ सेवा मानवता का सर्वोच्च स्वरूप है।\u201d')}
