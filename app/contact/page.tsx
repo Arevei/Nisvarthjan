@@ -44,9 +44,9 @@ export default function Contact() {
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
           {[
-            { icon: MapPin, title: t("Address", "पता"), text: "Nisvarthjan Seva Foundation, Civil Lines, Prayagraj, Uttar Pradesh - 211001" },
+            { icon: MapPin, title: t("Address", "पता"), text: t("C/o Mayank Singh Sikarwar, Vill. & Po. Tihar Thana, Rampura (Jalaun), Jalaun, Jalaun, Uttar Pradesh, India, 285127", " केयर ऑफ़ मयंक सिंह सिकरवार, ग्राम व पोस्ट तिहार थाना, रामपुरा (जालौन), जालौन, जालौन, उत्तर प्रदेश, भारत, 285127")} ,
             { icon: Phone, title: t("Phone", "फोन"), text: "+91 73806 26179 / +91 88516 26084" },
-            { icon: Mail, title: t("Email", "ईमेल"), text: "info@nisvarthjan.org / nsf@nisvarthjan.org" },
+            { icon: Mail, title: t("Email", "ईमेल"), text: "nisvarthjansevango@gmail.com" },
           ].map(({ icon: Icon, title, text }) => (
             <div key={title} className="bg-card border rounded-xl p-6 flex gap-4">
               <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">

@@ -514,12 +514,12 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
             {[
-              {name:"Mayank Singh", roleEn: "Founder", roleHi: "संस्थापक", image: "/leadership/Founder.jpg" },
-              {name:"Hemant Pratap Singh", roleEn: "Vice president", roleHi: "संस्थापक", image: "/leadership/vice-president.jpeg" },
-              {name:"Punit Tiwari", roleEn: "Treasurer", roleHi: "सचिव", image: "/leadership/Treasurer.jpg" },
-              {name:"Himani Tiwari", roleEn: "Secretary , Social Affairs", roleHi: "कोषाध्यक्ष", image: "/leadership/Secretary.jpg" },
+              {name:"Mayank Singh", hname:"मयंक सिंह", roleEn: "Founder", roleHi: "संस्थापक", image: "/leadership/Founder.jpg" },
+              {name:"Hemant Pratap Singh", hname:"हेमंत प्रताप सिंह", roleEn: "Vice president", roleHi: "उपाध्यक्ष", image: "/leadership/vice-president.jpeg" },
+              {name:"Punit Tiwari", hname:"पुनीत तिवारी", roleEn: "Treasurer", roleHi: "कोषाध्यक्ष ", image: "/leadership/Treasurer.jpg" },
+              {name:"Himani Tiwari", hname:"हिमानी तिवारी", roleEn: "Secretary , Social Affairs", roleHi: "सचिव, सामाजिक मामले", image: "/leadership/Secretary.jpg" },
               
             ].map((member) => (
               <div key={member.roleEn} className="bg-card border rounded-2xl overflow-hidden shadow-sm">
@@ -529,7 +529,7 @@ export default function Home() {
                   className="w-full aspect-[4/5] object-cover"
                 />
                 <div className="p-4 text-center">
-                  <p className=" font-semibold text-xl">{member.name}</p>
+                  <p className=" font-semibold text-xl">{t(member.name,member.hname)}</p>
                   <h3 className=" text-lg font-serif  text-foreground">
                     {t(member.roleEn, member.roleHi)}
                   </h3>

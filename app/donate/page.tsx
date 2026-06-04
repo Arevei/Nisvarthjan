@@ -200,7 +200,7 @@ export default function Donate() {
             <h2 className="text-2xl font-serif font-bold text-foreground mb-6">{t("Make a Donation", "दान करें")}</h2>
             {referralCode && (
               <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
-                Member referral applied: <span className="font-semibold">{referralCode}</span>
+                {t("Member referral applied","सदस्य रेफ़रल लागू किया गया")}: <span className="font-semibold">{referralCode}</span>
               </div>
             )}
 
@@ -301,8 +301,8 @@ export default function Donate() {
                     "If you want to donate directly, scan this QR code and complete the payment. After payment, email the payment screenshot or transaction details to",
                     "यदि आप सीधे दान करना चाहते हैं, तो इस QR कोड को स्कैन करके भुगतान पूरा करें। भुगतान के बाद पेमेंट स्क्रीनशॉट या ट्रांजैक्शन विवरण इस ईमेल पर भेजें",
                   )}{" "}
-                  <a className="font-semibold text-primary underline-offset-4 hover:underline" href="mailto:rishabh@arevei.com">
-                    rishabh@arevei.com
+                  <a className="font-semibold text-primary underline-offset-4 hover:underline" href="mailto:nisvarthjansevango@gmail.com">
+                    nisvarthjansevango@gmail.com
                   </a>
                   {t(" so the team can verify your donation and issue the receipt.", " ताकि टीम आपका दान सत्यापित करके रसीद जारी कर सके।")}
                 </p>

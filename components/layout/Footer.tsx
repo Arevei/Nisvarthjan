@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "@/lib/language-context";
-
+import { MapPin, Phone, Mail } from "lucide-react";
 export function Footer() {
   const { t } = useLanguage();
 
@@ -51,14 +51,28 @@ export function Footer() {
 
           <div>
             <h4 className="mb-4 font-bold">{t("Connect", "संपर्क")}</h4>
-            <p className="mb-3 text-sm text-muted-foreground">
-              {t("Office Location: Tihar and Rampura", "कार्यालय स्थान: टिहार और रामपुरा")}
-            </p>
+
+            {[
+            { icon: MapPin, title: t("Address", "पता"), text: t("C/o Mayank Singh Sikarwar, Vill. & Po. Tihar Thana, Rampura (Jalaun), Jalaun, Jalaun, Uttar Pradesh, India, 285127", " केयर ऑफ़ मयंक सिंह सिकरवार, ग्राम व पोस्ट तिहार थाना, रामपुरा (जालौन), जालौन, जालौन, उत्तर प्रदेश, भारत, 285127")} ,
+            { icon: Phone, title: t("Phone", "फोन"), text: "+91 73806 26179 / +91 88516 26084" },
+            { icon: Mail, title: t("Email", "ईमेल"), text: "nisvarthjansevango@gmail.com" },
+          ].map(({ icon: Icon, title, text }) => (
+            <div key={title} className="flex gap-4 p-2">
+              <div className="">
+                <Icon className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">{title}</h3>
+                <p className="text-sm text-muted-foreground">{text}</p>
+              </div>
+            </div>
+          ))}
+           
           </div>
         </div>
 
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>{t("©", "©")} {new Date().getFullYear()} Nisvarthjan Seva Foundation. {t("All rights reserved.", "सर्वाधिकार सुरक्षित।")}</p>
+          <p>© {new Date().getFullYear()}  {t("Nisvarthjan Seva Foundation | All rights reserved.", " निस्वार्थजन सेवा फाउंडेशन । सर्वाधिकार सुरक्षित।")}</p>
           <p className="mt-2">{t("Lic. No:", "लाइसेंस संख्या:")} 4889004P2025NPL231619</p>
         </div>
       </div>

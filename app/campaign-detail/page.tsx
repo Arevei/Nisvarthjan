@@ -238,7 +238,7 @@ export default function CampaignDetail() {
             <h2 className="text-xl font-serif font-bold text-foreground mb-6">{t("Support This Campaign", "इस अभियान का समर्थन करें")}</h2>
             {referralCode && (
               <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
-                Member referral applied: <span className="font-semibold">{referralCode}</span>
+                {t("Member referral applied","सदस्य रेफ़रल लागू किया गया")}: <span className="font-semibold">{referralCode}</span>
               </div>
             )}
             <div className="grid grid-cols-3 gap-2 mb-4">
