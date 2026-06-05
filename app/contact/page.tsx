@@ -44,7 +44,7 @@ export default function Contact() {
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
           {[
-            { icon: MapPin, title: t("Address", "पता"), text: t("C/o Mayank Singh Sikarwar, Vill. & Po. Tihar Thana, Rampura (Jalaun), Jalaun, Jalaun, Uttar Pradesh, India, 285127", " केयर ऑफ़ मयंक सिंह सिकरवार, ग्राम व पोस्ट टिहर थाना, रामपुरा (जालौन), जालौन, जालौन, उत्तर प्रदेश, भारत, 285127")} ,
+            { icon: MapPin, title: t("Address", "पता"), text: t("C/o Mayank Singh Sikarwar, Vill. & Po. Tihar Thana, Rampura (Jalaun), Jalaun, Jalaun, Uttar Pradesh, India, 285127", " केयर ऑफ़ मयंक सिंह सिकरवार, ग्राम व पोस्ट टीहर थाना, रामपुरा (जालौन), जालौन, जालौन, उत्तर प्रदेश, भारत, 285127")} ,
             { icon: Phone, title: t("Phone", "फोन"), text: "+91 73806 26179 / +91 88516 26084" },
             { icon: Mail, title: t("Email", "ईमेल"), text: "nisvarthjansevango@gmail.com" },
           ].map(({ icon: Icon, title, text }) => (

@@ -3,10 +3,35 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  Bell,
+  Briefcase,
+  Heart,
+  Images,
+  Info,
+  Languages,
+  LayoutDashboard,
+  LogIn,
+  Megaphone,
+  Menu,
+  Newspaper,
+  Phone,
+} from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
 import { useAuth } from "@/lib/auth-context";
-import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 type MemberMessage = {
   id: number;
@@ -18,10 +43,20 @@ type MemberMessage = {
 export function Navbar() {
   const { language, setLanguage, t } = useLanguage();
   const { user } = useAuth();
+  const pathname = usePathname();
   const [memberMessage, setMemberMessage] = useState<MemberMessage | null>(null);
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageDismissed, setMessageDismissed] = useState(true);
   const notificationRef = useRef<HTMLDivElement | null>(null);
+
+  const navItems = [
+    { href: "/about", label: t("About Us", "हमारे बारे में"), icon: Info },
+    { href: "/services", label: t("Programs", "कार्यक्रम"), icon: Briefcase },
+    { href: "/campaigns", label: t("Campaigns", "अभियान"), icon: Megaphone },
+    { href: "/news", label: t("News", "समाचार"), icon: Newspaper },
+    { href: "/gallery", label: t("Activity Post", "गतिविधि पोस्ट"), icon: Images },
+    { href: "/contact", label: t("Contact", "संपर्क"), icon: Phone },
+  ];
 
   const dismissMessage = useCallback(() => {
     if (memberMessage && typeof window !== "undefined") {
@@ -81,39 +116,26 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-20 items-center justify-between px-4">
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex min-w-0 items-center">
           <Image
             src="/brand/navbar-logo.png"
             alt="Nisvarthjan Seva Foundation"
             width={270}
             height={70}
             priority
-            className="h-16 w-auto"
+            className="h-12 w-auto sm:h-16"
           />
         </Link>
 
         <div className="hidden items-center gap-6 md:flex">
-          <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("About Us", "हमारे बारे में")}
-          </Link>
-          <Link href="/services" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("Programs", "कार्यक्रम")}
-          </Link>
-          <Link href="/campaigns" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("Campaigns", "अभियान")}
-          </Link>
-          <Link href="/news" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("News", "समाचार")}
-          </Link>
-          <Link href="/gallery" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("Activity Post", "गतिविधि पोस्ट")}
-          </Link>
-          <Link href="/contact" className="text-sm font-medium transition-colors hover:text-primary">
-            {t("Contact", "संपर्क")}
-          </Link>
+          {navItems.map((item) => (
+            <Link key={item.href} href={item.href} className="text-sm font-medium transition-colors hover:text-primary">
+              {item.label}
+            </Link>
+          ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {memberMessage && (
             <div ref={notificationRef} className="relative">
               <button
@@ -123,7 +145,7 @@ export function Navbar() {
                   setMessageOpen((open) => !open);
                 }}
                 className="relative flex h-9 w-9 items-center justify-center rounded-full border bg-background text-foreground hover:text-primary"
-                aria-label={t("Notifications", "Notifications")}
+                aria-label={t("Notifications", "सूचनाएं")}
               >
                 <Bell className="h-4 w-4" />
                 {!messageDismissed && <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary" />}
@@ -131,34 +153,127 @@ export function Navbar() {
 
               {messageOpen && (
                 <div className="absolute right-0 top-11 w-[min(22rem,calc(100vw-2rem))] rounded-xl border bg-card p-4 text-card-foreground shadow-xl">
-                  <p className="text-xs font-semibold uppercase text-primary">{t("Member Notice", "Member Notice")}</p>
+                  <p className="text-xs font-semibold uppercase text-primary">{t("Member Notice", "सदस्य सूचना")}</p>
                   <h3 className="mt-1 font-serif text-lg font-bold">{memberMessage.title}</h3>
                   <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{memberMessage.message}</p>
                   <button type="button" onClick={dismissMessage} className="mt-3 text-xs font-semibold text-primary hover:underline">
-                    {t("Close", "Close")}
+                    {t("Close", "बंद करें")}
                   </button>
                 </div>
               )}
             </div>
           )}
+
           <button
             onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-            className="text-sm font-medium hover:text-primary"
+            className="hidden text-sm font-medium hover:text-primary md:inline-flex"
           >
             {language === "hi" ? "English" : "Hindi"}
           </button>
           {user ? (
-            <Link href="/dashboard" className="text-sm font-medium hover:text-primary">
+            <Link href="/dashboard" className="hidden text-sm font-medium hover:text-primary md:inline-flex">
               {t("Dashboard", "डैशबोर्ड")}
             </Link>
           ) : (
-            <Link href="/login" className="text-sm font-medium hover:text-primary">
+            <Link href="/login" className="hidden text-sm font-medium hover:text-primary md:inline-flex">
               {t("Login", "लॉगिन")}
             </Link>
           )}
-          <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button asChild className="hidden bg-primary text-primary-foreground hover:bg-primary/90 md:inline-flex">
             <Link href="/donate">{t("Donate Now", "अभी दान करें")}</Link>
           </Button>
+
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="md:hidden" aria-label={t("Open menu", "मेनू खोलें")}>
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="flex w-[88vw] max-w-sm flex-col overflow-y-auto p-0">
+              <SheetHeader className="border-b bg-accent/60 px-5 pb-5 pt-6 text-left">
+                <SheetTitle className="pr-8 font-serif text-2xl text-primary">
+                  {t("Nisvarthjan Seva", "निस्वार्थजन सेवा")}
+                </SheetTitle>
+                <SheetDescription>
+                  {t("Explore pages, member area, and ways to support.", "पेज, सदस्य क्षेत्र और सहयोग के विकल्प देखें।")}
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="flex flex-1 flex-col gap-5 px-5 py-5">
+                <div className="grid gap-2">
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+
+                    return (
+                      <SheetClose key={item.href} asChild>
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            "flex min-h-12 items-center gap-3 rounded-lg border px-3 text-sm font-semibold transition-colors",
+                            isActive
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-transparent bg-background hover:border-primary/20 hover:bg-accent hover:text-primary"
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "flex h-9 w-9 shrink-0 items-center justify-center rounded-md",
+                              isActive ? "bg-primary-foreground/15" : "bg-accent text-primary"
+                            )}
+                          >
+                            <Icon className="h-4 w-4" />
+                          </span>
+                          <span className="truncate">{item.label}</span>
+                        </Link>
+                      </SheetClose>
+                    );
+                  })}
+                </div>
+
+                <Separator />
+
+                <div className="grid gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+                    className="flex min-h-12 items-center gap-3 rounded-lg border border-transparent bg-background px-3 text-left text-sm font-semibold transition-colors hover:border-primary/20 hover:bg-accent hover:text-primary"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent text-primary">
+                      <Languages className="h-4 w-4" />
+                    </span>
+                    {language === "hi" ? "English" : "Hindi"}
+                  </button>
+
+                  <SheetClose asChild>
+                    <Link
+                      href={user ? "/dashboard" : "/login"}
+                      className="flex min-h-12 items-center gap-3 rounded-lg border border-transparent bg-background px-3 text-sm font-semibold transition-colors hover:border-primary/20 hover:bg-accent hover:text-primary"
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent text-primary">
+                        {user ? <LayoutDashboard className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                      </span>
+                      {user ? t("Dashboard", "डैशबोर्ड") : t("Login", "लॉगिन")}
+                    </Link>
+                  </SheetClose>
+                </div>
+              </div>
+
+              <div className="border-t bg-card px-5 py-5">
+                <SheetClose asChild>
+                  <Link
+                    href="/donate"
+                    className={cn(
+                      buttonVariants({ className: "min-h-12 w-full bg-primary text-primary-foreground hover:bg-primary/90" })
+                    )}
+                  >
+                    <Heart className="h-4 w-4" />
+                    {t("Donate Now", "अभी दान करें")}
+                  </Link>
+                </SheetClose>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </nav>
