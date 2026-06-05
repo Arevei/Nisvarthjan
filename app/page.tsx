@@ -504,40 +504,74 @@ export default function Home() {
       </section>
 
 
-      <section className="max-w-6xl mx-auto mt-16">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-              {t("Leadership Team", "नेतृत्व टीम")}
-            </h2>
-            <p className="text-muted-foreground mt-2">
-              {t("Founder, Secretary and Treasurer", "संस्थापक, सचिव और कोषाध्यक्ष")}
-            </p>
-          </div>
+     <section className="max-w-5xl mx-auto mt-16 px-4">
+  <div className="text-center mb-10">
+    <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
+      {t("Leadership Team", "नेतृत्व टीम")}
+    </h2>
+    <p className="text-muted-foreground mt-2">
+      {t(
+        "Founder, Secretary and Treasurer",
+        "संस्थापक, सचिव और कोषाध्यक्ष"
+      )}
+    </p>
+  </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {name:"Mayank Singh", hname:"मयंक सिंह", roleEn: "Founder", roleHi: "संस्थापक", image: "/leadership/Founder.jpg" },
-              {name:"Hemant Pratap Singh", hname:"हेमंत प्रताप सिंह", roleEn: "Vice president", roleHi: "उपाध्यक्ष", image: "/leadership/vice-president.jpeg" },
-              {name:"Punit Tiwari", hname:"पुनीत तिवारी", roleEn: "Treasurer", roleHi: "कोषाध्यक्ष ", image: "/leadership/Treasurer.jpg" },
-              {name:"Himani Tiwari", hname:"हिमानी तिवारी", roleEn: "Secretary , Social Affairs", roleHi: "सचिव, सामाजिक मामले", image: "/leadership/Secretary.jpg" },
-              
-            ].map((member) => (
-              <div key={member.roleEn} className="bg-card border rounded-2xl overflow-hidden shadow-sm">
-                <img
-                  src={member.image}
-                  alt={member.roleEn}
-                  className="w-full aspect-[4/5] object-cover"
-                />
-                <div className="p-4 text-center">
-                  <p className=" font-semibold text-xl">{t(member.name,member.hname)}</p>
-                  <h3 className=" text-lg font-serif  text-foreground">
-                    {t(member.roleEn, member.roleHi)}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 place-items-center mb-10">
+    {[
+      {
+        name: "Mayank Singh",
+        hname: "मयंक सिंह",
+        roleEn: "Founder",
+        roleHi: "संस्थापक",
+        image: "/leadership/Founder.jpg",
+      },
+      
+      {
+        name: "Punit Tiwari",
+        hname: "पुनीत तिवारी",
+        roleEn: "Treasurer",
+        roleHi: "कोषाध्यक्ष",
+        image: "/leadership/Treasurer.jpg",
+      },
+      {
+        name: "Himani Tiwari",
+        hname: "हिमानी तिवारी",
+        roleEn: "Secretary, Social Affairs",
+        roleHi: "सचिव, सामाजिक मामले",
+        image: "/leadership/Secretary.jpg",
+      },
+      {
+        name: "Hemant Pratap Singh",
+        hname: "हेमंत प्रताप सिंह",
+        roleEn: "Vice President",
+        roleHi: "उपाध्यक्ष",
+        image: "/leadership/vice-president.jpeg",
+      },
+    ].map((member) => (
+      <div
+        key={member.roleEn}
+        className="w-full max-w-sm bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+      >
+        <img
+          src={member.image}
+          alt={member.roleEn}
+          className="w-full h-96 aspect-[3/4] object-cover"
+        />
+
+        <div className="p-5 text-center">
+          <h3 className="text-lg font-semibold text-foreground">
+            {t(member.name, member.hname)}
+          </h3>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t(member.roleEn, member.roleHi)}
+          </p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
 
       <section className="relative py-28 overflow-hidden">
         <img
