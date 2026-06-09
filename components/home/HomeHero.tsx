@@ -119,7 +119,7 @@ export function HomeHero({ stats }: HeroParallaxProps) {
           }}
         />
 
-        {/* Blurred copy — radial mask creates clear-center / blurred-edge */}
+        {/* Blurred copy: radial mask creates clear-center / blurred-edge */}
         <div
           ref={blurLayerRef}
           className="absolute inset-0 bg-cover bg-no-repeat"
@@ -246,14 +246,8 @@ export function HomeHero({ stats }: HeroParallaxProps) {
               {t("Communities,", "सशक्त बनाना,")}
               <br />
               <motion.span
-                style={{
-                  background: "linear-gradient(130deg, #fecdd3 0%, #fecdd3 48%, #fecdd3 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  fontStyle: "italic",
-                  // filter: "drop-shadow(0 0 18px rgba(244,114,182,0.48))",
-                }}
+                className="text-white"
+                style={{ fontStyle: "italic" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1.1, delay: 1.0 }}

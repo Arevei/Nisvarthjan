@@ -79,7 +79,7 @@ const fallbackHindi: Record<string, string> = {
   "Your Silver, Gold, Platinum, and Diamond achievement certificates are complete.": "आपके सिल्वर, गोल्ड, प्लैटिनम और डायमंड उपलब्धि प्रमाणपत्र पूरे हो गए हैं।",
   "Loading certificate progress...": "प्रमाणपत्र प्रगति लोड हो रही है...",
   "Referral Link": "रेफरल लिंक",
-  "Share one link for the whole website. When someone opens it, your referral code is saved and used for membership, donation, and campaign forms.": "पूरी वेबसाइट के लिए एक लिंक साझा करें। कोई इसे खोले तो आपका रेफरल कोड सुरक्षित होकर सदस्यता, दान और अभियान फॉर्म में उपयोग होगा।",
+  "Share one link for the whole website. When someone opens it, your referral code applies for that browser session only.": "पूरी वेबसाइट के लिए एक लिंक साझा करें। कोई इसे खोले तो आपका रेफरल कोड केवल उस ब्राउज़र सत्र के लिए लागू होगा।",
   "Website Referral": "वेबसाइट रेफरल",
   "Referral code": "रेफरल कोड",
   "Copy Link": "लिंक कॉपी करें",
@@ -170,18 +170,36 @@ function repairMojibake(value: string) {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>("hi");
+  const [language, setLanguageState] = useState<Language>("hi");
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("language");
-    if (saved === "en" || saved === "hi") {
-      window.setTimeout(() => setLanguage(saved), 0);
+    async function initializeLanguage() {
+      const saved = window.localStorage.getItem("language");
+      if (saved === "en" || saved === "hi") {
+        setLanguageState(saved);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/site-settings/default-language");
+        if (response.ok) {
+          const data = (await response.json()) as { defaultLanguage?: Language };
+          if (data.defaultLanguage === "en" || data.defaultLanguage === "hi") {
+            setLanguageState(data.defaultLanguage);
+          }
+        }
+      } catch {
+        // Keep Hindi fallback when the setting is unavailable.
+      }
     }
+
+    void initializeLanguage();
   }, []);
 
-  useEffect(() => {
-    window.localStorage.setItem("language", language);
-  }, [language]);
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    window.localStorage.setItem("language", lang);
+  };
 
   const t = (en: string | null | undefined, hi: string | null | undefined) => {
     const english = en || hi || "";

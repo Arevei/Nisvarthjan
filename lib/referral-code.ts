@@ -7,7 +7,7 @@ export function normalizeReferralCode(value: string | null | undefined) {
 
 export function getStoredReferralCode() {
   if (typeof window === "undefined") return "";
-  return normalizeReferralCode(window.localStorage.getItem(REFERRAL_STORAGE_KEY));
+  return normalizeReferralCode(window.sessionStorage.getItem(REFERRAL_STORAGE_KEY));
 }
 
 export function saveReferralCode(code: string) {
@@ -15,7 +15,8 @@ export function saveReferralCode(code: string) {
 
   const normalized = normalizeReferralCode(code);
   if (normalized) {
-    window.localStorage.setItem(REFERRAL_STORAGE_KEY, normalized);
+    window.sessionStorage.setItem(REFERRAL_STORAGE_KEY, normalized);
+    window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
   }
   return normalized;
 }

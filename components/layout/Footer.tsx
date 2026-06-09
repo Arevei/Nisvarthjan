@@ -74,6 +74,7 @@ export function Footer() {
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()}  {t("Nisvarthjan Seva Foundation | All rights reserved.", " निस्वार्थजन सेवा फाउंडेशन । सर्वाधिकार सुरक्षित।")}</p>
           <p className="mt-2">{t("Lic. No:", "लाइसेंस संख्या:")} 4889004P2025NPL231619</p>
+          <p className="mt-3 text-xs text-muted-foreground/70">Powered by <Link href="https://www.arevei.com/" className=" text-pink-400 hover:text-pink-500">Arevei</Link></p>
         </div>
       </div>
     </footer>

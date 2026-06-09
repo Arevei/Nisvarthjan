@@ -771,8 +771,8 @@ export default function Dashboard() {
               <h3 className="font-semibold text-foreground">{t("Referral Link", "रेफरल लिंक")}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 {t(
-                  "Share this referral link. Memberships, donations, and campaign donations completed through it increase your badge progress.",
-                  "यह रेफरल लिंक साझा करें। इसके जरिए पूरी हुई सदस्यता, दान और अभियान दान आपकी बैज प्रगति बढ़ाते हैं।",
+                  "Share this referral link. When someone opens it, your referral applies for that browser session only. Memberships, donations, and campaign donations completed in that session increase your badge progress.",
+                  "यह रेफरल लिंक साझा करें। जब कोई इसे खोलेगा, तो आपका रेफरल केवल उस ब्राउज़र सत्र के लिए लागू होगा। उस सत्र में पूरी हुई सदस्यता, दान और अभियान दान आपकी बैज प्रगति बढ़ाते हैं।",
                 )}
               </p>
             </div>

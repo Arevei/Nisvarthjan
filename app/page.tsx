@@ -208,32 +208,32 @@ export default function Home() {
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold uppercase tracking-widest mb-3">
               <Sparkles className="w-4 h-4" />
-              {t("निस्वार्थजन — Selfless People", "निस्वार्थजन — स्वार्थरहित लोग")}
+              {t("निस्वार्थजन: Selfless People", "निस्वार्थजन: स्वार्थरहित लोग")}
             </span>
             <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground max-w-3xl mx-auto leading-tight">
               {t("Serving without Expectation, Building without Boundaries", "बिना अपेक्षा के सेवा, बिना सीमा के निर्माण")}
             </h2>
             <p className="mt-5 text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
               {t(
-                "The name Nisvarthjan means 'selfless people' — those who give without keeping score. That spirit is the heart of everything we do.",
+                "The name Nisvarthjan means 'selfless people': those who give without keeping score. That spirit is the heart of everything we do.",
                 "निस्वार्थजन का अर्थ है वे लोग जो बिना किसी स्वार्थ के देते हैं। यही भावना हमारे हर कार्य की नींव है।"
               )}
             </p>
           </div>
 
-          {/* Vision — image left */}
+          {/* Vision: image left */}
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-24">
             <div className="relative">
               <div className="rounded-2xl overflow-hidden shadow-2xl">
                 <img
                   src="/images/Vision.png"
-                  alt="Vision — children learning"
+                  alt="Vision: children learning"
                   className="w-full h-80 lg:h-[420px] object-cover"
                 />
               </div>
               <div className="absolute -bottom-5 -right-5 bg-primary text-primary-foreground rounded-2xl px-6 py-4 shadow-xl hidden md:block">
                 <div className="text-2xl font-bold font-serif">2014</div>
-                <div className="text-xs opacity-80">{t("Est. — Serving India", "स्थापित — भारत सेवा")}</div>
+                <div className="text-xs opacity-80">{t("Est. 2014: Serving India", "स्थापित 2014: भारत सेवा")}</div>
               </div>
               
             </div>
@@ -247,7 +247,7 @@ export default function Home() {
               </h3>
               <p className="text-muted-foreground leading-relaxed mb-5">
                 {t(
-                  "We envision an India where no child goes without education, no family suffers for lack of healthcare, and every person — regardless of caste, gender, or geography — lives with opportunity and hope.",
+                  "We envision an India where no child goes without education, no family suffers for lack of healthcare, and every person, regardless of caste, gender, or geography, lives with opportunity and hope.",
                   "हम एक ऐसे भारत की कल्पना करते हैं जहाँ कोई बच्चा शिक्षा से वंचित न हो, कोई परिवार स्वास्थ्य के अभाव में न तड़पे।"
                 )}
               </p>
@@ -270,7 +270,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Mission — image right */}
+          {/* Mission: image right */}
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1">
               <div className="inline-flex items-center gap-2 bg-rose-50 text-primary rounded-full px-4 py-2 text-sm font-semibold mb-5">
@@ -282,13 +282,13 @@ export default function Home() {
               </h3>
               <p className="text-muted-foreground leading-relaxed mb-5">
                 {t(
-                  "Nisvarthjan Seva Foundation was built on a simple belief: true service asks for nothing in return. We walk alongside rural and marginalised communities — not as outsiders delivering aid, but as fellow citizens committed to lasting change.",
+                  "Nisvarthjan Seva Foundation was built on a simple belief: true service asks for nothing in return. We walk alongside rural and marginalised communities, not as outsiders delivering aid, but as fellow citizens committed to lasting change.",
                   "निस्वार्थजन सेवा फाउंडेशन एक सरल विश्वास पर बना है: सच्ची सेवा कुछ नहीं माँगती। हम ग्रामीण और वंचित समुदायों के साथ कंधे से कंधा मिलाकर चलते हैं।"
                 )}
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 {t(
-                  "Through education camps, health drives, women's skill centres, and environmental programs, every volunteer carries forward the spirit of निस्वार्थ सेवा — selfless service.",
+                  "Through education camps, health drives, women's skill centres, and environmental programs, every volunteer carries forward the spirit of निस्वार्थ सेवा, selfless service.",
                   "शिक्षा शिविरों, स्वास्थ्य अभियानों और पर्यावरण कार्यक्रमों के माध्यम से, हर स्वयंसेवक निस्वार्थ सेवा की भावना को आगे बढ़ाता है।"
                 )}
               </p>
@@ -312,7 +312,7 @@ export default function Home() {
               <div className="rounded-2xl overflow-hidden shadow-2xl">
                 <img
                   src="/images/mission.png"
-                  alt="Mission — volunteers serving"
+                  alt="Mission: volunteers serving"
                   className="w-full h-80 lg:h-[420px] object-cover"
                 />
               </div>
@@ -321,7 +321,7 @@ export default function Home() {
                 <p className="text-sm text-muted-foreground italic leading-relaxed">
                   {t('\u201cSelfless service is the highest form of humanity.\u201d', '\u201cनिस्वार्थ सेवा मानवता का सर्वोच्च स्वरूप है।\u201d')}
                 </p>
-                <p className="text-xs text-primary font-semibold mt-2">— {t("NSF Core Value", "NSF मूल मूल्य")}</p>
+                <p className="text-xs text-primary font-semibold mt-2">{t("NSF Core Value", "NSF मूल मूल्य")}</p>
               </div>
             </div>
           </div>
@@ -419,7 +419,7 @@ export default function Home() {
     
 
 
-      {/* ── IMPACT AREAS — image cards ── */}
+      {/* Impact areas image cards */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -455,7 +455,7 @@ export default function Home() {
 
       
 
-      {/* ── CTA — full-bleed image ── */}
+      {/* Activity posts section */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="flex items-end justify-between mb-10">
