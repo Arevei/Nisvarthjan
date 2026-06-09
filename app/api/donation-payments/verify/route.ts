@@ -17,6 +17,8 @@ type DonationPaymentDoc = {
   donorName: string;
   donorEmail: string;
   donorPhone?: string | null;
+  donorPan?: string | null;
+  donorAddress?: string | null;
   campaignId?: number | null;
   purpose: string;
   receiptNumber: string;
@@ -63,6 +65,8 @@ function toResponse(donation: DonationPaymentDoc) {
     donorName: donation.donorName,
     donorEmail: donation.donorEmail,
     donorPhone: donation.donorPhone ?? null,
+    donorPan: donation.donorPan ?? null,
+    donorAddress: donation.donorAddress ?? null,
     campaignId: donation.campaignId ?? null,
     purpose: donation.purpose,
     receiptNumber: donation.receiptNumber,

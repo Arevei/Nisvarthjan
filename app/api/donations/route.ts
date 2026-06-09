@@ -16,6 +16,8 @@ type DonationDoc = {
   donorName: string;
   donorEmail: string;
   donorPhone: string | null;
+  donorPan: string | null;
+  donorAddress: string | null;
   campaignId: number | null;
   purpose: string;
   receiptNumber: string;
@@ -117,6 +119,8 @@ function toResponse(donation: DonationDoc, payment?: { provider: "razorpay"; key
     donorName: donation.donorName,
     donorEmail: donation.donorEmail,
     donorPhone: donation.donorPhone,
+    donorPan: donation.donorPan,
+    donorAddress: donation.donorAddress,
     campaignId: donation.campaignId,
     purpose: donation.purpose,
     receiptNumber: donation.receiptNumber,
@@ -130,7 +134,7 @@ function toResponse(donation: DonationDoc, payment?: { provider: "razorpay"; key
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { amount, donorName, donorEmail, donorPhone, campaignId, purpose, referralCode } = body;
+  const { amount, donorName, donorEmail, donorPhone, donorPan, donorAddress, campaignId, purpose, referralCode } = body;
   const donationAmount = Number(amount);
 
   if (!donationAmount || donationAmount < MIN_DONATION_AMOUNT || !purpose) {
@@ -146,6 +150,8 @@ export async function POST(req: NextRequest) {
     const finalDonorName = signedInMember?.name || String(donorName ?? "").trim();
     const finalDonorEmail = signedInMember?.email || String(donorEmail ?? "").trim();
     const finalDonorPhone = signedInMember?.phone || String(donorPhone ?? "").trim();
+    const finalDonorPan = String(donorPan ?? "").trim().toUpperCase();
+    const finalDonorAddress = String(donorAddress ?? "").trim();
 
     if (!finalDonorName || !finalDonorEmail) {
       return NextResponse.json({ error: "donor name and email are required" }, { status: 400 });
@@ -173,6 +179,8 @@ export async function POST(req: NextRequest) {
       donorName: finalDonorName,
       donorEmail: finalDonorEmail,
       donorPhone: finalDonorPhone || null,
+      donorPan: finalDonorPan || null,
+      donorAddress: finalDonorAddress || null,
       campaignId: normalizedCampaignId,
       purpose,
       receiptNumber,

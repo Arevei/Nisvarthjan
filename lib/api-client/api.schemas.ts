@@ -167,6 +167,10 @@ export interface Donation {
   /** @nullable */
   donorPhone?: string | null;
   /** @nullable */
+  donorPan?: string | null;
+  /** @nullable */
+  donorAddress?: string | null;
+  /** @nullable */
   campaignId?: number | null;
   purpose: string;
   receiptNumber: string;
@@ -190,6 +194,8 @@ export interface DonationInput {
   donorName: string;
   donorEmail: string;
   donorPhone?: string;
+  donorPan?: string;
+  donorAddress?: string;
   campaignId?: number;
   purpose: string;
   referralCode?: string;

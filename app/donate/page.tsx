@@ -27,6 +27,8 @@ export default function Donate() {
   const [donorName, setDonorName] = useState("");
   const [donorEmail, setDonorEmail] = useState("");
   const [donorPhone, setDonorPhone] = useState("");
+  const [donorPan, setDonorPan] = useState("");
+  const [donorAddress, setDonorAddress] = useState("");
   const [purpose, setPurpose] = useState("");
   const [receipt, setReceipt] = useState<string | null>(null);
   const [receiptContact, setReceiptContact] = useState("");
@@ -141,7 +143,7 @@ export default function Donate() {
     }
 
     createDonation.mutate(
-      { data: { amount: finalAmount, donorName, donorEmail, donorPhone, purpose, referralCode: referralCode || undefined } },
+      { data: { amount: finalAmount, donorName, donorEmail, donorPhone, donorPan, donorAddress, purpose, referralCode: referralCode || undefined } },
       {
         onSuccess: (donation) => startRazorpayPayment(donation),
         onError: () => {
@@ -160,7 +162,7 @@ export default function Donate() {
             <h2 className="text-2xl font-serif font-bold text-foreground mb-2">{t("Donation Successful!", "दान सफल!")}</h2>
             <p className="text-muted-foreground mb-4">{t("Your receipt number:", "आपकी रसीद संख्या:")}</p>
             <div className="bg-primary/10 text-primary font-mono text-lg font-bold py-3 px-6 rounded-lg mb-6">{receipt}</div>
-            <p className="text-sm text-muted-foreground mb-6">{t("A QR-coded receipt PDF has been sent to your email.", "A QR-coded receipt PDF has been sent to your email.")}</p>
+            <p className="text-sm text-muted-foreground mb-6">{t("A QR-coded 80G receipt PDF has been sent to your email.", "A QR-coded 80G receipt PDF has been sent to your email.")}</p>
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button asChild variant="outline">
                 <a href={`/api/donation-receipts/download?receiptNumber=${encodeURIComponent(receipt)}&contact=${encodeURIComponent(receiptContact)}`}>
@@ -173,7 +175,7 @@ export default function Donate() {
                 </a>
               </Button>
             </div>
-            <Button className="bg-primary hover:bg-primary/90" onClick={() => { setReceipt(null); setReceiptContact(""); setAmount(""); setCustomAmount(""); setDonorName(user?.name || ""); setDonorEmail(user?.email || ""); setDonorPhone(user?.phone || ""); setPurpose(""); }}>
+            <Button className="bg-primary hover:bg-primary/90" onClick={() => { setReceipt(null); setReceiptContact(""); setAmount(""); setCustomAmount(""); setDonorName(user?.name || ""); setDonorEmail(user?.email || ""); setDonorPhone(user?.phone || ""); setDonorPan(""); setDonorAddress(""); setPurpose(""); }}>
               {t("Donate Again", "फिर से दान करें")}
             </Button>
           </div>
@@ -258,6 +260,21 @@ export default function Donate() {
                 </>
               )}
               <div>
+                <Label htmlFor="pan">{t("PAN Number for 80G", "PAN Number for 80G")}</Label>
+                <Input
+                  data-testid="input-pan"
+                  id="pan"
+                  value={donorPan}
+                  onChange={(e) => setDonorPan(e.target.value.toUpperCase())}
+                  maxLength={10}
+                  placeholder="ABCDE1234F"
+                />
+              </div>
+              <div>
+                <Label htmlFor="address">{t("Address for 80G Receipt", "Address for 80G Receipt")}</Label>
+                <Input data-testid="input-address" id="address" value={donorAddress} onChange={(e) => setDonorAddress(e.target.value)} />
+              </div>
+              <div>
                 <Label htmlFor="purpose">{t("Donation Purpose *", "दान का उद्देश्य *")}</Label>
                 <Select value={purpose} onValueChange={setPurpose}>
                   <SelectTrigger data-testid="select-purpose">
@@ -332,7 +349,5 @@ export default function Donate() {
     </Layout>
   );
 }
-
-
 
 

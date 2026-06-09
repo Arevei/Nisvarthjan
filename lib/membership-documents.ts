@@ -96,6 +96,22 @@ function addValueText(doc: jsPDF, text: string, x: number, y: number, maxWidth: 
   doc.text(lines, x, y);
 }
 
+function drawDigitalStamp(doc: jsPDF, x: number, y: number, color: [number, number, number] = [190, 0, 39]) {
+  doc.setDrawColor(...color);
+  doc.setLineWidth(0.7);
+  doc.circle(x, y, 16, "S");
+  doc.setLineWidth(0.25);
+  doc.circle(x, y, 12.5, "S");
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...color);
+  doc.setFontSize(5.3);
+  doc.text("NISVARTHJAN", x, y - 6.5, { align: "center" });
+  doc.text("SEVA FOUNDATION", x, y - 2, { align: "center" });
+  doc.setFontSize(6.4);
+  doc.text("DIGITALLY", x, y + 4.5, { align: "center" });
+  doc.text("SIGNED", x, y + 9.5, { align: "center" });
+}
+
 function getPngDimensions(buffer: Buffer) {
   return {
     width: buffer.readUInt32BE(16),
@@ -193,13 +209,7 @@ export async function generateMembershipCertificatePdf(member: MemberDocumentRec
   addValueText(doc, safeText(member.phone), 207, 135, 58);
   addValueText(doc, location, 207, 146, 58);
 
-  doc.setDrawColor(35, 35, 35);
-  doc.setLineWidth(0.3);
-  doc.line(205, 174, 262, 174);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(190, 0, 39);
-  doc.text("Authorized Signature", 233.5, 180, { align: "center" });
+  drawDigitalStamp(doc, 234, 176);
 
   return doc.output("arraybuffer");
 }
@@ -266,12 +276,7 @@ export async function generateMembershipReceiptPdf(member: MemberDocumentRecord,
   doc.setTextColor(89, 78, 73);
   doc.text("Thank you for becoming a member of Nisvarthjan Seva Foundation.", 105, 232, { align: "center" });
 
-  doc.setDrawColor(35, 35, 35);
-  doc.line(126, 252, 174, 252);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(190, 0, 39);
-  doc.text("Authorized Signature", 150, 258, { align: "center" });
+  drawDigitalStamp(doc, 150, 252);
 
   return doc.output("arraybuffer");
 }

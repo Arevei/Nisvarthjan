@@ -61,6 +61,9 @@ export default function CampaignDetail() {
   const id = parseInt(params?.id ?? "0");
   const [donorName, setDonorName] = useState("");
   const [donorEmail, setDonorEmail] = useState("");
+  const [donorPhone, setDonorPhone] = useState("");
+  const [donorPan, setDonorPan] = useState("");
+  const [donorAddress, setDonorAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [isPaying, setIsPaying] = useState(false);
   const [referralCode, setReferralCode] = useState("");
@@ -80,6 +83,7 @@ export default function CampaignDetail() {
     window.setTimeout(() => {
       setDonorName(user.name);
       setDonorEmail(user.email);
+      setDonorPhone(user.phone || "");
     }, 0);
   }, [user]);
 
@@ -127,6 +131,7 @@ export default function CampaignDetail() {
       prefill: {
         name: donation.donorName,
         email: donation.donorEmail,
+        contact: donation.donorPhone || "",
       },
       notes: {
         donationId: String(donation.id),
@@ -173,6 +178,9 @@ export default function CampaignDetail() {
           amount: donationAmount,
           donorName,
           donorEmail,
+          donorPhone,
+          donorPan,
+          donorAddress,
           campaignId: id,
           purpose: campaign?.title ?? "Campaign donation",
           referralCode: referralCode || undefined,
@@ -279,6 +287,28 @@ export default function CampaignDetail() {
                   </div>
                 </>
               )}
+              {!user && (
+                <div>
+                  <Input data-testid="input-phone" placeholder={t("Mobile Number", "Mobile Number")} value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} />
+                </div>
+              )}
+              <div>
+                <Input
+                  data-testid="input-pan"
+                  placeholder={t("PAN Number for 80G", "PAN Number for 80G")}
+                  value={donorPan}
+                  onChange={(e) => setDonorPan(e.target.value.toUpperCase())}
+                  maxLength={10}
+                />
+              </div>
+              <div>
+                <Input
+                  data-testid="input-address"
+                  placeholder={t("Address for 80G Receipt", "Address for 80G Receipt")}
+                  value={donorAddress}
+                  onChange={(e) => setDonorAddress(e.target.value)}
+                />
+              </div>
               <Button data-testid="button-donate" type="submit" className="w-full bg-primary hover:bg-primary/90 py-6 text-lg" disabled={createDonation.isPending || isPaying}>
                 <Heart className="w-5 h-5 mr-2 fill-current" />
                 {createDonation.isPending || isPaying ? t("Processing...", "प्रसंस्करण...") : t("Donate Now", "अभी दान करें")}
