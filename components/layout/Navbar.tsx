@@ -191,6 +191,17 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="flex w-[88vw] max-w-sm flex-col overflow-y-auto p-0">
               <SheetHeader className="border-b bg-accent/60 px-5 pb-5 pt-6 text-left">
+                <SheetClose asChild>
+                  <Link href="/" className="mb-4 inline-flex">
+                    <Image
+                      src="/brand/navbar-logo.png"
+                      alt="Nisvarthjan Seva Foundation"
+                      width={220}
+                      height={56}
+                      className="h-10 w-auto"
+                    />
+                  </Link>
+                </SheetClose>
                 <SheetTitle className="pr-8 font-serif text-2xl text-primary">
                   {t("Nisvarthjan Seva", "निस्वार्थजन सेवा")}
                 </SheetTitle>
