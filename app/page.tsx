@@ -7,7 +7,8 @@ import { useGetStats, useListNews, useListCampaigns, useListGallery } from "@/li
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { CampaignsSnapCarousel } from "@/components/home/CampaignsSnapCarousel";
 import { HomeHero } from "@/components/home/HomeHero";
-import { ArrowRight, Calendar, Target, Eye, Compass, Sparkles, Heart, Leaf, Users2, BookOpen } from "lucide-react";
+import { ArrowRight, Calendar, Target, Eye, Compass, Sparkles, Heart, Leaf, Users2, BookOpen, X, ZoomIn } from "lucide-react";
+import { useState } from "react";
 
 const CATEGORY_COLORS: Record<string, string> = {
   health:      "bg-rose-100 text-rose-700",
@@ -149,6 +150,9 @@ export default function Home() {
   const { data: allNews = [] } = useListNews();
   const { data: allCampaigns = [] } = useListCampaigns();
   const { data: uploadedGallery = [] } = useListGallery();
+
+  // Modal state for activity posts
+  const [selectedImage, setSelectedImage] = useState<{ src: string; titleEn: string; titleHi: string; detailsEn: string; detailsHi: string } | null>(null);
 
   const latestNews = allNews.slice(0, 3);
   const featuredCampaigns = allCampaigns.filter((c) => c.isActive);
@@ -479,8 +483,12 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {homeGalleryItems.map((item) => (
-              <article key={item.src} className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+            {homeGalleryItems.map((item, index) => (
+              <article 
+                key={`${item.src}-${index}`} 
+                className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+                onClick={() => setSelectedImage(item)}
+              >
                 <div className="relative h-72 overflow-hidden">
                   <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   {/* Desktop: Overlay with hover reveal */}
@@ -492,6 +500,12 @@ export default function Home() {
                     <p className="text-sm text-white/78 leading-relaxed">
                       {t(item.detailsEn, item.detailsHi)}
                     </p>
+                  </div>
+                  {/* Zoom icon */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
+                    <div className="bg-black/50 rounded-full p-3">
+                      <ZoomIn className="w-6 h-6 text-white" />
+                    </div>
                   </div>
                 </div>
                 {/* Mobile: Content always visible below image */}
@@ -506,6 +520,31 @@ export default function Home() {
               </article>
             ))}
           </div>
+
+          {/* Image Modal */}
+          {selectedImage && (
+            <div 
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+              onClick={() => setSelectedImage(null)}
+            >
+              <button 
+                className="absolute top-4 right-4 md:top-6 md:right-6 text-white hover:text-gray-300 transition-colors"
+                onClick={() => setSelectedImage(null)}
+              >
+                <X className="w-8 h-8" />
+              </button>
+              <div 
+                className="relative max-w-5xl w-full max-h-[90vh]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img 
+                  src={selectedImage.src} 
+                  alt={selectedImage.titleEn}
+                  className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="text-center mt-8 sm:hidden">
             <Button variant="outline" asChild>
