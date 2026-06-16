@@ -118,8 +118,35 @@ function drawInfoRow(doc: jsPDF, label: string, value: string, x: number, y: num
   doc.text(doc.splitTextToSize(value, width).slice(0, 2), x, y + 5);
 }
 
+/**
+ * Load Hindi font for rendering Devanagari text in PDFs
+ * Uses TiroDevanagariHindi-Regular.ttf from public folder
+ */
+function getHindiFont() {
+  try {
+    const fontPath = path.join(process.cwd(), "public", "TiroDevanagariHindi-Regular.ttf");
+    const fontBuffer = readFileSync(fontPath);
+    return fontBuffer.toString("base64");
+  } catch (error) {
+    console.warn("Hindi font not found, will use fallback rendering");
+    return null;
+  }
+}
+
 export async function generateDonationReceiptPdf(donation: DonationReceiptRecord, requestUrl: string) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  
+  // Load and register Hindi font for Devanagari text rendering
+  const hindiFont = getHindiFont();
+  if (hindiFont) {
+    try {
+      doc.addFileToVFS("TiroDevanagariHindi-Regular.ttf", hindiFont);
+      doc.addFont("TiroDevanagariHindi-Regular.ttf", "TiroDevanagari", "normal");
+    } catch (error) {
+      console.warn("Failed to register Hindi font:", error);
+    }
+  }
+  
   const paidAt = donation.payment?.paidAt || donation.createdAt;
   const paymentMode = donation.payment?.mode || "manual";
   const paymentReference = donation.payment?.paymentId || donation.payment?.orderId || donation.payment?.receipt || donation.receiptNumber;
@@ -212,8 +239,16 @@ export async function generateDonationReceiptPdf(donation: DonationReceiptRecord
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.5);
   doc.setTextColor(113, 113, 122);
-  doc.text(doc.splitTextToSize(HINDI_VERSE, 160).slice(0, 2), 22, 228);
-  doc.text(doc.splitTextToSize(`Registered Address: ${safeText(taxExemption.address)}`, 82).slice(0, 2), 22, 242);
+  // Render Sanskrit verse using Hindi font
+  if (hindiFont) {
+    doc.setFont("TiroDevanagari", "normal");
+    doc.setFontSize(5.5);
+    doc.text(HINDI_VERSE, 22, 228, { maxWidth: 160 });
+    doc.setFont("helvetica", "normal");
+  } else {
+    doc.text(doc.splitTextToSize("[Foundation Sanskrit Verse - See digital certificate]", 160).slice(0, 1), 22, 228);
+  }
+  doc.text(doc.splitTextToSize(`Registered Address: ${safeText(taxExemption.address)}`, 82).slice(0, 2), 22, 235);
   doc.text("This computer-generated receipt is valid without a handwritten signature.", 22, 254);
 
   doc.addImage(qrDataUrl, "PNG", 158, 223, 20, 20);

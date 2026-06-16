@@ -480,14 +480,26 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {homeGalleryItems.map((item) => (
-              <article key={item.src} className="group relative h-72 overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
-                <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="absolute inset-x-0 bottom-0 translate-y-3 p-5 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                  <h3 className="font-serif font-bold text-lg mb-2">
+              <article key={item.src} className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+                <div className="relative h-72 overflow-hidden">
+                  <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  {/* Desktop: Overlay with hover reveal */}
+                  <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-75 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="hidden sm:block absolute inset-x-0 bottom-0 translate-y-3 p-5 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                    <h3 className="font-serif font-bold text-lg mb-2">
+                      {t(item.titleEn, item.titleHi)}
+                    </h3>
+                    <p className="text-sm text-white/78 leading-relaxed">
+                      {t(item.detailsEn, item.detailsHi)}
+                    </p>
+                  </div>
+                </div>
+                {/* Mobile: Content always visible below image */}
+                <div className="sm:hidden p-5 bg-card">
+                  <h3 className="font-serif font-bold text-lg mb-2 text-foreground">
                     {t(item.titleEn, item.titleHi)}
                   </h3>
-                  <p className="text-sm text-white/78 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {t(item.detailsEn, item.detailsHi)}
                   </p>
                 </div>
