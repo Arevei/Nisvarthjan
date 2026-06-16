@@ -162,7 +162,7 @@ export default function Donate() {
             <h2 className="text-2xl font-serif font-bold text-foreground mb-2">{t("Donation Successful!", "दान सफल!")}</h2>
             <p className="text-muted-foreground mb-4">{t("Your receipt number:", "आपकी रसीद संख्या:")}</p>
             <div className="bg-primary/10 text-primary font-mono text-lg font-bold py-3 px-6 rounded-lg mb-6">{receipt}</div>
-            <p className="text-sm text-muted-foreground mb-6">{t("A QR-coded 80G receipt PDF has been sent to your email.", "A QR-coded 80G receipt PDF has been sent to your email.")}</p>
+            <p className="text-sm text-muted-foreground mb-6">{t("A QR-coded 80G receipt PDF has been sent to your email.", "एक QR-कोड वाली 80G रसीद PDF आपके ईमेल पर भेज दी गई है।")}</p>
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button asChild variant="outline">
                 <a href={`/api/donation-receipts/download?receiptNumber=${encodeURIComponent(receipt)}&contact=${encodeURIComponent(receiptContact)}`}>
@@ -260,7 +260,7 @@ export default function Donate() {
                 </>
               )}
               <div>
-                <Label htmlFor="pan">{t("PAN Number for 80G", "PAN Number for 80G")}</Label>
+                <Label htmlFor="pan">{t("PAN Number for 80G", "80G के लिए पैन (PAN) नंबर")}</Label>
                 <Input
                   data-testid="input-pan"
                   id="pan"
@@ -271,7 +271,7 @@ export default function Donate() {
                 />
               </div>
               <div>
-                <Label htmlFor="address">{t("Address for 80G Receipt", "Address for 80G Receipt")}</Label>
+                <Label htmlFor="address">{t("Address for 80G Receipt", "80G रसीद के लिए पता")}</Label>
                 <Input data-testid="input-address" id="address" value={donorAddress} onChange={(e) => setDonorAddress(e.target.value)} />
               </div>
               <div>
