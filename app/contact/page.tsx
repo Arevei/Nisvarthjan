@@ -33,7 +33,7 @@ export default function Contact() {
     <Layout>
       <div className="bg-primary text-primary-foreground py-16">
         <div className="container mx-auto px-4 text-center">
-          <MessageSquare className="w-12 h-12 mx-auto mb-4" />
+          {/* <MessageSquare className="w-12 h-12 mx-auto mb-4" /> */}
           <h1 className="text-4xl font-serif font-bold mb-3">{t("Contact Us", "संपर्क करें")}</h1>
           <p className="text-xl text-primary-foreground/80 max-w-xl mx-auto">
             {t("We'd love to hear from you. Reach out for any queries or to join our mission.", "हम आपसे सुनना पसंद करेंगे। किसी भी प्रश्न के लिए या हमारे मिशन में शामिल होने के लिए संपर्क करें।")}

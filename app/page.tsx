@@ -31,11 +31,11 @@ const CATEGORY_LABELS: Record<string, { en: string; hi: string }> = {
 };
 
 const CATEGORY_IMAGES: Record<string, string> = {
-  health:      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800",
-  education:   "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800",
-  environment: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=800",
-  women:       "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800",
-  rural:       "https://images.unsplash.com/photo-1590274853856-f22d5ee3d228?q=80&w=800",
+  health:      "/images/healthcare.jpg",
+  education:   "/images/education.webp",
+  environment: "/images/environment.webp",
+  women:       "/images/women-development.jpg",
+  rural:       "/images/Rural-Development.png",
   disaster:    "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=800",
   general:     "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800",
 };
@@ -43,42 +43,42 @@ const CATEGORY_IMAGES: Record<string, string> = {
 const IMPACT_AREAS = [
   {
     icon: BookOpen,
-    image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=900",
+    image: "/images/education.webp",
     titleEn: "Education",      titleHi: "शिक्षा",
     descEn: "Quality education for underprivileged children and youth across rural India.",
     descHi: "ग्रामीण भारत में वंचित बच्चों को गुणवत्तापूर्ण शिक्षा।",
   },
   {
     icon: Heart,
-    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=900",
+    image: "/images/healthcare.jpg",
     titleEn: "Healthcare",     titleHi: "स्वास्थ्य सेवा",
     descEn: "Free medical camps and health awareness drives in underserved villages.",
     descHi: "वंचित गांवों में मुफ्त चिकित्सा शिविर और स्वास्थ्य जागरूकता।",
   },
   {
     icon: Users2,
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=900",
+    image: "/images/women-development.jpg",
     titleEn: "Women Empowerment", titleHi: "महिला सशक्तिकरण",
     descEn: "Skill development and livelihood programs transforming women's lives.",
     descHi: "महिलाओं के जीवन को बदलने वाले कौशल विकास कार्यक्रम।",
   },
   {
     icon: Leaf,
-    image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=900",
+    image: "/images/environment.webp",
     titleEn: "Environment",    titleHi: "पर्यावरण",
     descEn: "Tree plantation and natural resource conservation for a greener India.",
     descHi: "हरित भारत के लिए वृक्षारोपण और प्राकृतिक संसाधन संरक्षण।",
   },
   {
     icon: Target,
-    image: "https://images.unsplash.com/photo-1590274853856-f22d5ee3d228?q=80&w=900",
+    image: "/images/Rural-Development.png",
     titleEn: "Rural Development", titleHi: "ग्रामीण विकास",
     descEn: "Infrastructure, sanitation and connectivity for India's forgotten villages.",
     descHi: "भारत के भूले-बिसरे गांवों के लिए बुनियादी ढांचा और स्वच्छता।",
   },
   {
     icon: Users2,
-    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=900",
+    image: "/images/Community-Building.webp",
     titleEn: "Community Building", titleHi: "सामुदायिक निर्माण",
     descEn: "Uniting citizens for collective action, social justice and lasting change.",
     descHi: "सामूहिक कार्रवाई और सामाजिक परिवर्तन के लिए नागरिकों को एकजुट करना।",
@@ -207,7 +207,7 @@ export default function Home() {
       )}
 
       {/* ── VISION & MISSION ── */}
-      <section className="py-24 bg-background overflow-hidden">
+      <section className="py-24 bg-background overflow-hidden" id="mission">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold uppercase tracking-widest mb-3">
@@ -236,12 +236,12 @@ export default function Home() {
                 />
               </div>
               <div className="absolute -bottom-5 -right-5 bg-primary text-primary-foreground rounded-2xl px-6 py-4 shadow-xl hidden md:block">
-                <div className="text-2xl font-bold font-serif">2014</div>
-                <div className="text-xs opacity-80">{t("Est. 2014: Serving India", "स्थापित 2014: भारत सेवा")}</div>
+                <div className="text-2xl font-bold font-serif">2025</div>
+                <div className="text-xs opacity-80">{t("Est. 2025: Serving India", "स्थापित 2025: भारत सेवा")}</div>
               </div>
               
             </div>
-            <div>
+            <div >
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-2 text-sm font-semibold mb-5">
                 <Eye className="w-4 h-4" />
                 {t("Our Vision", "हमारी दृष्टि")}
@@ -257,8 +257,8 @@ export default function Home() {
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 {t(
-                  "By 2030, we aim to have directly impacted 50,000 lives across 500 villages of Uttar Pradesh, Madhya Pradesh, and the Vindhya region.",
-                  "2030 तक, हमारा लक्ष्य उत्तर प्रदेश, मध्य प्रदेश और विंध्य क्षेत्र के 500 गांवों में 50,000 जीवनों को सीधे प्रभावित करना है।"
+                  "Our ultimate goal is to empower underserved rural communities, bringing sustainable growth, health, and education right to their doorsteps.",
+                  "हमारा अंतिम लक्ष्य वंचित ग्रामीण समुदायों को सशक्त बनाना है, जिससे उनके जीवन में स्थायी विकास, स्वास्थ्य और शिक्षा का उजाला फैल सके।"
                 )}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">

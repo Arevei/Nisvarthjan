@@ -20,12 +20,12 @@ export default function Gallery() {
 
   return (
     <Layout>
-      <div className="bg-primary/5 py-12 md:py-20 border-b">
+      <div className="bg-primary text-primary-foreground py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold  mb-4">
             {t("Activity Posts", "गतिविधि पोस्ट")}
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-serif">
+          <p className="text-xl max-w-2xl mx-auto font-serif">
             {t(
               "Glimpses of our impact and activities across various programs.",
               "हमारे कार्यक्रमों और प्रभाव की झलकियाँ।",

@@ -30,12 +30,12 @@ export default function News() {
 
   return (
     <Layout>
-      <div className="bg-primary/5 py-12 md:py-20 border-b">
+      <div className="bg-primary text-primary-foreground py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">
             {t("News & Updates", "समाचार और अपडेट")}
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-serif">
+          <p className="text-xl  max-w-2xl mx-auto font-serif">
             {t(
               "Stay updated with our latest initiatives, events, and impact stories.",
               "हमारी नवीनतम पहलों, घटनाओं और प्रभाव की कहानियों से अपडेट रहें।",

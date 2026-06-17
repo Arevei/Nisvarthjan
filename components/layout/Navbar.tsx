@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation";
 import {
   Bell,
   Briefcase,
+  ChevronDown,
+  Globe,
   Heart,
   Images,
   Info,
@@ -54,7 +56,7 @@ export function Navbar() {
     { href: "/services", label: t("Programs", "कार्यक्रम"), icon: Briefcase },
     { href: "/campaigns", label: t("Campaigns", "अभियान"), icon: Megaphone },
     { href: "/news", label: t("News", "समाचार"), icon: Newspaper },
-    { href: "/gallery", label: t("Activity Post", "गतिविधि पोस्ट"), icon: Images },
+    { href: "/gallery", label: t("Activity Post", "गतिविधि पोस्ट"), icon: Images  },
     { href: "/contact", label: t("Contact", "संपर्क"), icon: Phone },
   ];
 
@@ -115,7 +117,8 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-20 items-center justify-between px-4">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        {/* Logo */}
         <Link href="/" className="flex min-w-0 items-center">
           <Image
             src="/brand/navbar-logo.png"
@@ -123,11 +126,12 @@ export function Navbar() {
             width={270}
             height={70}
             priority
-            className="h-12 w-auto sm:h-16"
+            className="h-12 w-auto sm:h-14"
           />
         </Link>
 
-        <div className="hidden items-center gap-6 md:flex">
+        {/* Desktop Navigation */}
+        <div className="hidden items-center gap-6 lg:flex">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className="text-sm font-medium transition-colors hover:text-primary">
               {item.label}
@@ -135,7 +139,43 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-3">
+          {/* Language Dropdown */}
+          <div className="relative group">
+            <button
+              type="button"
+              className="flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <Globe className="h-4 w-4" />
+              <span>{language === "hi" ? "हिंदी" : "English"}</span>
+              <ChevronDown className="h-3 w-3 opacity-60" />
+            </button>
+            <div className="absolute right-0 top-full mt-1 w-40 rounded-lg border bg-card shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <button
+                type="button"
+                onClick={() => setLanguage("en")}
+                className={cn(
+                  "flex w-full items-center gap-2 px-4 py-2.5 text-sm first:rounded-t-lg last:rounded-b-lg hover:bg-accent",
+                  language === "en" && "bg-accent font-medium text-primary"
+                )}
+              >
+                <span className="text-base">🇬🇧</span> English
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage("hi")}
+                className={cn(
+                  "flex w-full items-center gap-2 px-4 py-2.5 text-sm first:rounded-t-lg last:rounded-b-lg hover:bg-accent",
+                  language === "hi" && "bg-accent font-medium text-primary"
+                )}
+              >
+                <span className="text-base">🇮🇳</span> हिंदी
+              </button>
+            </div>
+          </div>
+
+          {/* Notifications */}
           {memberMessage && (
             <div ref={notificationRef} className="relative">
               <button
@@ -164,28 +204,23 @@ export function Navbar() {
             </div>
           )}
 
-          <button
-            onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-            className="hidden text-sm font-medium hover:text-primary md:inline-flex"
-          >
-            {language === "hi" ? "English" : "Hindi"}
-          </button>
           {user ? (
-            <Link href="/dashboard" className="hidden text-sm font-medium hover:text-primary md:inline-flex">
+            <Link href="/dashboard" className="hidden text-sm font-medium hover:text-primary lg:inline-flex">
               {t("Dashboard", "डैशबोर्ड")}
             </Link>
           ) : (
-            <Link href="/login" className="hidden text-sm font-medium hover:text-primary md:inline-flex">
+            <Link href="/login" className="hidden text-sm font-medium hover:text-primary lg:inline-flex">
               {t("Login", "लॉगिन")}
             </Link>
           )}
-          <Button asChild className="hidden bg-primary text-primary-foreground hover:bg-primary/90 md:inline-flex">
-            <Link href="/donate">{t("Donate Now", "अभी दान करें")}</Link>
+          <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Link href="/donate">{t("Donate", "दान करें")}</Link>
           </Button>
 
+          {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden" aria-label={t("Open menu", "मेनू खोलें")}>
+              <Button variant="outline" size="icon" className="lg:hidden" aria-label={t("Open menu", "मेनू खोलें")}>
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>

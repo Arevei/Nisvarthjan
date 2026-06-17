@@ -46,12 +46,12 @@ export default function Campaigns() {
 
   return (
     <Layout>
-      <div className="bg-primary/5 py-12 md:py-20 border-b">
+      <div className="bg-primary text-primary-foreground py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold  mb-4">
             {t("Crowdfunding Campaigns", "क्राउडफंडिंग अभियान")}
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-serif">
+          <p className="text-xl  max-w-2xl mx-auto font-serif">
             {t(
               "Support our active campaigns and help us reach our goals to make a difference.",
               "हमारे सक्रिय अभियानों का समर्थन करें और बदलाव लाने के हमारे लक्ष्यों को प्राप्त करने में मदद करें।"

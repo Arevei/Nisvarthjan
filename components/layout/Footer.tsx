@@ -34,7 +34,7 @@ export function Footer() {
             <h4 className="mb-4 font-bold">{t("Quick Links", "त्वरित लिंक")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="/about" className="hover:text-primary">{t("About Us", "हमारे बारे में")}</Link></li>
-              <li><Link href="/mission" className="hover:text-primary">{t("Mission & Vision", "मिशन और विजन")}</Link></li>
+              <li><Link href="/#mission" className="hover:text-primary">{t("Mission & Vision", "मिशन और विजन")}</Link></li>
               <li><Link href="/services" className="hover:text-primary">{t("Our Programs", "हमारे कार्यक्रम")}</Link></li>
               <li><Link href="/membership" className="hover:text-primary">{t("Join Us", "हमसे जुड़ें")}</Link></li>
             </ul>
