@@ -489,33 +489,27 @@ export default function Home() {
                 className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
                 onClick={() => setSelectedImage(item)}
               >
-                <div className="relative h-72 overflow-hidden">
+                <div className="relative h-80 overflow-hidden">
                   <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  {/* Desktop: Overlay with hover reveal */}
-                  <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-75 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="hidden sm:block absolute inset-x-0 bottom-0 translate-y-3 p-5 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    <h3 className="font-serif font-bold text-lg mb-2">
-                      {t(item.titleEn, item.titleHi)}
-                    </h3>
-                    <p className="text-sm text-white/78 leading-relaxed">
-                      {t(item.detailsEn, item.detailsHi)}
-                    </p>
-                  </div>
-                  {/* Zoom icon */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
-                    <div className="bg-black/50 rounded-full p-3">
-                      <ZoomIn className="w-6 h-6 text-white" />
+                  
+                  {/* Content overlay - always visible at bottom, expands on hover */}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent pt-16 pb-4 px-5 transition-all duration-300 group-hover:pt-24 group-hover:pb-6">
+                    <div className="translate-y-0 transition-transform duration-300 group-hover:-translate-y-2">
+                      <h3 className="font-serif font-bold text-lg text-white mb-1">
+                        {t(item.titleEn, item.titleHi)}
+                      </h3>
+                      <p className="text-sm text-white/80 leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
+                        {t(item.detailsEn, item.detailsHi)}
+                      </p>
                     </div>
                   </div>
-                </div>
-                {/* Mobile: Content always visible below image */}
-                <div className="sm:hidden p-5 bg-card">
-                  <h3 className="font-serif font-bold text-lg mb-2 text-foreground">
-                    {t(item.titleEn, item.titleHi)}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {t(item.detailsEn, item.detailsHi)}
-                  </p>
+                  
+                  {/* Zoom icon on hover */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                      <ZoomIn className="w-7 h-7 text-white" />
+                    </div>
+                  </div>
                 </div>
               </article>
             ))}
