@@ -43,21 +43,49 @@ export default function Contact() {
 
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          {[
-            { icon: MapPin, title: t("Address", "पता"), text: t("C/o Mayank Singh Sikarwar, Vill. & Po. Tihar Thana, Rampura (Jalaun), Jalaun, Jalaun, Uttar Pradesh, India, 285127", " केयर ऑफ़ मयंक सिंह सिकरवार, ग्राम व पोस्ट टीहर थाना, रामपुरा (जालौन), जालौन, जालौन, उत्तर प्रदेश, भारत, 285127")} ,
-            { icon: Phone, title: t("Phone", "फोन"), text: "+91 73806 26179 / +91 88516 26084" },
-            { icon: Mail, title: t("Email", "ईमेल"), text: "nisvarthjansevango@gmail.com" },
-          ].map(({ icon: Icon, title, text }) => (
-            <div key={title} className="bg-card border rounded-xl p-6 flex gap-4">
-              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Icon className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">{title}</h3>
-                <p className="text-sm text-muted-foreground">{text}</p>
+          <div className="bg-card border rounded-xl p-6 flex gap-4">
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <MapPin className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground mb-1">{t("Address", "पता")}</h3>
+              <p className="text-sm text-muted-foreground">
+                {t(
+                  "C/o Mayank Singh Sikarwar, Vill. & Po. Tihar Thana, Rampura (Jalaun), Jalaun, Jalaun, Uttar Pradesh, India, 285127",
+                  " केयर ऑफ़ मयंक सिंह सिकरवार, ग्राम व पोस्ट टीहर थाना, रामपुरा (जालौन), जालौन, जालौन, उत्तर प्रदेश, भारत, 285127"
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-card border rounded-xl p-6 flex gap-4">
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Phone className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground mb-1">{t("Phone", "फोन")}</h3>
+              <div className="flex flex-col gap-1 text-sm">
+                <a href="tel:+917380626179" className="text-muted-foreground hover:text-primary transition-colors">
+                  +91 73806 26179
+                </a>
+                <a href="tel:+918851626084" className="text-muted-foreground hover:text-primary transition-colors">
+                  +91 88516 26084
+                </a>
               </div>
             </div>
-          ))}
+          </div>
+
+          <div className="bg-card border rounded-xl p-6 flex gap-4">
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Mail className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground mb-1">{t("Email", "ईमेल")}</h3>
+              <a href="mailto:nisvarthjansevango@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                nisvarthjansevango@gmail.com
+              </a>
+            </div>
+          </div>
         </div>
 
         {sent ? (

@@ -63,10 +63,10 @@ export default function Services() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service) => (
             <div key={service.id} className="bg-card rounded-2xl border p-8 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-              <div className="text-4xl mb-6 bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center text-primary">
+              {/* <div className="text-4xl mb-6 bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center text-primary">
                 <span className="opacity-0 w-0 h-0 overflow-hidden">{service.icon}</span>
                 <div className="w-8 h-8 rounded-full bg-primary/20"></div>
-              </div>
+              </div> */}
               <h3 className="text-2xl font-bold font-serif mb-4 text-foreground">
                 {language === "hi" ? service.title.hi : service.title.en}
               </h3>

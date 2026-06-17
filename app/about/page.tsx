@@ -35,12 +35,43 @@ export default function About() {
             )}
           </p>
           <h2>{t("Our Core Values", "हमारे मूल मूल्य")}</h2>
-          <ul>
-            <li><strong>{t("Seva (Selfless Service)", "सेवा (निस्वार्थ सेवा)")}</strong> - {t("Serving without borders, biases, or expectations.", "बिना किसी सीमा, पूर्वाग्रह या अपेक्षा के सेवा करना।")}</li>
-            <li><strong>{t("Integrity", "ईमानदारी")}</strong> - {t("Utmost transparency in our operations and utilization of funds.", "हमारे संचालन और धन के उपयोग में अत्यंत पारदर्शिता।")}</li>
-            <li><strong>{t("Compassion", "करुणा")}</strong> - {t("Approaching every individual with empathy and respect.", "हर व्यक्ति से सहानुभूति और सम्मान के साथ संपर्क करना।")}</li>
-            <li><strong>{t("Sustainability", "स्थिरता")}</strong> - {t("Creating long-term solutions, not just temporary fixes.", "सिर्फ अस्थायी समाधान नहीं, बल्कि दीर्घकालिक समाधान बनाना।")}</li>
-          </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 not-prose mt-6">
+            {[
+              {
+                icon: "🤝",
+                title: t("Seva (Selfless Service)", "सेवा (निस्वार्थ सेवा)"),
+                desc: t("Serving without borders, biases, or expectations.", "बिना किसी सीमा, पूर्वाग्रह या अपेक्षा के सेवा करना।"),
+              },
+              {
+                icon: "🛡️",
+                title: t("Integrity", "ईमानदारी"),
+                desc: t("Utmost transparency in our operations and utilization of funds.", "हमारे संचालन और धन के उपयोग में अत्यंत पारदर्शिता।"),
+              },
+              {
+                icon: "❤️",
+                title: t("Compassion", "करुणा"),
+                desc: t("Approaching every individual with empathy and respect.", "हर व्यक्ति से सहानुभूति और सम्मान के साथ संपर्क करना।"),
+              },
+              {
+                icon: "🌱",
+                title: t("Sustainability", "स्थिरता"),
+                desc: t("Creating long-term solutions, not just temporary fixes.", "सिर्फ अस्थायी समाधान नहीं, बल्कि दीर्घकालिक समाधान बनाना।"),
+              },
+            ].map((value, idx) => (
+              <div
+                key={idx}
+                className="flex gap-4 p-5 rounded-xl border bg-card hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl">
+                  {value.icon}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground mb-1">{value.title}</h3>
+                  <p className="text-sm text-muted-foreground">{value.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
        <section className="max-w-5xl mx-auto mt-16 px-4">
