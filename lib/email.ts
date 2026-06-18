@@ -148,7 +148,7 @@ export async function sendMembershipPaymentDocumentsEmail(member: MemberDocument
     `;
 
   await transporter.sendMail({
-    from: fromAddress,
+    from: `Nisvarthjan Seva Foundation<${fromAddress}>`,
     to: member.email,
     replyTo: ADMIN_EMAIL,
     subject: "Membership payment receipt and certificate",
@@ -198,7 +198,7 @@ export async function sendDonationReceiptEmail(donation: DonationReceiptRecord, 
     `;
 
   await transporter.sendMail({
-    from: fromAddress,
+    from: `Nisvarthjan Seva Foundation<${fromAddress}>`,
     to: donation.donorEmail,
     replyTo: ADMIN_EMAIL,
     subject: "80G donation receipt - Nisvarthjan Seva Foundation",
@@ -234,7 +234,7 @@ export async function sendBirthdayWishEmail(member: { name?: string; email?: str
     `;
 
   await transporter.sendMail({
-    from: fromAddress,
+    from: `Nisvarthjan Seva Foundation<${fromAddress}>`,
     to: member.email,
     replyTo: ADMIN_EMAIL,
     subject: "Happy birthday from Nisvarthjan Seva Foundation",
@@ -276,7 +276,7 @@ export async function sendReferralAchievementEmail(member: ReferralAchievementMe
     `;
 
   await transporter.sendMail({
-    from: fromAddress,
+    from: `Nisvarthjan Seva Foundation<${fromAddress}>`,
     to: member.email,
     replyTo: ADMIN_EMAIL,
     subject: `${tier.label} referral achievement certificate`,
@@ -311,7 +311,7 @@ export async function sendEnquiryAutoResponseEmail(enquiry: { name: string; emai
     `;
 
   await transporter.sendMail({
-    from: fromAddress,
+    from: `Nisvarthjan Seva Foundation<${fromAddress}>`,
     to: enquiry.email,
     replyTo: ADMIN_EMAIL,
     subject: "We received your enquiry - Nisvarthjan Seva Foundation",
