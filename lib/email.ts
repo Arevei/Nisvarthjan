@@ -22,6 +22,69 @@ import {
   type ReferralAchievementMember,
 } from "@/lib/referral-achievements";
 
+// Admin email for notifications and reply-to
+export const ADMIN_EMAIL = "nisvarthjansevango@gmail.com";
+
+// Branded email template wrapper
+function wrapEmailTemplate(content: string, title?: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${title || "Nisvarthjan Seva Foundation"}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: Arial, Helvetica, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 24px 8px;">
+    <tr>
+      <td align="center">
+        <table width="640" cellpadding="0" cellspacing="0" style="max-width: 640px; width: 100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 12px 12px 0 0; padding: 24px 28px; text-align: center;">
+              <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: 0.5px;">
+                Nisvarthjan Seva Foundation
+              </h1>
+              <p style="margin: 6px 0 0; font-size: 13px; color: rgba(255,255,255,0.85);">
+                Empowering Communities Through Service
+              </p>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="background-color: #ffffff; padding: 28px 28px 20px;">
+              ${content}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #18181b; border-radius: 0 0 12px 12px; padding: 20px 28px; text-align: center;">
+              <p style="margin: 0 0 6px; font-size: 13px; color: #a1a1aa;">
+                <strong style="color: #f97316;">Nisvarthjan Seva Foundation</strong>
+              </p>
+              <p style="margin: 0 0 4px; font-size: 12px; color: #71717a;">
+                📧 <a href="mailto:${ADMIN_EMAIL}" style="color: #a1a1aa; text-decoration: none;">${ADMIN_EMAIL}</a>
+              </p>
+              <p style="margin: 0 0 4px; font-size: 12px; color: #71717a;">
+                📞 +91 98765 43210
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #52525b;">
+                © ${new Date().getFullYear()} Nisvarthjan Seva Foundation. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
 function getTransporter() {
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT || "587");
@@ -65,25 +128,26 @@ export async function sendMembershipPaymentDocumentsEmail(member: MemberDocument
   const receiptNumber = getMembershipReceiptNumber(member);
   const transporter = getTransporter();
 
+  const content = `
+      <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
+      <p style="margin-top: 0; color: #52525b;">Your membership payment has been received.</p>
+      <p>Dear ${safeText(member.name)},</p>
+      <p>Your membership is now active. Your receipt, membership certificate, and ID card PDFs are attached with this email.</p>
+      <table style="border-collapse: collapse; margin: 16px 0;">
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Membership ID</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.membershipId)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Certificate No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.certificateNumber)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Receipt No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${receiptNumber}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Amount</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${formatAmount(member)}</td></tr>
+      </table>
+      <p style="color: #52525b;">Thank you for joining us.</p>
+    `;
+
   await transporter.sendMail({
     from: fromAddress,
     to: member.email,
+    replyTo: ADMIN_EMAIL,
     subject: "Membership payment receipt and certificate",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #18181b;">
-        <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
-        <p style="margin-top: 0; color: #52525b;">Your membership payment has been received.</p>
-        <p>Dear ${safeText(member.name)},</p>
-        <p>Your membership is now active. Your receipt, membership certificate, and ID card PDFs are attached with this email.</p>
-        <table style="border-collapse: collapse; margin: 16px 0;">
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Membership ID</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.membershipId)}</td></tr>
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Certificate No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.certificateNumber)}</td></tr>
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Receipt No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${receiptNumber}</td></tr>
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Amount</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${formatAmount(member)}</td></tr>
-        </table>
-        <p style="color: #52525b;">Thank you for joining us.</p>
-      </div>
-    `,
+    html: wrapEmailTemplate(content),
     attachments: [
       {
         filename: `${safeFileName(safeText(member.certificateNumber))}.pdf`,
@@ -114,25 +178,26 @@ export async function sendDonationReceiptEmail(donation: DonationReceiptRecord, 
   const receiptPdf = await generateDonationReceiptPdf(donation, requestUrl);
   const transporter = getTransporter();
 
+  const content = `
+      <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
+      <p style="margin-top: 0; color: #52525b;">Thank you for your donation.</p>
+      <p>Dear ${donation.donorName},</p>
+      <p>Your 80G donation receipt PDF is attached with this email.</p>
+      <table style="border-collapse: collapse; margin: 16px 0;">
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Receipt No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${donation.receiptNumber}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Donor PAN</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${donation.donorPan || "Not provided"}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Amount</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">INR ${donation.amount.toLocaleString("en-IN")}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Purpose</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${donation.purpose}</td></tr>
+      </table>
+      <p style="color: #52525b;">This receipt contains a QR code for online verification.</p>
+    `;
+
   await transporter.sendMail({
     from: fromAddress,
     to: donation.donorEmail,
+    replyTo: ADMIN_EMAIL,
     subject: "80G donation receipt - Nisvarthjan Seva Foundation",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #18181b;">
-        <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
-        <p style="margin-top: 0; color: #52525b;">Thank you for your donation.</p>
-        <p>Dear ${donation.donorName},</p>
-        <p>Your 80G donation receipt PDF is attached with this email.</p>
-        <table style="border-collapse: collapse; margin: 16px 0;">
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Receipt No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${donation.receiptNumber}</td></tr>
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Donor PAN</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${donation.donorPan || "Not provided"}</td></tr>
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Amount</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">INR ${donation.amount.toLocaleString("en-IN")}</td></tr>
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Purpose</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${donation.purpose}</td></tr>
-        </table>
-        <p style="color: #52525b;">This receipt contains a QR code for online verification.</p>
-      </div>
-    `,
+    html: wrapEmailTemplate(content),
     attachments: [
       {
         filename: `${safeDonationFileName(donation.receiptNumber)}.pdf`,
@@ -156,18 +221,19 @@ export async function sendBirthdayWishEmail(member: { name?: string; email?: str
 
   const transporter = getTransporter();
 
+  const content = `
+      <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
+      <p>Dear ${safeText(member.name)},</p>
+      <p>Wishing you a very happy birthday. May your year ahead be filled with health, joy, and meaningful service.</p>
+      <p style="color: #52525b;">Thank you for being part of the Nisvarthjan Seva Foundation family.</p>
+    `;
+
   await transporter.sendMail({
     from: fromAddress,
     to: member.email,
+    replyTo: ADMIN_EMAIL,
     subject: "Happy birthday from Nisvarthjan Seva Foundation",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #18181b;">
-        <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
-        <p>Dear ${safeText(member.name)},</p>
-        <p>Wishing you a very happy birthday. May your year ahead be filled with health, joy, and meaningful service.</p>
-        <p style="color: #52525b;">Thank you for being part of the Nisvarthjan Seva Foundation family.</p>
-      </div>
-    `,
+    html: wrapEmailTemplate(content),
   });
 }
 
@@ -191,24 +257,25 @@ export async function sendReferralAchievementEmail(member: ReferralAchievementMe
   const pdf = await generateReferralAchievementCertificatePdf(member, requestUrl);
   const transporter = getTransporter();
 
+  const content = `
+      <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
+      <p style="margin-top: 0; color: #52525b;">Congratulations on your referral achievement.</p>
+      <p>Dear ${safeReferralText(member.name)},</p>
+      <p>You have been awarded the <strong>${tier.label} Badge</strong> for collecting ${formatReferralAmount(achievement.donationAmount)} through donation referrals.</p>
+      <table style="border-collapse: collapse; margin: 16px 0;">
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Certificate No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${achievement.certificateNumber}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Membership ID</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeReferralText(member.membershipId)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Badge</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${tier.label}</td></tr>
+      </table>
+      <p style="color: #52525b;">Your certificate PDF is attached.</p>
+    `;
+
   await transporter.sendMail({
     from: fromAddress,
     to: member.email,
+    replyTo: ADMIN_EMAIL,
     subject: `${tier.label} referral achievement certificate`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #18181b;">
-        <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
-        <p style="margin-top: 0; color: #52525b;">Congratulations on your referral achievement.</p>
-        <p>Dear ${safeReferralText(member.name)},</p>
-        <p>You have been awarded the <strong>${tier.label} Badge</strong> for collecting ${formatReferralAmount(achievement.donationAmount)} through donation referrals.</p>
-        <table style="border-collapse: collapse; margin: 16px 0;">
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Certificate No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${achievement.certificateNumber}</td></tr>
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Membership ID</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeReferralText(member.membershipId)}</td></tr>
-          <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Badge</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${tier.label}</td></tr>
-        </table>
-        <p style="color: #52525b;">Your certificate PDF is attached.</p>
-      </div>
-    `,
+    html: wrapEmailTemplate(content),
     attachments: [
       {
         filename: `${safeReferralFileName(achievement.certificateNumber)}.pdf`,
@@ -228,20 +295,21 @@ export async function sendEnquiryAutoResponseEmail(enquiry: { name: string; emai
 
   const transporter = getTransporter();
 
+  const content = `
+      <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
+      <p>Dear ${safeText(enquiry.name)},</p>
+      <p>Thank you for contacting us. We have received your enquiry and our team will get back to you soon.</p>
+      <div style="margin: 16px 0; padding: 12px; border: 1px solid #e4e4e7; border-radius: 8px; background: #fafafa;">
+        <p style="margin: 0; color: #52525b;">${safeText(enquiry.message)}</p>
+      </div>
+      <p style="color: #52525b;">Thank you for reaching out.</p>
+    `;
+
   await transporter.sendMail({
     from: fromAddress,
     to: enquiry.email,
+    replyTo: ADMIN_EMAIL,
     subject: "We received your enquiry - Nisvarthjan Seva Foundation",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #18181b;">
-        <h2 style="margin-bottom: 8px;">Nisvarthjan Seva Foundation</h2>
-        <p>Dear ${safeText(enquiry.name)},</p>
-        <p>Thank you for contacting us. We have received your enquiry and our team will get back to you soon.</p>
-        <div style="margin: 16px 0; padding: 12px; border: 1px solid #e4e4e7; border-radius: 8px; background: #fafafa;">
-          <p style="margin: 0; color: #52525b;">${safeText(enquiry.message)}</p>
-        </div>
-        <p style="color: #52525b;">Thank you for reaching out.</p>
-      </div>
-    `,
+    html: wrapEmailTemplate(content),
   });
 }
