@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useListCampaigns, useListGallery, useListNews } from "@/lib/api-client/api";
 
 type MemberMessage = {
   id: number;
@@ -49,14 +50,20 @@ export function Navbar() {
   const [memberMessage, setMemberMessage] = useState<MemberMessage | null>(null);
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageDismissed, setMessageDismissed] = useState(true);
-  const notificationRef = useRef<HTMLDivElement | null>(null);
 
+  const notificationRef = useRef<HTMLDivElement | null>(null);
+  const { data: allNews = [] } = useListNews();
+    const { data: allCampaigns = [] } = useListCampaigns();
+    const { data: uploadedGallery = [] } = useListGallery();
+
+
+  // Build nav items conditionally
   const navItems = [
     { href: "/about", label: t("About Us", "हमारे बारे में"), icon: Info },
     { href: "/services", label: t("Programs", "कार्यक्रम"), icon: Briefcase },
-    { href: "/campaigns", label: t("Campaigns", "अभियान"), icon: Megaphone },
-    { href: "/news", label: t("News", "समाचार"), icon: Newspaper },
-    { href: "/gallery", label: t("Activity Post", "गतिविधि पोस्ट"), icon: Images  },
+    ...(allCampaigns.length > 0 ? [{ href: "/campaigns", label: t("Campaigns", "अभियान"), icon: Megaphone }] : []),
+    ...(allNews.length > 0 ? [{ href: "/news", label: t("News", "समाचार"), icon: Newspaper }] : []),
+    ...(uploadedGallery.length > 0 ? [{ href: "/gallery", label: t("Activity Post", "गतिविधि पोस्ट"), icon: Images }] : []),
     { href: "/contact", label: t("Contact", "संपर्क"), icon: Phone },
   ];
 
@@ -142,7 +149,7 @@ export function Navbar() {
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
           {/* Language Dropdown */}
-          <div className="relative group">
+          {/* <div className="relative group">
             <button
               type="button"
               className="flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -173,7 +180,7 @@ export function Navbar() {
                 <span className="text-base">🇮🇳</span> हिंदी
               </button>
             </div>
-          </div>
+          </div> */}
 
           {/* Notifications */}
           {memberMessage && (

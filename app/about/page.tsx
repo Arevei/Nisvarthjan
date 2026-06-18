@@ -1,6 +1,7 @@
 "use client";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
+import { Handshake, Heart, Leaf, Sparkles } from "lucide-react";
 
 export default function About() {
   const { t } = useLanguage();
@@ -38,36 +39,36 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 not-prose mt-6">
             {[
               {
-                icon: "🤝",
+                icon: Handshake,
                 title: t("Seva (Selfless Service)", "सेवा (निस्वार्थ सेवा)"),
                 desc: t("Serving without borders, biases, or expectations.", "बिना किसी सीमा, पूर्वाग्रह या अपेक्षा के सेवा करना।"),
               },
               {
-                icon: "🛡️",
+                icon: Sparkles,
                 title: t("Integrity", "ईमानदारी"),
                 desc: t("Utmost transparency in our operations and utilization of funds.", "हमारे संचालन और धन के उपयोग में अत्यंत पारदर्शिता।"),
               },
               {
-                icon: "❤️",
+                icon: Heart,
                 title: t("Compassion", "करुणा"),
                 desc: t("Approaching every individual with empathy and respect.", "हर व्यक्ति से सहानुभूति और सम्मान के साथ संपर्क करना।"),
               },
               {
-                icon: "🌱",
+                icon: Leaf,
                 title: t("Sustainability", "स्थिरता"),
                 desc: t("Creating long-term solutions, not just temporary fixes.", "सिर्फ अस्थायी समाधान नहीं, बल्कि दीर्घकालिक समाधान बनाना।"),
               },
-            ].map((value, idx) => (
+            ].map(({icon:Icon,title,desc}, idx) => (
               <div
                 key={idx}
                 className="flex gap-4 p-5 rounded-xl border bg-card hover:shadow-md transition-all duration-300 hover:-translate-y-1"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl">
-                  {value.icon}
+                  <Icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-1">{value.title}</h3>
-                  <p className="text-sm text-muted-foreground">{value.desc}</p>
+                  <h3 className="font-semibold text-foreground mb-1">{title}</h3>
+                  <p className="text-sm text-muted-foreground">{desc}</p>
                 </div>
               </div>
             ))}

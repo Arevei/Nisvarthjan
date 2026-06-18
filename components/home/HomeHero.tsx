@@ -303,41 +303,7 @@ export function HomeHero({ stats }: HeroParallaxProps) {
               </Button>
             </motion.div>
 
-            {/* Stats */}
-            {stats && (
-              <motion.div
-                className="mt-12 flex flex-wrap justify-center gap-10 md:gap-14"
-                initial={{ opacity: 0, y: 22 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 1.62 }}
-              >
-                {[
-                  {
-                    value: Math.round(stats.livesImpacted / 1000),
-                    suffix: "K+",
-                    lbl: t("Lives Impacted", "\u092a\u094d\u0930\u092d\u093e\u0935\u093f\u0924 \u091c\u0940\u0935\u0928"),
-                  },
-                  {
-                    value: stats.villagesCovered,
-                    suffix: "+",
-                    lbl: t("Villages", "\u0917\u093e\u0901\u0935"),
-                  },
-                  {
-                    value: stats.treesPlanted,
-                    suffix: "+",
-                    lbl: t("Trees Planted", "\u0932\u0917\u093e\u090f \u0917\u090f \u092a\u0947\u0921\u093c"),
-                  },
-                ].map(({ value, suffix, lbl }) => (
-                  <div key={lbl} className="text-center group">
-                    <div className="text-[2.4rem] font-bold font-serif leading-none text-amber-300 group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_2px_12px_rgba(251,191,36,0.45)]">
-                      <AnimatedCounter value={value} duration={1800} />
-                      {suffix}
-                    </div>
-                    <div className="text-[10px] text-white/52 uppercase tracking-[0.2em] mt-2">{lbl}</div>
-                  </div>
-                ))}
-              </motion.div>
-            )}
+            
 
             {/* Scroll line */}
             <motion.div
