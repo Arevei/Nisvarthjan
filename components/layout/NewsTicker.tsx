@@ -74,7 +74,7 @@ export function NewsTicker() {
         </div>
 
         {/* Contact Info & Google Translator */}
-        <div className="flex shrink-0 items-center gap-3 bg-primary-foreground/20 pl-3 py-1.5">
+        <div className="flex shrink-0 items-center gap-3 bg-primary pl-3 py-1.5">
           {/* Contact Phone */}
           <a 
             href="tel:+917380626179" 
@@ -100,7 +100,7 @@ export function NewsTicker() {
                   <button
                     type="button"
                     onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-                    className="flex min-h-12 items-center gap-3 rounded-lg border border-transparent   text-left text-sm font-semibold transition-colors hover:border-primary/20 bg-accent text-primary pr-4"
+                    className="flex min-h-12 items-center gap-3 rounded-lg border border-transparent   text-left text-sm font-semibold transition-colors hover:border-primary/20 bg-primary text-accent pr-4"
                   >
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-accent text-primary">
                       <Languages className="h-4 w-4" />

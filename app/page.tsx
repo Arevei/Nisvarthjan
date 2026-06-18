@@ -432,24 +432,25 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {IMPACT_AREAS.map(({ icon: Icon, image, titleEn, titleHi, descEn, descHi }) => (
-              <div key={titleEn} className="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-1 cursor-default h-64">
-                {/* Background image */}
-                <img
-                  src={image}
-                  alt={titleEn}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                {/* Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                      <Icon className="w-4 h-4 text-white" />
+              <div key={titleEn} className="group rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-1 cursor-default bg-white">
+                {/* Image */}
+                <div className="flex items-center justify-center pt-3 gap-2 mx-auto  mb-2">
+                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-primary" />
                     </div>
-                    <h3 className="text-white font-bold text-lg font-serif">{t(titleEn, titleHi)}</h3>
+                    <h3 className="text-foreground text-primary font-bold text-lg font-serif">{t(titleEn, titleHi)}</h3>
                   </div>
-                  <p className="text-white/80 text-sm leading-relaxed line-clamp-2">{t(descEn, descHi)}</p>
+                <div className="h-56 overflow-hidden">
+                  <img
+                    src={image}
+                    alt={titleEn}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                {/* Content below image */}
+                <div className="p-3">
+                  
+                  <p className="text-muted-foreground text-sm leading-relaxed">{t(descEn, descHi)}</p>
                 </div>
               </div>
             ))}

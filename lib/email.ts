@@ -42,7 +42,7 @@ function wrapEmailTemplate(content: string, title?: string): string {
 
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 12px 12px 0 0; padding: 24px 28px; text-align: center;">
+            <td style="background: linear-gradient(135deg, #b0112f 0%, #8b0d24 100%); border-radius: 12px 12px 0 0; padding: 24px 28px; text-align: center;">
               <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: 0.5px;">
                 Nisvarthjan Seva Foundation
               </h1>
@@ -61,16 +61,21 @@ function wrapEmailTemplate(content: string, title?: string): string {
 
           <!-- Footer -->
           <tr>
-            <td style="background-color: #18181b; border-radius: 0 0 12px 12px; padding: 20px 28px; text-align: center;">
-              <p style="margin: 0 0 6px; font-size: 13px; color: #a1a1aa;">
-                <strong style="color: #f97316;">Nisvarthjan Seva Foundation</strong>
-              </p>
-              <p style="margin: 0 0 4px; font-size: 12px; color: #71717a;">
-                📧 <a href="mailto:${ADMIN_EMAIL}" style="color: #a1a1aa; text-decoration: none;">${ADMIN_EMAIL}</a>
-              </p>
-              <p style="margin: 0 0 4px; font-size: 12px; color: #71717a;">
-                📞 +91 98765 43210
-              </p>
+            <td style="background-color: #18181b; border-radius: 0 0 12px 12px; padding: 24px 28px; text-align: center;">
+              <div style="border-top: 2px solid #b0112f; border-bottom: 2px solid #b0112f; padding: 16px 0; margin-bottom: 12px;">
+                <p style="margin: 0 0 8px; font-size: 16px; font-weight: 700; color: #ffffff;">
+                  Nisvarthjan Seva Foundation
+                </p>
+                <p style="margin: 0 0 6px; font-size: 12px; color: #a1a1aa;">
+                  <span style="color: #b0112f;">📧</span> <a href="mailto:${ADMIN_EMAIL}" style="color: #b0112f; text-decoration: none;">${ADMIN_EMAIL}</a>
+                </p>
+                <p style="margin: 0 0 6px; font-size: 12px; color: #a1a1aa;">
+                  <span style="color: #b0112f;">📞</span> +91 98765 43210
+                </p>
+                <p style="margin: 0; font-size: 12px; color: #71717a;">
+                  C/o Mayank Singh Sikarwar, Vill. & Po. Tihar Thana, Rampura, Jalaun, Uttar Pradesh, India, 285127
+                </p>
+              </div>
               <p style="margin: 0; font-size: 11px; color: #52525b;">
                 © ${new Date().getFullYear()} Nisvarthjan Seva Foundation. All rights reserved.
               </p>
