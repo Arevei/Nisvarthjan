@@ -90,7 +90,18 @@ export function Footer() {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-1">{t("Email", "ईमेल")}</h3>
-                <a href="mailto:nisvarthjansevango@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <a 
+                  href="https://mail.google.com/mail/u/0/?to=nisvarthjansevango@gmail.com&su=Niswarthjan+Seva+Foundation+Support&fs=1&tf=cm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden md:inline text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  nisvarthjansevango@gmail.com
+                </a>
+                <a 
+                  href="mailto:nisvarthjansevango@gmail.com?subject=Niswarthjan+Seva+Foundation+Support"
+                  className="md:hidden text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
                   nisvarthjansevango@gmail.com
                 </a>
               </div>

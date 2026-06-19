@@ -438,7 +438,7 @@ export default function Home() {
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
                       <Icon className="w-4 h-4 text-primary" />
                     </div>
-                    <h3 className="text-foreground text-primary font-bold text-lg font-serif">{t(titleEn, titleHi)}</h3>
+                    <h3 className="text-primary font-bold text-lg font-serif">{t(titleEn, titleHi)}</h3>
                   </div>
                 <div className="h-56 overflow-hidden">
                   <img
@@ -516,27 +516,41 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Image Modal */}
+          {/* Image Modal - Instagram style left/right layout */}
           {selectedImage && (
             <div 
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
               onClick={() => setSelectedImage(null)}
             >
               <button 
-                className="absolute top-4 right-4 md:top-6 md:right-6 text-white hover:text-gray-300 transition-colors"
+                className="absolute top-4 right-4 md:top-6 md:right-6 text-white hover:text-gray-300 transition-colors z-10"
                 onClick={() => setSelectedImage(null)}
               >
                 <X className="w-8 h-8" />
               </button>
               <div 
-                className="relative max-w-5xl w-full max-h-[90vh]"
+                className="relative max-w-5xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
                 onClick={(e) => e.stopPropagation()}
               >
-                <img 
-                  src={selectedImage.src} 
-                  alt={selectedImage.titleEn}
-                  className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
-                />
+                {/* Image - Left side */}
+                <div className="md:w-3/5 bg-black flex items-center justify-center">
+                  <img 
+                    src={selectedImage.src} 
+                    alt={selectedImage.titleEn}
+                    className="w-full h-auto max-h-[50vh] md:max-h-[90vh] object-contain"
+                  />
+                </div>
+                {/* Content - Right side */}
+                <div className="md:w-2/5 p-6 flex flex-col justify-center">
+                  <h3 className="font-serif font-bold text-xl text-foreground mb-3">
+                    {t(selectedImage.titleEn, selectedImage.titleHi)}
+                  </h3>
+                  {(selectedImage.detailsEn || selectedImage.detailsHi) && (
+                    <p className="text-muted-foreground leading-relaxed">
+                      {t(selectedImage.detailsEn, selectedImage.detailsHi)}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           )}

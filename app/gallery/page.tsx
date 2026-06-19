@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import { X, ZoomIn } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { useListGallery } from "@/lib/api-client/api";
@@ -17,6 +19,7 @@ export default function Gallery() {
   const { t } = useLanguage();
   const { data: uploadedItems = [], isLoading } = useListGallery();
   const galleryItems = uploadedItems.length > 0 ? uploadedItems : GALLERY_ITEMS;
+  const [selectedItem, setSelectedItem] = useState<typeof galleryItems[0] | null>(null);
 
   return (
     <Layout>
@@ -50,7 +53,8 @@ export default function Gallery() {
               return (
                 <article
                   key={item.id}
-                  className="group relative h-72 overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
+                  className="group relative h-72 overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+                  onClick={() => setSelectedItem(item)}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.imageUrl} alt={title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -66,12 +70,63 @@ export default function Gallery() {
                       </p>
                     )}
                   </div>
+                  {/* Zoom icon */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                      <ZoomIn className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
                 </article>
               );
             })}
           </div>
         )}
       </div>
+
+      {/* Image Modal - Instagram style left/right layout */}
+      {selectedItem && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={() => setSelectedItem(null)}
+        >
+          <button 
+            className="absolute top-4 right-4 md:top-6 md:right-6 text-white hover:text-gray-300 transition-colors z-10"
+            onClick={() => setSelectedItem(null)}
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <div 
+            className="relative max-w-5xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Image - Left side */}
+            <div className="md:w-3/5 bg-black flex items-center justify-center">
+              <img 
+                src={selectedItem.imageUrl} 
+                alt={t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
+                className="w-full h-auto max-h-[50vh] md:max-h-[90vh] object-contain"
+              />
+            </div>
+            {/* Content - Right side */}
+            <div className="md:w-2/5 p-6 flex flex-col justify-center">
+              <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary mb-3 w-fit">
+                {selectedItem.category}
+              </span>
+              <h3 className="font-serif font-bold text-xl text-foreground mb-3">
+                {t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
+              </h3>
+              {("detailsEn" in selectedItem && selectedItem.detailsEn) || ("detailsHi" in selectedItem && selectedItem.detailsHi) ? (
+                <p className="text-muted-foreground leading-relaxed">
+                  {t(
+                    ("detailsEn" in selectedItem ? selectedItem.detailsEn : "") ?? "",
+                    ("detailsHi" in selectedItem ? selectedItem.detailsHi : selectedItem.detailsEn) ?? ""
+                  )}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }

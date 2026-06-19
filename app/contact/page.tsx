@@ -81,7 +81,18 @@ export default function Contact() {
             </div>
             <div>
               <h3 className="font-semibold text-foreground mb-1">{t("Email", "ईमेल")}</h3>
-              <a href="mailto:nisvarthjansevango@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <a 
+                href="https://mail.google.com/mail/u/0/?to=nisvarthjansevango@gmail.com&su=Niswarthjan+Seva+Foundation+Support&fs=1&tf=cm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden md:block text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                nisvarthjansevango@gmail.com
+              </a>
+              <a 
+                href="mailto:nisvarthjansevango@gmail.com?subject=Niswarthjan+Seva+Foundation+Support"
+                className="md:hidden text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
                 nisvarthjansevango@gmail.com
               </a>
             </div>
@@ -122,6 +133,22 @@ export default function Contact() {
             </form>
           </div>
         )}
+
+        {/* Map Section */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-serif font-bold text-foreground  my-6 text-center">{t("Find Us on Map", "मानचित्र पर हमें खोजें")}</h2>
+          <div className="rounded-2xl overflow-hidden shadow-lg border">
+            <iframe 
+              width="100%" 
+              height="400" 
+              style={{ border: 0 }} 
+              allowFullScreen 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+              src="https://www.google.com/maps/embed/v1/place?q=C%2Fo%20Mayank%20Singh%20Sikarwar%2C%20Vill.%20%26%20Po.%20Tihar%20Thana%2C%20Rampura%20(Jalaun)%2C%20Jalaun%2C%20Jalaun%2C%20Uttar%20Pradesh%2C%20India%2C%20285127&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8"
+            />
+          </div>
+        </div>
       </div>
     </Layout>
   );

@@ -34,7 +34,9 @@ export default function Privacy() {
             <h2 className="text-xl font-serif font-semibold text-foreground mb-3">{t("5. Contact Us", "5. हमसे संपर्क करें")}</h2>
             <p className="text-muted-foreground leading-relaxed">
               {t("If you have any questions about this Privacy Policy, please contact us at", "यदि इस गोपनीयता नीति के बारे में आपके कोई प्रश्न हैं, तो कृपया")}{" "}
-              <a href="mailto:nisvarthjansevango@gmail.com" className="text-primary hover:underline">nisvarthjansevango@gmail.com</a>{" "}
+              <a href="https://mail.google.com/mail/u/0/?to=nisvarthjansevango@gmail.com&su=Privacy+Policy+Inquiry&fs=1&tf=cm" target="_blank" rel="noopener noreferrer" className="hidden md:inline text-primary hover:underline">nisvarthjansevango@gmail.com</a>
+              <a href="mailto:nisvarthjansevango@gmail.com?subject=Privacy+Policy+Inquiry" className="md:hidden text-primary hover:underline">nisvarthjansevango@gmail.com</a>
+              {" "}
               {t("for any queries.", "पर हमसे संपर्क करें।")}
             </p>
           </section>
