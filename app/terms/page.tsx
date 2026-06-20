@@ -17,12 +17,13 @@ export default function Terms() {
 
           <section>
             <h2 className="text-xl font-serif font-semibold text-foreground mb-3">{t("2. Membership", "2. सदस्यता")}</h2>
-            <p className="text-muted-foreground leading-relaxed">{t("Membership registration requires accurate and complete information. The foundation reserves the right to revoke membership in case of misrepresentation or violation of our code of conduct. Membership IDs are non-transferable.", "सदस्यता पंजीकरण के लिए सटीक और पूर्ण जानकारी आवश्यक है। फाउंडेशन गलत बयानबाजी या आचार संहिता के उल्लंघन पर सदस्यता रद्द करने का अधिकार सुरक्षित रखता है।")}</p>
+            <p className="text-muted-foreground leading-relaxed">{t("Membership registration requires accurate and complete information. The foundation reserves the right to revoke membership in case of misrepresentation or violation of our code of conduct. ", "सदस्यता पंजीकरण के लिए सटीक और पूर्ण जानकारी आवश्यक है। फाउंडेशन गलत बयानबाजी या आचार संहिता के उल्लंघन पर सदस्यता रद्द करने का अधिकार सुरक्षित रखता है।")}</p>
+            <p className="text-muted-foreground leading-relaxed">{t("Member fees are non-refundable. These will be considered as a donation against your membership registration. Also, an 80G receipt can be requested from the organisation on request.", "सदस्यता शुल्क गैर-रिफंडेबल (वापस न करने योग्य) है। इसे आपके सदस्यता पंजीकरण के बदले दान के रूप में माना जाएगा। इसके अलावा, अनुरोध करने पर संगठन से 80G रसीद मांगी जा सकती है।")}</p>
           </section>
 
           <section>
             <h2 className="text-xl font-serif font-semibold text-foreground mb-3">{t("3. Donations", "3. दान")}</h2>
-            <p className="text-muted-foreground leading-relaxed">{t("All donations made through this website are voluntary. Donation receipts are issued for all contributions. The foundation uses donations exclusively for its charitable programs as described on this website. Refunds are issued as per our Refund Policy.", "इस वेबसाइट के माध्यम से किए गए सभी दान स्वैच्छिक हैं। सभी योगदानों के लिए दान रसीदें जारी की जाती हैं।")}</p>
+            <p className="text-muted-foreground leading-relaxed">{t("All donations made through this website are voluntary. Donation receipts are issued for all contributions. The foundation uses donations exclusively for its charitable programs as described on this website. Refunds are issued as per our Refund Policy (5 policy).", "इस वेबसाइट के माध्यम से किए गए सभी दान स्वैच्छिक हैं। सभी योगदानों के लिए दान रसीदें जारी की जाती हैं। (5)")}</p>
           </section>
 
           <section>
@@ -33,7 +34,7 @@ export default function Terms() {
           <section>
             <h2 className="text-xl font-serif font-semibold text-foreground mb-3">{t("5. Refund Policy", "5. रिफंड नीति")}</h2>
             <p className="text-muted-foreground leading-relaxed">
-              {t("Donations are generally non-refundable. However, in exceptional circumstances, refund requests may be considered within 7 days of the donation. Please contact us at", "दान आम तौर पर गैर-वापसी योग्य हैं। हालांकि, असाधारण परिस्थितियों में, दान के 7 दिनों के भीतर धनवापसी अनुरोधों पर विचार किया जा सकता है। हमसे संपर्क करें")}{" "}
+              {t("Donations are generally non-refundable. However, in exceptional circumstances, refund requests may be considered within 3 days of the donation. Please contact us at", "दान आम तौर पर गैर-वापसी योग्य हैं। हालांकि, असाधारण परिस्थितियों में, दान के 3 दिनों के भीतर धनवापसी अनुरोधों पर विचार किया जा सकता है। हमसे संपर्क करें")}{" "}
               <a href="https://mail.google.com/mail/u/0/?to=nisvarthjansevango@gmail.com&su=Refund+Request&fs=1&tf=cm" target="_blank" rel="noopener noreferrer" className="hidden md:inline text-primary hover:underline">nisvarthjansevango@gmail.com</a>
               <a href="mailto:nisvarthjansevango@gmail.com?subject=Refund+Request" className="md:hidden text-primary hover:underline">nisvarthjansevango@gmail.com</a>
               {" "}
@@ -43,7 +44,7 @@ export default function Terms() {
 
           <section>
             <h2 className="text-xl font-serif font-semibold text-foreground mb-3">{t("6. Governing Law", "6. शासी कानून")}</h2>
-            <p className="text-muted-foreground leading-relaxed">{t("These Terms are governed by the laws of India. Any disputes arising from these Terms shall be subject to the exclusive jurisdiction of courts in Prayagraj, Uttar Pradesh, India.", "ये नियम भारत के कानूनों द्वारा शासित हैं। इन शर्तों से उत्पन्न होने वाले किसी भी विवाद के लिए प्रयागराज, उत्तर प्रदेश के न्यायालयों का अधिकार क्षेत्र होगा।")}</p>
+            <p className="text-muted-foreground leading-relaxed">{t("These Terms are governed by the laws of India. Any disputes arising from these Terms shall be subject to the exclusive jurisdiction of India Courts.", "ये शर्तें भारत के कानूनों द्वारा शासित हैं। इन शर्तों से उत्पन्न होने वाला कोई भी विवाद भारत की अदालतों के विशेष अधिकार क्षेत्र के अधीन होगा।")}</p>
           </section>
         </div>
       </div>

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle2, Clock3, CreditCard, Mail, Users } from "lucide-react";
 import { captureReferralCodeFromUrl } from "@/lib/referral-code";
+import { MemberPhotoUpload } from "@/components/home/member-photo-upload";
 
 type Step = "form" | "manual-submitted" | "razorpay-ready" | "paid";
 type MembershipType = "general" | "active" | "lifetime";
@@ -96,6 +97,9 @@ export default function Membership() {
     city: "",
     state: "",
     membershipType: "general" as MembershipType,
+    photo: "",
+    education: "",
+    donationPurpose: "",
   });
 
   const selectedFee = membershipFees[form.membershipType];
@@ -198,6 +202,9 @@ export default function Membership() {
           state: form.state || undefined,
           membershipType: form.membershipType,
           referralCode: referralCode || undefined,
+          photo: form.photo || undefined,
+          education: form.education || undefined,
+          donationPurpose: form.donationPurpose || undefined,
         }),
       });
 
@@ -374,6 +381,49 @@ export default function Membership() {
               <p className="mt-2 text-sm text-muted-foreground">
                 {t("Membership fee", "सदस्यता शुल्क")}: <span className="font-semibold text-foreground">₹{selectedFee}</span>
               </p>
+            </div>
+
+            <div className="md:col-span-2">
+              <MemberPhotoUpload
+                value={form.photo}
+                onChange={(photo) => setForm((previous) => ({ ...previous, photo }))}
+                label={t("Passport Photo (for ID Card)", "पासपोर्ट फोटो (ID कार्ड के लिए)")}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="education">{t("Education", "शिक्षा")}</Label>
+              <Select value={form.education} onValueChange={(value) => setForm((previous) => ({ ...previous, education: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("Select education", "शिक्षा चुनें")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="secondary">Secondary School (10th/12th)</SelectItem>
+                  <SelectItem value="undergraduate">Undergraduate / Bachelor's Degree</SelectItem>
+                  <SelectItem value="postgraduate">Postgraduate / Master's Degree</SelectItem>
+                  <SelectItem value="doctorate">Doctorate / Ph.D.</SelectItem>
+                  <SelectItem value="diploma">Diploma / Technical Certification</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="donationPurpose">{t("Donation Purpose", "दान उद्देश्य")}</Label>
+              <Select value={form.donationPurpose} onValueChange={(value) => setForm((previous) => ({ ...previous, donationPurpose: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("Select purpose", "उद्देश्य चुनें")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="child-education">Child Education & Literacy</SelectItem>
+                  <SelectItem value="healthcare">Healthcare & Medical Camps</SelectItem>
+                  <SelectItem value="poverty-alleviation">Poverty Alleviation & Food Security</SelectItem>
+                  <SelectItem value="women-empowerment">Women Empowerment</SelectItem>
+                  <SelectItem value="environment">Environmental Sustainability & Planting</SelectItem>
+                  <SelectItem value="skill-development">Skill Development & Livelihood</SelectItem>
+                  <SelectItem value="general">General / Wherever the Need is Greatest</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="md:col-span-2">

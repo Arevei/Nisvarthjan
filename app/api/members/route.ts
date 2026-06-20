@@ -23,6 +23,9 @@ type MemberDoc = {
   referral?: ReferralInfo | null;
   referralAchievement?: unknown;
   password?: string;
+  photo?: string | null;
+  education?: string | null;
+  donationPurpose?: string | null;
   payment?: {
     mode: "manual" | "razorpay";
     status: "manual_review" | "created" | "paid";
@@ -125,13 +128,16 @@ function fmt(m: MemberDoc) {
     certificateNumber: m.certificateNumber ?? null,
     referral: m.referral ?? null,
     referralAchievement: m.referralAchievement ?? null,
+    photo: m.photo ?? null,
+    education: m.education ?? null,
+    donationPurpose: m.donationPurpose ?? null,
     joinedAt: new Date(m.joinedAt).toISOString(),
   };
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, email, phone, dateOfBirth, address, city, state, membershipType, password, referralCode } = body;
+  const { name, email, phone, dateOfBirth, address, city, state, membershipType, password, referralCode, photo, education, donationPurpose } = body;
   if (!name || !email || !phone || !password) {
     return NextResponse.json({ error: "name, email, phone, password are required" }, { status: 400 });
   }
@@ -178,6 +184,9 @@ export async function POST(req: NextRequest) {
       },
       referral,
       password: String(password),
+      photo: photo || null,
+      education: education || null,
+      donationPurpose: donationPurpose || null,
       joinedAt: new Date(),
     };
 

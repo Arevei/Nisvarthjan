@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/language-context";
 import "next-google-translate-widget/styles";
-import { Languages, Mail, Phone } from "lucide-react";
+import { Languages } from "lucide-react";
 
 type NewsItem = {
   id: number;
@@ -82,44 +82,8 @@ export function NewsTicker() {
             </div>
           </div>
 
-          {/* Right Section: Contact Info & Language */}
+          {/* Right Section: Language Toggle */}
           <div className="flex items-center gap-1 lg:gap-3 px-3 lg:px-4 py-2 ">
-            
-            {/* Contact Phone */}
-            <a 
-              href="tel:+917380626179" 
-              className="flex items-center gap-1.5 lg:gap-2 text-xs lg:text-sm whitespace-nowrap hover:text-primary-foreground/70 transition-colors"
-              title="Call us"
-            >
-              <Phone className="h-3.5 w-3.5 lg:h-4 lg:w-4 shrink-0" />
-              <span className="hidden sm:inline">+91 73806 26179</span>
-            </a>
-
-            <div className="h-4 w-px bg-primary-foreground/20 hidden sm:block" />
-
-            {/* Contact Email - Desktop */}
-            <a 
-              href="https://mail.google.com/mail/u/0/?to=nisvarthjansevango@gmail.com&su=Niswarthjan+Seva+Foundation+Inquiry&fs=1&tf=cm" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden md:flex items-center gap-1.5 lg:gap-2 text-xs lg:text-sm whitespace-nowrap hover:text-primary-foreground/70 transition-colors"
-              title="Email us"
-            >
-              <Mail className="h-3.5 w-3.5 lg:h-4 lg:w-4 shrink-0" />
-              <span className="hidden lg:inline">nisvarthjansevango@gmail.com</span>
-            </a>
-
-            {/* Contact Email - Mobile */}
-            <a 
-              href="mailto:nisvarthjansevango@gmail.com?subject=Niswarthjan+Seva+Foundation+Inquiry" 
-              className="md:hidden flex items-center gap-1.5 text-xs whitespace-nowrap hover:text-primary-foreground/70 transition-colors"
-              title="Email us"
-            >
-              <Mail className="h-3.5 w-3.5 shrink-0" />
-            </a>
-
-            <div className="h-4 w-px bg-primary-foreground/20" />
-
             {/* Language Toggle */}
             <button
               type="button"

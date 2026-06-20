@@ -16,6 +16,7 @@ export interface MemberDocumentRecord {
   status?: string;
   certificateNumber?: string | null;
   joinedAt?: string | Date;
+  photo?: string | null;
   payment?: {
     mode?: string;
     status?: string;
@@ -54,6 +55,26 @@ export function formatMembershipType(value: string | undefined) {
 export function safeText(value: string | number | null | undefined) {
   if (value === null || value === undefined || value === "") return "Not available";
   return String(value);
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function drawPhotoPlaceholder(doc: jsPDF, x: number, y: number, size: number) {
+  doc.setDrawColor(190, 0, 39);
+  doc.setLineWidth(0.35);
+  doc.roundedRect(x, y, size, size, 2, 2);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(5);
+  doc.setTextColor(190, 0, 39);
+  doc.text("PASTE", x + size / 2, y + size / 2 - 1, { align: "center" });
+  doc.text("PHOTO", x + size / 2, y + size / 2 + 1.5, { align: "center" });
 }
 
 export function safeFileName(value: string) {
@@ -322,7 +343,6 @@ export async function generateMembershipIdCardPdf(member: MemberDocumentRecord, 
 
   drawIdCardShell(doc);
 
-  const headerLogoHeight = 6.2;
   const headerLogoWidth = headerLogoHeight * (logo.width / logo.height);
   doc.addImage(logoDataUrl, "PNG", 4.2, 3.1, headerLogoWidth, headerLogoHeight);
   doc.setFont("helvetica", "bold");
@@ -331,14 +351,25 @@ export async function generateMembershipIdCardPdf(member: MemberDocumentRecord, 
   doc.setFont("helvetica", "normal");
   fitText(doc, "Membership Identity Card", 19, 9.3, 60, 4.7, 3.8);
 
-  doc.setDrawColor(190, 0, 39);
-  doc.setLineWidth(0.35);
-  doc.roundedRect(5, 15, 20, 24, 2, 2);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(5);
-  doc.setTextColor(190, 0, 39);
-  doc.text("PASTE", 15, 26, { align: "center" });
-  doc.text("PHOTO", 15, 28.7, { align: "center" });
+  // Photo area - either show uploaded photo or placeholder
+  const photoBoxX = 5;
+  const photoBoxY = 15;
+  const photoBoxSize = 20;
+
+  if (member.photo) {
+    try {
+      // Fetch and add the member's uploaded photo
+      const photoResponse = await fetch(member.photo);
+      const photoBlob = await photoResponse.blob();
+      const photoBase64 = await blobToBase64(photoBlob);
+      doc.addImage(photoBase64, "JPEG", photoBoxX + 1, photoBoxY + 1, photoBoxSize - 2, photoBoxSize - 2, undefined, "MEDIUM");
+    } catch {
+      // If photo fails to load, show placeholder
+      drawPhotoPlaceholder(doc, photoBoxX, photoBoxY, photoBoxSize);
+    }
+  } else {
+    drawPhotoPlaceholder(doc, photoBoxX, photoBoxY, photoBoxSize);
+  }
 
   doc.setFont("helvetica", "bold");
   doc.setTextColor(24, 24, 27);
