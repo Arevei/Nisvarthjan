@@ -28,10 +28,18 @@ export async function POST(req: NextRequest) {
   try {
     const db = await getDb();
     const members = db.collection<MemberWithReset>("members");
-    const member = await members.findOne({ "passwordReset.tokenHash": hashToken(resetToken) });
+    const hashedToken = hashToken(resetToken);
+    const member = await members.findOne({ "passwordReset.tokenHash": hashedToken });
 
-    if (!member?.passwordReset?.expiresAt || new Date(member.passwordReset.expiresAt).getTime() < Date.now()) {
-      return NextResponse.json({ error: "Reset link is invalid or expired" }, { status: 400 });
+    if (!member) {
+      console.warn(`Reset attempt with invalid token: ${hashedToken}`);
+      return NextResponse.json({ error: "Reset link is invalid" }, { status: 400 });
+    }
+
+    const expiresAt = member.passwordReset?.expiresAt;
+    if (!expiresAt || new Date(expiresAt).getTime() < Date.now()) {
+      console.warn(`Reset attempt with expired token for member ${member.id}`);
+      return NextResponse.json({ error: "Reset link has expired" }, { status: 400 });
     }
 
     await members.updateOne(

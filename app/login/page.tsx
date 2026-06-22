@@ -86,11 +86,11 @@ export default function Login() {
                   required
                   autoComplete="current-password"
                 />
-               {/* <div className="mt-2 text-right">
-  <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
-    {t("Forgot password?", "पासवर्ड भूल गए?")}
-  </Link>
-</div> */}
+                <div className="mt-2 text-right">
+                  <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+                    {t("Forgot password?", "पासवर्ड भूल गए?")}
+                  </Link>
+                </div>
               </div>
 
               <Button type="submit" className="w-full py-6" disabled={loginMember.isPending}>

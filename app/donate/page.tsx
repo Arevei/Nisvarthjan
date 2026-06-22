@@ -13,6 +13,7 @@ import { Heart, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import { loadRazorpayScript, type RazorpaySuccess } from "@/lib/razorpay-client";
 import { captureReferralCodeFromUrl } from "@/lib/referral-code";
+import { PaymentWaitingOverlay } from "@/components/ui/payment-waiting-overlay";
 
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000, 25000];
 const DONATION_QR_IMAGE = "/QR-image.png";
@@ -33,6 +34,7 @@ export default function Donate() {
   const [receipt, setReceipt] = useState<string | null>(null);
   const [receiptContact, setReceiptContact] = useState("");
   const [isPaying, setIsPaying] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [referralCode, setReferralCode] = useState("");
 
   const createDonation = useCreateDonation();
@@ -105,6 +107,7 @@ export default function Donate() {
       theme: { color: "#be0027" },
       handler: async (response: RazorpaySuccess) => {
         try {
+          setIsVerifying(true);
           await verifyDonationPayment(donation.id, response);
           setReceipt(donation.receiptNumber);
           setReceiptContact(donation.donorEmail);
@@ -115,6 +118,7 @@ export default function Donate() {
             variant: "destructive",
           });
         } finally {
+          setIsVerifying(false);
           setIsPaying(false);
         }
       },
@@ -186,6 +190,7 @@ export default function Donate() {
 
   return (
     <Layout>
+      <PaymentWaitingOverlay isVisible={isVerifying} />
       <div className="bg-primary text-primary-foreground py-16">
         <div className="container mx-auto px-4 text-center">
           <Heart className="w-12 h-12 mx-auto mb-4 fill-current" />

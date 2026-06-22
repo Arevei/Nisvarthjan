@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CheckCircle2, Clock3, CreditCard, Mail, Users } from "lucide-react";
 import { captureReferralCodeFromUrl } from "@/lib/referral-code";
 import { MemberPhotoUpload } from "@/components/home/member-photo-upload";
+import { PaymentWaitingOverlay } from "@/components/ui/payment-waiting-overlay";
 
 type Step = "form" | "manual-submitted" | "razorpay-ready" | "paid";
 type MembershipType = "general" | "active" | "lifetime";
@@ -85,6 +86,7 @@ export default function Membership() {
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [registration, setRegistration] = useState<RegisterResponse | null>(null);
   const [referralCode, setReferralCode] = useState("");
   const [form, setForm] = useState({
@@ -157,6 +159,7 @@ export default function Membership() {
       theme: { color: "#be0027" },
       handler: async (response: RazorpaySuccess) => {
         try {
+          setIsVerifying(true);
           await verifyPayment(response, payload.member.id);
           setStep("paid");
           toast({ title: "Payment confirmed. Admin approval is pending." });
@@ -167,6 +170,7 @@ export default function Membership() {
             variant: "destructive",
           });
         } finally {
+          setIsVerifying(false);
           setIsPaying(false);
         }
       },
@@ -306,6 +310,10 @@ export default function Membership() {
 
   return (
     <Layout>
+      <PaymentWaitingOverlay 
+        isVisible={isVerifying} 
+        message="Verifying your membership payment..."
+      />
       <div className="bg-primary py-16 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <Users className="mx-auto mb-4 h-12 w-12" />
