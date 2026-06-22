@@ -126,6 +126,17 @@ function getMembershipStatus(status: string, hasCertificate: boolean) {
       description: "Your membership is approved. Please complete the payment step shared by the foundation team.",
       tone: "border-amber-200 bg-amber-50 text-amber-950",
       badge: "bg-amber-100 text-amber-800",
+      completedSteps: 1,
+      currentStep: 2,
+    };
+  }
+
+  if (status === "approval_pending") {
+    return {
+      title: "Admin approval pending",
+      description: "Your payment is confirmed. The foundation team will activate your account and email your certificate and ID card after approval.",
+      tone: "border-amber-200 bg-amber-50 text-amber-950",
+      badge: "bg-amber-100 text-amber-800",
       completedSteps: 2,
       currentStep: 3,
     };
@@ -325,8 +336,8 @@ export default function Dashboard() {
   };
   const membershipSteps = [
     { label: "Application submitted", detail: "Your details are saved.", icon: CheckCircle2 },
-    { label: "Foundation approval", detail: "Foundation team review.", icon: Clock },
     { label: "Payment", detail: "Complete membership fee.", icon: CreditCard },
+    { label: "Admin approval", detail: "Foundation team activation.", icon: Clock },
     { label: "Certificate", detail: "Issued after activation.", icon: Award },
   ];
   const profileInitials = user?.name
@@ -739,7 +750,7 @@ export default function Dashboard() {
                   </div>
                   <CreditCard className="h-5 w-5 text-primary" />
                 </div>
-                {user.status === "active" && user.certificateNumber && (
+                {(user.status === "active" || user.status === "approval_pending") && (
                   <Button asChild data-testid="button-download-receipt" size="sm" variant="outline" className="mt-3">
                     <a href="/api/membership-receipts/download">
                       <Download className="mr-2 h-4 w-4" />

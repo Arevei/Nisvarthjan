@@ -49,6 +49,15 @@ export default function RootLayout({
             gtag('config', 'G-1WWZ82JGB9');
           `}
         </Script>
+
+
+<script src="Scripts/jspdf/png_support/zlib.js"></script>
+<script src="Scripts/jspdf/png_support/png.js"></script>
+<script src="Scripts/jspdf/FileSaver.js"></script>
+<script src="Scripts/jspdf/jspdf.js"></script>
+<script src="Scripts/jspdf/jspdf.plugin.addimage.js"></script>
+<script src="Scripts/jspdf/jspdf.plugin.png_support.js"></script>
+
       </body>
     </html>
   );

@@ -57,13 +57,20 @@ export function safeText(value: string | number | null | undefined) {
   return String(value);
 }
 
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+function imageFormatFromContentType(contentType: string | null) {
+  const normalized = (contentType || "").toLowerCase();
+  if (normalized.includes("png")) return "PNG";
+  if (normalized.includes("webp")) return "WEBP";
+  return "JPEG";
+}
+
+async function responseToDataUrl(response: Response) {
+  const contentType = response.headers.get("content-type") || "image/jpeg";
+  const photoBuffer = Buffer.from(await response.arrayBuffer());
+  return {
+    dataUrl: `data:${contentType};base64,${photoBuffer.toString("base64")}`,
+    format: imageFormatFromContentType(contentType),
+  };
 }
 
 function drawPhotoPlaceholder(doc: jsPDF, x: number, y: number, size: number) {
@@ -241,7 +248,7 @@ export async function generateMembershipReceiptPdf(member: MemberDocumentRecord,
   const certificateNumber = safeText(member.certificateNumber);
   const amount = member.payment?.amount ? `INR ${member.payment.amount.toLocaleString("en-IN")}` : "Not available";
   const paidAt = formatDate(member.payment?.paidAt || member.joinedAt);
-  const verifyUrl = `${getVerificationBaseUrl(requestUrl)}/verify?certificateNumber=${encodeURIComponent(certificateNumber)}&documentType=membership-receipt`;
+  const verifyUrl = `${getVerificationBaseUrl(requestUrl)}/verify?certificateNumber=${encodeURIComponent(receiptNumber)}&documentType=membership-receipt`;
   const qrDataUrl = await QRCode.toDataURL(verifyUrl, { errorCorrectionLevel: "M", margin: 1, width: 180 });
 
   doc.setFillColor(255, 252, 248);
@@ -358,17 +365,25 @@ export async function generateMembershipIdCardPdf(member: MemberDocumentRecord, 
   const photoBoxSize = 20;
 
   if (member.photo) {
+    console.log("[ID Card] Attempting to load photo from:", member.photo);
     try {
       // Fetch and add the member's uploaded photo
       const photoResponse = await fetch(member.photo);
-      const photoBlob = await photoResponse.blob();
-      const photoBase64 = await blobToBase64(photoBlob);
-      doc.addImage(photoBase64, "JPEG", photoBoxX + 1, photoBoxY + 1, photoBoxSize - 2, photoBoxSize - 2, undefined, "MEDIUM");
-    } catch {
+      console.log("[ID Card] Photo fetch status:", photoResponse.status);
+      if (!photoResponse.ok) {
+        throw new Error(`Failed to fetch photo: ${photoResponse.status}`);
+      }
+      const photo = await responseToDataUrl(photoResponse);
+      console.log("[ID Card] Photo data URL length:", photo.dataUrl.length);
+      doc.addImage(photo.dataUrl, photo.format, photoBoxX + 1, photoBoxY + 1, photoBoxSize - 2, photoBoxSize - 2, undefined, "MEDIUM");
+      console.log("[ID Card] Photo added successfully");
+    } catch (error) {
+      console.error("[ID Card] Failed to add photo:", error);
       // If photo fails to load, show placeholder
       drawPhotoPlaceholder(doc, photoBoxX, photoBoxY, photoBoxSize);
     }
   } else {
+    console.log("[ID Card] No photo URL in member - using placeholder");
     drawPhotoPlaceholder(doc, photoBoxX, photoBoxY, photoBoxSize);
   }
 

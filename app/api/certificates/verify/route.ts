@@ -16,6 +16,11 @@ type MemberVerificationDoc = {
     donationAmount?: number;
     issuedAt?: Date | string;
   } | null;
+  payment?: {
+    status?: string;
+    receipt?: string;
+    paidAt?: Date | string;
+  };
 };
 
 type VisitorCertificateVerificationDoc = {
@@ -177,6 +182,45 @@ export async function GET(req: NextRequest) {
           ? new Date(member.referralAchievement.issuedAt).toISOString()
           : null,
         status: "issued",
+      });
+    }
+
+    if (documentType === "membership-receipt") {
+      const member = await db
+        .collection<MemberVerificationDoc>("members")
+        .findOne({ "payment.receipt": lookupValue });
+
+      if (!member) {
+        return NextResponse.json({
+          isValid: false,
+          documentType,
+          verificationId: lookupValue,
+          certificateNumber: lookupValue,
+          status: "not_found",
+        });
+      }
+
+      if (contact && member.email !== contact && member.phone !== contact) {
+        return NextResponse.json({
+          isValid: false,
+          documentType,
+          verificationId: lookupValue,
+          certificateNumber: lookupValue,
+          status: "not_found",
+        });
+      }
+
+      const status = member.payment?.status || member.status || "pending";
+      return NextResponse.json({
+        isValid: status === "paid",
+        documentType,
+        verificationId: lookupValue,
+        certificateNumber: member.payment?.receipt ?? lookupValue,
+        memberName: member.name,
+        membershipId: member.membershipId,
+        membershipType: member.membershipType,
+        issuedAt: member.payment?.paidAt ? new Date(member.payment.paidAt).toISOString() : null,
+        status,
       });
     }
 

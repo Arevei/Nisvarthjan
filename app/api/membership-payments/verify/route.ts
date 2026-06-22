@@ -2,7 +2,6 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { generateCertificateNumber } from "@/lib/membership-payments";
 import { sendMembershipPaymentDocumentsEmail } from "@/lib/email";
 
 type PaymentVerifyBody = {
@@ -96,8 +95,7 @@ export async function POST(req: NextRequest) {
       { id: memberId },
       {
         $set: {
-          status: "active",
-          certificateNumber: existing.certificateNumber || generateCertificateNumber(),
+          status: "approval_pending",
           "payment.status": "paid",
           "payment.paymentId": paymentId,
           "payment.signature": signature,
@@ -120,7 +118,7 @@ export async function POST(req: NextRequest) {
       await sendMembershipPaymentDocumentsEmail(updated, req.url);
     } catch (emailError) {
       emailSent = false;
-      console.error("Membership documents email failed:", emailError);
+      console.error("Membership receipt email failed:", emailError);
     }
 
     return NextResponse.json({ member: toResponse(updated), emailSent });

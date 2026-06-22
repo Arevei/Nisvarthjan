@@ -25,12 +25,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    if (member.status !== "active" || member.payment?.status !== "paid") {
+    if (member.payment?.status !== "paid") {
       return NextResponse.json({ error: "Membership payment receipt is not available" }, { status: 403 });
-    }
-
-    if (!member.certificateNumber) {
-      return NextResponse.json({ error: "Certificate has not been issued yet" }, { status: 404 });
     }
 
     const pdf = await generateMembershipReceiptPdf(member, req.url);

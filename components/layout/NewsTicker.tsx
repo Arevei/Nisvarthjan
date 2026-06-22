@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useLanguage } from "@/lib/language-context";
 import "next-google-translate-widget/styles";
-import { Languages } from "lucide-react";
+import { ChevronDown, Languages } from "lucide-react";
 
 type NewsItem = {
   id: number;
@@ -33,22 +34,14 @@ export function NewsTicker() {
     fetchNews();
   }, []);
 
-  // Show ticker only if there are news items
   const hasNews = !loading && news.length > 0;
-
-  // Duplicate items for seamless loop
   const items = hasNews ? [...news, ...news] : [];
 
   return (
     <div className="bg-gradient-to-r from-primary via-primary to-primary/90 text-primary-foreground">
-      <div className="">
-        {/* Main Bar */}
+      <div>
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between">
-          
-          {/* Left Section: News Ticker */}
           <div className="flex items-center min-w-0 border-b lg:border-b-0 lg:border-r border-primary-foreground/20">
-            
-            {/* News Label */}
             {hasNews && (
               <div className="flex shrink-0 items-center gap-2 bg-primary-foreground/15 px-4 py-2.5">
                 <span className="text-xs font-bold uppercase tracking-wider whitespace-nowrap">
@@ -57,20 +50,19 @@ export function NewsTicker() {
               </div>
             )}
 
-            {/* Scrolling News */}
             <div className="relative flex-1 min-w-0 overflow-hidden py-2.5">
               {hasNews ? (
                 <div className="animate-marquee flex whitespace-nowrap">
                   {items.map((item, idx) => (
                     <span key={`${item.id}-${idx}`} className="mx-6 inline-flex items-center gap-3 text-sm">
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary-foreground/50" />
-                      <a 
-                        href="/news" 
+                      <Link
+                        href="/news"
                         className="truncate max-w-[200px] lg:max-w-xs hover:underline"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {language === "hi" && item.titleHindi ? item.titleHindi : item.title}
-                      </a>
+                      </Link>
                     </span>
                   ))}
                 </div>
@@ -82,17 +74,21 @@ export function NewsTicker() {
             </div>
           </div>
 
-          {/* Right Section: Language Toggle */}
-          <div className="flex items-center gap-1 lg:gap-3 px-3 lg:px-4 py-2 ">
-            {/* Language Toggle */}
-            <button
-              type="button"
-              onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-              className="flex items-center gap-2 px-2 lg:px-3 py-1.5 rounded-md text-xs lg:text-sm font-medium whitespace-nowrap bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground transition-colors"
-            >
+          <div className="flex items-center gap-1 lg:gap-3 px-3 lg:px-4 py-2">
+            <label className="flex items-center gap-2 px-2 lg:px-3 py-1.5 rounded-md text-xs lg:text-sm font-medium whitespace-nowrap bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground transition-colors">
               <Languages className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
-              <span>{language === "hi" ? "EN" : "हिंदी"}</span>
-            </button>
+              <span className="sr-only">Change language</span>
+              <select
+                value={language}
+                onChange={(event) => setLanguage(event.target.value as "en" | "hi")}
+                className="appearance-none bg-transparent pr-5 text-primary-foreground outline-none"
+                aria-label="Change language"
+              >
+                <option className="text-foreground" value="en">English</option>
+                <option className="text-foreground" value="hi">Hindi</option>
+              </select>
+              <ChevronDown className="-ml-5 h-3.5 w-3.5 pointer-events-none" />
+            </label>
           </div>
         </div>
       </div>

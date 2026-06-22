@@ -213,6 +213,39 @@ export async function sendMembershipIdCardAndCertificateEmail(member: MemberDocu
   });
 }
 
+export async function sendPasswordResetEmail(member: { name?: string; email?: string }, resetUrl: string, requestUrl: string) {
+  const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(requestUrl).origin;
+  const logoUrl = `${baseUrl}/email-logo.png`;
+
+  if (!fromAddress) {
+    throw new Error("SMTP_FROM or SMTP_USER is not configured.");
+  }
+
+  if (!member.email) {
+    throw new Error("Member email is not available.");
+  }
+
+  const transporter = getTransporter();
+  const content = `
+      <h2 style="margin-bottom: 8px; color: #b0112f;">Reset your password</h2>
+      <p>Dear ${safeText(member.name)},</p>
+      <p>We received a request to reset your member account password.</p>
+      <p style="margin: 24px 0;">
+        <a href="${resetUrl}" style="display: inline-block; background: #b0112f; color: #ffffff; padding: 12px 18px; border-radius: 8px; text-decoration: none; font-weight: 700;">Reset Password</a>
+      </p>
+      <p style="color: #71717a;">This link will expire in 30 minutes. If you did not request it, you can ignore this email.</p>
+    `;
+
+  await transporter.sendMail({
+    from: `Nisvarthjan Seva Foundation<${fromAddress}>`,
+    to: member.email,
+    replyTo: ADMIN_EMAIL,
+    subject: "Reset your member password - Nisvarthjan Seva Foundation",
+    html: wrapEmailTemplate(content, "Reset Password", logoUrl),
+  });
+}
+
 export async function sendDonationReceiptEmail(donation: DonationReceiptRecord, requestUrl: string) {
   const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(requestUrl).origin;

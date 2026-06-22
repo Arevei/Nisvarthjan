@@ -159,7 +159,7 @@ export default function Membership() {
         try {
           await verifyPayment(response, payload.member.id);
           setStep("paid");
-          toast({ title: "Payment confirmed. Membership activated." });
+          toast({ title: "Payment confirmed. Admin approval is pending." });
           router.push("/dashboard");
         } catch (error) {
           toast({
@@ -218,7 +218,7 @@ export default function Membership() {
 
       if (payload.paymentMode === "razorpay" && payload.payment) {
         setStep("razorpay-ready");
-        toast({ title: "Membership request created. Complete payment to activate." });
+        toast({ title: "Membership request created. Complete payment to continue." });
         await startRazorpayPayment(payload);
       } else {
         setStep("manual-submitted");
@@ -399,8 +399,8 @@ export default function Membership() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="secondary">Secondary School (10th/12th)</SelectItem>
-                  <SelectItem value="undergraduate">Undergraduate / Bachelor's Degree</SelectItem>
-                  <SelectItem value="postgraduate">Postgraduate / Master's Degree</SelectItem>
+                  <SelectItem value="undergraduate">Undergraduate / Bachelor&apos;s Degree</SelectItem>
+                  <SelectItem value="postgraduate">Postgraduate / Master&apos;s Degree</SelectItem>
                   <SelectItem value="doctorate">Doctorate / Ph.D.</SelectItem>
                   <SelectItem value="diploma">Diploma / Technical Certification</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
