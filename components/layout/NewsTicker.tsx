@@ -67,8 +67,10 @@ export function NewsTicker() {
                   ))}
                 </div>
               ) : (
-                <div className="flex items-center px-4 text-sm">
-                  <span className="text-primary-foreground/80">Welcome to Nisvarthjan Seva Foundation</span>
+               <div className="flex items-center px-4 text-sm">
+                  <span className="text-primary-foreground/80">
+                    {t("Welcome to Nisvarthjan Seva Foundation", "निःस्वार्थजन सेवा फाउंडेशन में आपका स्वागत है")}
+                  </span>
                 </div>
               )}
             </div>
@@ -77,11 +79,11 @@ export function NewsTicker() {
           <div className="flex items-center gap-1 lg:gap-3 px-3 lg:px-4 py-2">
             <label className="flex items-center gap-2 px-2 lg:px-3 py-1.5 rounded-md text-xs lg:text-sm font-medium whitespace-nowrap bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground transition-colors">
               <Languages className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
-              <span className="sr-only">Change language</span>
+              <span>{t("Change Language", "भाषा बदलें")}</span>
               <select
                 value={language}
                 onChange={(event) => setLanguage(event.target.value as "en" | "hi")}
-                className="appearance-none bg-transparent pr-5 text-primary-foreground outline-none"
+                className="appearance-none bg-transparent pr-5 text-primary-foreground outline-none cursor-pointer"
                 aria-label="Change language"
               >
                 <option className="text-foreground" value="en">English</option>
