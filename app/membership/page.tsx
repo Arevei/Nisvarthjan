@@ -426,6 +426,18 @@ export default function Membership() {
               </Select>
             </div>
 
+            <div className="mt-4 rounded-md bg-muted/50 p-3 border border-border/60">
+  <p className="text-xs text-muted-foreground leading-relaxed">
+    <span className="font-semibold text-foreground">
+      {t("Note:", "नोट:")}{" "}
+    </span>
+    {t(
+      "Member fees are non-refundable. These will be considered as a donation against your membership registration.",
+      "सदस्यता शुल्क गैर-वापसी योग्य (non-refundable) है। इसे आपके सदस्यता पंजीकरण के बदले दान के रूप में माना जाएगा।"
+    )}
+  </p>
+</div>
+
             <div className="md:col-span-2">
               <Button type="submit" disabled={isSubmitting || isPaying} className="w-full py-6">
                 {isSubmitting ? t("Submitting...", "जमा हो रहा है...") : t("Submit & Continue", "Submit & Continue")}
