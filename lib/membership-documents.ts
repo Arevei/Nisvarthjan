@@ -329,6 +329,8 @@ export async function generateMembershipIdCardPdf(member: MemberDocumentRecord, 
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [85.6, 54] });
   const logo = getCertificateLogo();
   const logoDataUrl = logo.dataUrl;
+  const headerLogoHeight = 5;
+  const headerLogoWidth = headerLogoHeight * (logo.width / logo.height);
   const certificateNumber = safeText(member.certificateNumber);
   const verificationUrl = `${getVerificationBaseUrl(requestUrl)}/verify/${encodeURIComponent(certificateNumber)}`;
   const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
@@ -343,7 +345,6 @@ export async function generateMembershipIdCardPdf(member: MemberDocumentRecord, 
 
   drawIdCardShell(doc);
 
-  const headerLogoWidth = headerLogoHeight * (logo.width / logo.height);
   doc.addImage(logoDataUrl, "PNG", 4.2, 3.1, headerLogoWidth, headerLogoHeight);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(255, 255, 255);

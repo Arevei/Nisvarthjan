@@ -329,12 +329,12 @@ export default function Dashboard() {
     { label: "Payment", detail: "Complete membership fee.", icon: CreditCard },
     { label: "Certificate", detail: "Issued after activation.", icon: Award },
   ];
-  const profileInitials = user.name
+  const profileInitials = user?.name
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
-    .join("");
+    .join("") || "";
   const nextAchievement = achievementStatus?.tiers.find((tier) => !tier.unlocked) ?? null;
   const completedAchievementCount = achievementStatus?.tiers.filter((tier) => tier.unlocked).length ?? 0;
   const tierDisplayNames: Record<AchievementTier, string> = {
@@ -363,8 +363,18 @@ export default function Dashboard() {
           <div className="absolute right-0 top-0 h-40 w-40 rounded-bl-full bg-primary/30" />
           <div className="relative grid gap-6 p-6 md:grid-cols-[1fr_280px] md:p-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-3xl font-bold shadow-inner">
-                {profileInitials || <User className="h-10 w-10" />}
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-3xl font-bold shadow-inner overflow-hidden">
+                {user?.photo ? (
+                  <img
+                    src={user.photo}
+                    alt={user.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : profileInitials ? (
+                  profileInitials
+                ) : (
+                  <User className="h-10 w-10" />
+                )}
               </div>
               <div className="min-w-0">
                 <div className="mb-3 flex flex-wrap items-center gap-2">

@@ -84,6 +84,7 @@ export async function GET() {
       name: member.name,
       email: member.email,
       phone: member.phone,
+      photo: member.photo ?? null,
       dateOfBirth: member.dateOfBirth ?? null,
       address: member.address,
       city: member.city,
