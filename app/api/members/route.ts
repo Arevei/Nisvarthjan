@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb, nextSequence } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { getMembershipFee, getPaymentMode } from "@/lib/membership-payments";
+import { hashPassword } from "@/lib/auth";
 
 function generateMembershipId() {
   return `NSF-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000) + 10000}`;
@@ -183,7 +184,7 @@ export async function POST(req: NextRequest) {
         createdAt: new Date(),
       },
       referral,
-      password: String(password),
+      password: await hashPassword(String(password)),
       photo: photo || null,
       education: education || null,
       donationPurpose: donationPurpose || null,

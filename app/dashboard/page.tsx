@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { useAuth } from "@/lib/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { loadRazorpayScript, type RazorpaySuccess } from "@/lib/razorpay-client";
 import type { ActiveEnquiry } from "@/lib/api-client/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -206,10 +208,76 @@ function enquiryStatusClass(status: ActiveEnquiry["status"]) {
 export default function Dashboard() {
   const { t } = useLanguage();
   const { user, isLoading, logout } = useAuth();
+  const { toast } = useToast();
   const router = useRouter();
   const [birthdayEmailStatus, setBirthdayEmailStatus] = useState<"idle" | "sent" | "failed" | "alreadySent">("idle");
   const [copiedLink, setCopiedLink] = useState<"website" | "code" | null>(null);
   const [achievementStatus, setAchievementStatus] = useState<AchievementStatus | null>(null);
+  const [isPaying, setIsPaying] = useState(false);
+
+  const startRazorpayPayment = async () => {
+    if (!user || !user.payment) return;
+
+    setIsPaying(true);
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded || !window.Razorpay) {
+      setIsPaying(false);
+      toast({ title: "Unable to load Razorpay checkout", variant: "destructive" });
+      return;
+    }
+
+    const checkout = new window.Razorpay({
+      key: user.payment.keyId || "",
+      amount: user.payment.amount * 100,
+      currency: user.payment.currency,
+      name: "Nisvarthjan Seva Foundation",
+      description: `${user.membershipType} membership fee`,
+      order_id: user.payment.orderId,
+      prefill: {
+        name: user.name,
+        email: user.email,
+        contact: user.phone,
+      },
+      notes: {
+        memberId: String(user.id),
+        membershipId: user.membershipId,
+      },
+      theme: { color: "#be0027" },
+      handler: async (response: RazorpaySuccess) => {
+        try {
+          const verifyResponse = await fetch("/api/membership-payments/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              memberId: user.id,
+              ...response,
+            }),
+          });
+
+          const payload = await verifyResponse.json();
+          if (!verifyResponse.ok) {
+            throw new Error(payload.error || "Payment verification failed");
+          }
+
+          toast({ title: "Payment confirmed. Admin approval is pending." });
+          window.location.reload();
+        } catch (error) {
+          toast({
+            title: error instanceof Error ? error.message : "Payment verification failed",
+            variant: "destructive",
+          });
+        } finally {
+          setIsPaying(false);
+        }
+      },
+      modal: {
+        ondismiss: () => setIsPaying(false),
+      },
+    });
+
+    checkout.open();
+  };
   const [updatedEnquiries, setUpdatedEnquiries] = useState<Record<number, ActiveEnquiry>>({});
   const [enquiryReplyDrafts, setEnquiryReplyDrafts] = useState<Record<number, string>>({});
   const [enquiryBusyId, setEnquiryBusyId] = useState<number | null>(null);
@@ -452,15 +520,25 @@ export default function Dashboard() {
                 <Gift className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold">Happy birthday, {user.name}!</h2>
+                <h2 className="text-lg font-semibold">{t("Happy birthday", "जन्मदिन की शुभकामनाएं")}, {user.name}!</h2>
                 <p className="mt-1 text-sm text-rose-900/80">
-                  Wishing you health, joy, and a meaningful year of service with Nisvarthjan Seva Foundation.
+                  {t(
+                    "Wishing you health, joy, and a meaningful year of service with Nisvarthjan Seva Foundation.",
+                    "निस्वार्थजन सेवा फाउंडेशन के साथ आपको स्वास्थ्य, खुशी और सेवा के एक सार्थक वर्ष की शुभकामनाएं।"
+                  )}
                 </p>
                 {birthdayEmailStatus === "sent" && (
-                  <p className="mt-2 text-xs font-semibold text-rose-800">A birthday wish email has also been sent to you.</p>
+                  <p className="mt-2 text-xs font-semibold text-rose-800">
+                    {t("A birthday wish email has also been sent to you.", "आपको जन्मदिन की शुभकामना का एक ईमेल भी भेजा गया है।")}
+                  </p>
                 )}
                 {birthdayEmailStatus === "alreadySent" && (
-                  <p className="mt-2 text-xs font-semibold text-rose-800">Your birthday wish email was already sent for this year.</p>
+                  <p className="mt-2 text-xs font-semibold text-rose-800">
+                    {t(
+                      "Your birthday wish email was already sent for this year.",
+                      "इस वर्ष के लिए आपका जन्मदिन की शुभकामना ईमेल पहले ही भेजा जा चुका है।"
+                    )}
+                  </p>
                 )}
               </div>
             </div>
@@ -511,6 +589,18 @@ export default function Dashboard() {
                       <p className="mt-2 text-xs font-semibold">
                         {isDone ? t("Done", "Done") : isCurrent ? t("Next step", "Next step") : t("Remaining", "Remaining")}
                       </p>
+                      {isCurrent && step.label === "Payment" && user?.payment?.mode === "razorpay" && (
+                        <div className="mt-3">
+                          <Button
+                            size="sm"
+                            className="w-full text-xs py-1 h-8"
+                            disabled={isPaying}
+                            onClick={startRazorpayPayment}
+                          >
+                            {isPaying ? t("Opening Razorpay...", "Razorpay खुल रहा है...") : t("Pay with Razorpay", "Pay with Razorpay")}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -519,8 +609,10 @@ export default function Dashboard() {
           </section>
         )}
 
-        {activeEnquiries.length > 0 && (
-          <section className="mt-6 rounded-2xl border bg-card p-5 shadow-sm">
+        {isMembershipComplete && (
+          <>
+            {activeEnquiries.length > 0 && (
+              <section className="mt-6 rounded-2xl border bg-card p-5 shadow-sm">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -977,6 +1069,8 @@ export default function Dashboard() {
             <p className="mt-5 rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">{t("Loading certificate progress...", "प्रमाणपत्र प्रगति लोड हो रही है...")}</p>
           )}
         </section>
+          </>
+        )}
 
       </div>
     </Layout>

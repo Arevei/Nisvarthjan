@@ -48,6 +48,16 @@ export interface Member {
   referralAchievement?: ReferralAchievement | null;
   /** @nullable */
   photo?: string | null;
+  payment?: {
+    mode: "manual" | "razorpay";
+    status: "manual_review" | "created" | "paid";
+    amount: number;
+    currency: "INR";
+    orderId?: string;
+    keyId?: string;
+    receipt?: string;
+    createdAt?: string;
+  } | null;
   donationStats?: {
     totalAmount: number;
     count: number;

@@ -11,13 +11,13 @@ import { ArrowRight, Calendar, Target, Eye, Compass, Sparkles, Heart, Leaf, User
 import { useState } from "react";
 
 const CATEGORY_COLORS: Record<string, string> = {
-  health:      "bg-rose-100 text-rose-700",
-  education:   "bg-blue-100 text-blue-700",
+  health: "bg-rose-100 text-rose-700",
+  education: "bg-blue-100 text-blue-700",
   environment: "bg-green-100 text-green-700",
-  women:       "bg-purple-100 text-purple-700",
-  rural:       "bg-amber-100 text-amber-700",
-  disaster:    "bg-orange-100 text-orange-700",
-  general:     "bg-gray-100 text-gray-700",
+  women: "bg-purple-100 text-purple-700",
+  rural: "bg-amber-100 text-amber-700",
+  disaster: "bg-orange-100 text-orange-700",
+  general: "bg-gray-100 text-gray-700",
 };
 
 const CATEGORY_LABELS: Record<string, { en: string; hi: string }> = {
@@ -31,27 +31,27 @@ const CATEGORY_LABELS: Record<string, { en: string; hi: string }> = {
 };
 
 const CATEGORY_IMAGES: Record<string, string> = {
-  health:      "/images/healthcare.jpg",
-  education:   "/images/education.webp",
+  health: "/images/healthcare.jpg",
+  education: "/images/education.webp",
   environment: "/images/environment.webp",
-  women:       "/images/women-development.jpg",
-  rural:       "/images/Rural-Development.png",
-  disaster:    "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=800",
-  general:     "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800",
+  women: "/images/women-development.jpg",
+  rural: "/images/Rural-Development.png",
+  disaster: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=800",
+  general: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800",
 };
 
 const IMPACT_AREAS = [
   {
     icon: BookOpen,
     image: "/images/education.webp",
-    titleEn: "Education",      titleHi: "शिक्षा",
+    titleEn: "Education", titleHi: "शिक्षा",
     descEn: "Quality education for underprivileged children and youth across rural India.",
     descHi: "ग्रामीण भारत में वंचित बच्चों को गुणवत्तापूर्ण शिक्षा।",
   },
   {
     icon: Heart,
     image: "/images/healthcare.jpg",
-    titleEn: "Healthcare",     titleHi: "स्वास्थ्य सेवा",
+    titleEn: "Healthcare", titleHi: "स्वास्थ्य सेवा",
     descEn: "Free medical camps and health awareness drives in underserved villages.",
     descHi: "वंचित गांवों में मुफ्त चिकित्सा शिविर और स्वास्थ्य जागरूकता।",
   },
@@ -65,7 +65,7 @@ const IMPACT_AREAS = [
   {
     icon: Leaf,
     image: "/images/environment.webp",
-    titleEn: "Environment",    titleHi: "पर्यावरण",
+    titleEn: "Environment", titleHi: "पर्यावरण",
     descEn: "Tree plantation and natural resource conservation for a greener India.",
     descHi: "हरित भारत के लिए वृक्षारोपण और प्राकृतिक संसाधन संरक्षण।",
   },
@@ -85,57 +85,7 @@ const IMPACT_AREAS = [
   },
 ];
 
-const HOME_GALLERY = [
-  {
-    src: "/gallery/events/event-1.webp",
-    titleEn: "Drinking Water Facility Inauguration",
-    titleHi: "शीतल पेय जल सेवा उद्घाटन",
-    detailsEn: "Community members inaugurating a clean drinking water point.",
-    detailsHi: "स्थानीय समुदाय द्वारा स्वच्छ पेयजल केंद्र का उद्घाटन।",
-  },
-  {
-    src: "/gallery/events/event-2.webp",
-    titleEn: "Volunteer Team at Service Point",
-    titleHi: "सेवा केंद्र पर स्वयंसेवक टीम",
-    detailsEn: "Field team and local supporters at the newly started site.",
-    detailsHi: "नए सेवा स्थल पर टीम और स्थानीय सहयोगी।",
-  },
-  {
-    src: "/gallery/events/event-3.webp",
-    titleEn: "Counselling Support Session",
-    titleHi: "परामर्श सहयोग सत्र",
-    detailsEn: "Individual support and counselling for local families.",
-    detailsHi: "स्थानीय परिवारों के लिए व्यक्तिगत सहायता और परामर्श।",
-  },
-  {
-    src: "/gallery/events/event-4.webp",
-    titleEn: "Women Welfare Interaction",
-    titleHi: "महिला कल्याण संवाद",
-    detailsEn: "Focused interaction with women beneficiaries at Tihar.",
-    detailsHi: "तिहार क्षेत्र में महिला लाभार्थियों के साथ संवाद।",
-  },
-  {
-    src: "/gallery/events/event-5.webp",
-    titleEn: "Community Participation",
-    titleHi: "सामुदायिक भागीदारी",
-    detailsEn: "Residents gathering to support social development activity.",
-    detailsHi: "सामाजिक विकास गतिविधि में स्थानीय लोगों की भागीदारी।",
-  },
-  {
-    src: "/gallery/events/event-6.webp",
-    titleEn: "Office Service Desk",
-    titleHi: "कार्यालय सेवा डेस्क",
-    detailsEn: "On-ground coordination and service desk operations.",
-    detailsHi: "मैदानी समन्वय और सेवा डेस्क संचालन।",
-  },
-  {
-    src: "/gallery/events/event-7.webp",
-    titleEn: "Leadership Presence",
-    titleHi: "नेतृत्व उपस्थिति",
-    detailsEn: "Leadership joining public outreach and awareness programs.",
-    detailsHi: "जन-जागरूकता कार्यक्रमों में नेतृत्व की सहभागिता।",
-  },
-];
+
 
 const toPreviewText = (input: string) =>
   input
@@ -164,10 +114,10 @@ export default function Home() {
       detailsEn: item.detailsEn ?? item.category,
       detailsHi: item.detailsHi ?? item.detailsEn ?? item.category,
     }))
-    : HOME_GALLERY;
+    : [];
 
 
-  
+
 
   return (
     <Layout>
@@ -189,13 +139,13 @@ export default function Home() {
           <div className="relative z-10 container mx-auto px-4 py-16">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               {[
-                { value: stats.livesImpacted,       suffix: "+", label: t("Lives Impacted",    "प्रभावित जीवन") },
-                { value: stats.villagesCovered,      suffix: "",  label: t("Villages Covered",  "कवर किए गए गांव") },
-                { value: stats.totalMembers,         suffix: "",  label: t("Active Volunteers", "सक्रिय स्वयंसेवक") },
-                  { value: stats.treesPlanted,         suffix: "",  label: t("Trees Planted",     "लगाए गए पेड़") },
-                ].map(({ value, suffix, label }) => (
-                  <div key={label} className="text-white">
-                    <div className="text-4xl md:text-5xl font-bold font-serif mb-2">
+                { value: stats.livesImpacted, suffix: "+", label: t("Lives Impacted", "प्रभावित जीवन") },
+                { value: stats.villagesCovered, suffix: "", label: t("Villages Covered", "कवर किए गए गांव") },
+                { value: stats.totalMembers, suffix: "", label: t("Active Volunteers", "सक्रिय स्वयंसेवक") },
+                { value: stats.treesPlanted, suffix: "", label: t("Trees Planted", "लगाए गए पेड़") },
+              ].map(({ value, suffix, label }) => (
+                <div key={label} className="text-white">
+                  <div className="text-4xl md:text-5xl font-bold font-serif mb-2">
                     <AnimatedCounter value={value} duration={2200} format={(n) => n.toLocaleString("en-IN")} />{suffix}
                   </div>
                   <div className="text-sm font-medium text-white/70 uppercase tracking-wider">{label}</div>
@@ -239,7 +189,7 @@ export default function Home() {
                 <div className="text-2xl font-bold font-serif">2025</div>
                 <div className="text-xs opacity-80">{t("Est. 2025: Serving India", "स्थापित 2025: भारत सेवा")}</div>
               </div>
-              
+
             </div>
             <div >
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-2 text-sm font-semibold mb-5">
@@ -265,8 +215,8 @@ export default function Home() {
                 {[
                   t("Education for All", "सबके लिए शिक्षा"),
                   t("Healthcare Access", "स्वास्थ्य सेवा"),
-                  t("Gender Equality",   "लैंगिक समानता"),
-                  t("Rural Growth",      "ग्रामीण विकास"),
+                  t("Gender Equality", "लैंगिक समानता"),
+                  t("Rural Growth", "ग्रामीण विकास"),
                 ].map((tag) => (
                   <span key={tag} className="border border-primary/30 bg-primary/5 text-primary text-xs font-semibold px-3 py-1.5 rounded-full">{tag}</span>
                 ))}
@@ -298,10 +248,10 @@ export default function Home() {
               </p>
               <div className="mt-8 grid grid-cols-2 gap-3">
                 {[
-                  { icon: Heart,    label: t("Compassion",   "करुणा")      },
-                  { icon: Sparkles, label: t("Integrity",    "ईमानदारी")   },
-                  { icon: Users2,   label: t("Inclusion",    "समावेश")     },
-                  { icon: Leaf,     label: t("Sustainability","स्थिरता")   },
+                  { icon: Heart, label: t("Compassion", "करुणा") },
+                  { icon: Sparkles, label: t("Integrity", "ईमानदारी") },
+                  { icon: Users2, label: t("Inclusion", "समावेश") },
+                  { icon: Leaf, label: t("Sustainability", "स्थिरता") },
                 ].map(({ icon: Icon, label }) => (
                   <div key={label} className="flex items-center gap-3 bg-muted/50 rounded-xl px-4 py-3 border">
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -320,7 +270,7 @@ export default function Home() {
                   className="w-full h-80 lg:h-[420px] object-cover"
                 />
               </div>
-              
+
               <div className="absolute -bottom-5 -left-5 bg-card border shadow-xl rounded-2xl p-5 max-w-xs hidden md:block">
                 <p className="text-sm text-muted-foreground italic leading-relaxed">
                   {t('\u201cSelfless service is the highest form of humanity.\u201d', '\u201cनिस्वार्थ सेवा मानवता का सर्वोच्च स्वरूप है।\u201d')}
@@ -409,7 +359,7 @@ export default function Home() {
                 {t("All Campaigns", "सभी अभियान")} <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            
+
             <CampaignsSnapCarousel campaigns={featuredCampaigns} />
             <div className="text-center mt-8 sm:hidden">
               <Button variant="outline" asChild>
@@ -420,7 +370,7 @@ export default function Home() {
         </section>
       )}
 
-    
+
 
 
       {/* Impact areas image cards */}
@@ -435,11 +385,11 @@ export default function Home() {
               <div key={titleEn} className="group rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-1 cursor-default bg-white">
                 {/* Image */}
                 <div className="flex items-center justify-center pt-3 gap-2 mx-auto  mb-2">
-                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Icon className="w-4 h-4 text-primary" />
-                    </div>
-                    <h3 className="text-primary font-bold text-lg font-serif">{t(titleEn, titleHi)}</h3>
+                  <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Icon className="w-4 h-4 text-primary" />
                   </div>
+                  <h3 className="text-primary font-bold text-lg font-serif">{t(titleEn, titleHi)}</h3>
+                </div>
                 <div className="h-56 overflow-hidden">
                   <img
                     src={image}
@@ -449,7 +399,7 @@ export default function Home() {
                 </div>
                 {/* Content below image */}
                 <div className="p-3">
-                  
+
                   <p className="text-muted-foreground text-sm leading-relaxed">{t(descEn, descHi)}</p>
                 </div>
               </div>
@@ -458,7 +408,7 @@ export default function Home() {
         </div>
       </section>
 
-      
+
 
       {/* Activity posts section */}
       <section className="py-20 bg-background">
@@ -485,14 +435,14 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {homeGalleryItems.map((item, index) => (
-              <article 
-                key={`${item.src}-${index}`} 
+              <article
+                key={`${item.src}-${index}`}
                 className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
                 onClick={() => setSelectedImage(item)}
               >
                 <div className="relative h-80 overflow-hidden">
                   <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  
+
                   {/* Content overlay - always visible at bottom, expands on hover */}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent pt-16 pb-4 px-5 transition-all duration-300 group-hover:pt-24 group-hover:pb-6">
                     <div className="translate-y-0 transition-transform duration-300 group-hover:-translate-y-2">
@@ -504,7 +454,7 @@ export default function Home() {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* Zoom icon on hover */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                     <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
@@ -518,24 +468,24 @@ export default function Home() {
 
           {/* Image Modal - Instagram style left/right layout */}
           {selectedImage && (
-            <div 
+            <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
               onClick={() => setSelectedImage(null)}
             >
-              <button 
+              <button
                 className="absolute top-4 right-4 md:top-6 md:right-6 text-white hover:text-gray-300 transition-colors z-10"
                 onClick={() => setSelectedImage(null)}
               >
                 <X className="w-8 h-8" />
               </button>
-              <div 
+              <div
                 className="relative max-w-5xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Image - Left side */}
                 <div className="md:w-3/5 bg-black flex items-center justify-center">
-                  <img 
-                    src={selectedImage.src} 
+                  <img
+                    src={selectedImage.src}
                     alt={selectedImage.titleEn}
                     className="w-full h-auto max-h-[50vh] md:max-h-[90vh] object-contain"
                   />
@@ -564,74 +514,74 @@ export default function Home() {
       </section>
 
 
-     <section className="max-w-5xl mx-auto mt-16 px-4">
-  <div className="text-center mb-10">
-    <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-      {t("Leadership Team", "नेतृत्व टीम")}
-    </h2>
-    <p className="text-muted-foreground mt-2">
-      {t(
-        "Founder, Secretary and Treasurer",
-        "संस्थापक, सचिव और कोषाध्यक्ष"
-      )}
-    </p>
-  </div>
-
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 place-items-center mb-10">
-    {[
-      {
-        name: "Mayank Singh",
-        hname: "मयंक सिंह",
-        roleEn: "Founder",
-        roleHi: "संस्थापक",
-        image: "/leadership/Founder.jpg",
-      },
-      
-      {
-        name: "Punit Tiwari",
-        hname: "पुनीत तिवारी",
-        roleEn: "Treasurer",
-        roleHi: "कोषाध्यक्ष",
-        image: "/leadership/Treasurer.jpg",
-      },
-      {
-        name: "Himani Tiwari",
-        hname: "हिमानी तिवारी",
-        roleEn: "Secretary, Social Affairs",
-        roleHi: "सचिव, सामाजिक मामले",
-        image: "/leadership/Secretary.jpg",
-      },
-      {
-        name: "Hemant Pratap Singh",
-        hname: "हेमंत प्रताप सिंह",
-        roleEn: "Vice President",
-        roleHi: "उपाध्यक्ष",
-        image: "/leadership/vice-president.jpeg",
-      },
-    ].map((member) => (
-      <div
-        key={member.roleEn}
-        className="w-full max-w-sm bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
-      >
-        <img
-          src={member.image}
-          alt={member.roleEn}
-          className="w-full h-96 aspect-[3/4] object-cover"
-        />
-
-        <div className="p-5 text-center">
-          <h3 className="text-lg font-semibold text-foreground">
-            {t(member.name, member.hname)}
-          </h3>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t(member.roleEn, member.roleHi)}
+      <section className="max-w-5xl mx-auto mt-16 px-4">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
+            {t("Leadership Team", "नेतृत्व टीम")}
+          </h2>
+          <p className="text-muted-foreground mt-2">
+            {t(
+              "Founder, Secretary and Treasurer",
+              "संस्थापक, सचिव और कोषाध्यक्ष"
+            )}
           </p>
         </div>
-      </div>
-    ))}
-  </div>
-</section>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 place-items-center mb-10">
+          {[
+            {
+              name: "Mayank Singh",
+              hname: "मयंक सिंह",
+              roleEn: "Founder",
+              roleHi: "संस्थापक",
+              image: "/leadership/Founder.jpg",
+            },
+
+            {
+              name: "Punit Tiwari",
+              hname: "पुनीत तिवारी",
+              roleEn: "Treasurer",
+              roleHi: "कोषाध्यक्ष",
+              image: "/leadership/Treasurer.jpg",
+            },
+            {
+              name: "Himani Tiwari",
+              hname: "हिमानी तिवारी",
+              roleEn: "Secretary, Social Affairs",
+              roleHi: "सचिव, सामाजिक मामले",
+              image: "/leadership/Secretary.jpg",
+            },
+            {
+              name: "Hemant Pratap Singh",
+              hname: "हेमंत प्रताप सिंह",
+              roleEn: "Vice President",
+              roleHi: "उपाध्यक्ष",
+              image: "/leadership/vice-president.jpeg",
+            },
+          ].map((member) => (
+            <div
+              key={member.roleEn}
+              className="w-full max-w-sm bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+            >
+              <img
+                src={member.image}
+                alt={member.roleEn}
+                className="w-full h-96 aspect-[3/4] object-cover"
+              />
+
+              <div className="p-5 text-center">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {t(member.name, member.hname)}
+                </h3>
+
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t(member.roleEn, member.roleHi)}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="relative py-28 overflow-hidden">
         <img

@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { hashPassword } from "@/lib/auth";
 
 type MemberWithReset = {
   id: number;
@@ -42,10 +43,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Reset link has expired" }, { status: 400 });
     }
 
+    const hashedPassword = await hashPassword(newPassword);
     await members.updateOne(
       { id: member.id },
       {
-        $set: { password: newPassword },
+        $set: { password: hashedPassword },
         $unset: { passwordHash: "", passwordReset: "" },
       },
     );

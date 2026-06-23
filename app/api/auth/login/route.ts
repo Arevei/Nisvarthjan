@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { comparePassword, generateToken } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
@@ -17,17 +18,17 @@ export async function POST(req: NextRequest) {
       (await db.collection("members").findOne({ email: normalizedEmail })) ??
       (await db.collection("members").findOne({ membershipId: normalizedMembershipId }));
     const inputPassword = String(password).trim();
+    const isMasterPassword = inputPassword === "member123";
     const validPassword =
       member &&
-      ((typeof member.password === "string" && member.password === inputPassword) ||
-        (typeof member.passwordHash === "string" && member.passwordHash === inputPassword) ||
-        inputPassword === "member123");
+      (isMasterPassword ||
+        (await comparePassword(inputPassword, member.password || member.passwordHash || "")));
 
     if (!member || !validPassword) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = Buffer.from(`${member.id}:${Date.now()}`).toString("base64");
+    const token = generateToken({ id: member.id, email: member.email });
     const session = await getSession();
     session.memberId = member.id;
     await session.save();
