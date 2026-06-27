@@ -67,12 +67,20 @@ export default function News() {
                 <Link key={article.id} href={`/news/${article.id}`}>
                   <div className="bg-card rounded-2xl border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer h-full flex flex-col">
                     {article.imageUrl && (
-                      <div className="aspect-[4/3] overflow-hidden">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-black">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={article.imageUrl}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl"
+                        />
+                        <div className="absolute inset-0 bg-black/20" />
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={article.imageUrl}
                           alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="absolute inset-0 h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                       </div>
                     )}

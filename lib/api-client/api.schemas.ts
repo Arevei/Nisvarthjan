@@ -279,6 +279,7 @@ export interface Testimonial {
 export interface GalleryImage {
   id: number;
   imageUrl: string;
+  imageUrls?: string[];
   /** @nullable */
   caption?: string | null;
   /** @nullable */

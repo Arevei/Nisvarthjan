@@ -72,8 +72,12 @@ export default function NewsDetail() {
         </Button>
 
         {article.imageUrl && (
-          <div className="w-full h-72 rounded-xl overflow-hidden mb-8">
-            <img src={article.imageUrl} alt={t(article.title, article.titleHindi)} className="w-full h-full object-cover" />
+          <div className="relative w-full overflow-hidden rounded-xl bg-black mb-8">
+            <div className="relative h-72 md:h-[28rem]">
+              <img src={article.imageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl" />
+              <div className="absolute inset-0 bg-black/20" />
+              <img src={article.imageUrl} alt={t(article.title, article.titleHindi)} className="absolute inset-0 h-full w-full object-contain p-2" />
+            </div>
           </div>
         )}
 

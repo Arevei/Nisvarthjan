@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { X, ZoomIn } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useLanguage } from "@/lib/language-context";
 import { useListGallery } from "@/lib/api-client/api";
 
@@ -15,11 +16,25 @@ const GALLERY_ITEMS = [
   { id: -7, imageUrl: "/gallery/events/event-7.webp", caption: "Leadership Presence", captionHindi: "नेतृत्व उपस्थिति", category: "events" },
 ];
 
+type GalleryItem = {
+  id: number;
+  imageUrl: string;
+  imageUrls?: string[];
+  caption?: string | null;
+  captionHindi?: string | null;
+  detailsEn?: string | null;
+  detailsHi?: string | null;
+  category: string;
+};
+
+const getActivityImages = (item: { imageUrl: string; imageUrls?: string[] | null }) =>
+  Array.from(new Set([...(item.imageUrls ?? []), item.imageUrl].filter(Boolean))).slice(0, 4);
+
 export default function Gallery() {
   const { t } = useLanguage();
   const { data: uploadedItems = [], isLoading } = useListGallery();
   const galleryItems = uploadedItems.length > 0 ? uploadedItems : GALLERY_ITEMS;
-  const [selectedItem, setSelectedItem] = useState<typeof galleryItems[0] | null>(null);
+  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
 
   return (
     <Layout>
@@ -50,15 +65,24 @@ export default function Gallery() {
               const title = t(item.caption ?? "Activity post image", item.captionHindi ?? item.caption ?? "Activity post image");
               const detailsEn = "detailsEn" in item ? item.detailsEn : null;
               const detailsHi = "detailsHi" in item ? item.detailsHi : null;
+              const itemImages = getActivityImages(item);
               return (
                 <article
                   key={item.id}
                   className="group relative h-72 overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-                  onClick={() => setSelectedItem(item)}
+                  onClick={() => setSelectedItem({ ...item, imageUrls: itemImages })}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.imageUrl} alt={title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
+                  <img src={item.imageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl" />
+                  <div className="absolute inset-0 bg-black/25" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.imageUrl} alt={title} className="absolute inset-0 h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
+                  {itemImages.length > 1 && (
+                    <span className="absolute right-3 top-3 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                      1/{itemImages.length}
+                    </span>
+                  )}
                   <div className="absolute inset-x-0 bottom-0 translate-y-2 p-5 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                     <span className="mb-2 inline-flex rounded-full bg-white/18 px-3 py-1 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm">
                       {item.category}
@@ -101,11 +125,28 @@ export default function Gallery() {
           >
             {/* Image - Left side */}
             <div className="md:w-3/5 bg-black flex items-center justify-center">
-              <img 
-                src={selectedItem.imageUrl} 
-                alt={t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
-                className="w-full h-auto max-h-[50vh] md:max-h-[90vh] object-contain"
-              />
+              <Carousel className="w-full" opts={{ loop: getActivityImages(selectedItem).length > 1 }}>
+                <CarouselContent className="ml-0">
+                  {getActivityImages(selectedItem).map((imageUrl, index) => (
+                    <CarouselItem key={`${imageUrl}-${index}`} className="pl-0">
+                      <div className="relative flex h-[50vh] items-center justify-center md:h-[90vh]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={imageUrl}
+                          alt={t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
+                          className="max-h-full w-full object-contain"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {getActivityImages(selectedItem).length > 1 && (
+                  <>
+                    <CarouselPrevious className="left-3 border-white/30 bg-black/45 text-white hover:bg-black/70 hover:text-white" />
+                    <CarouselNext className="right-3 border-white/30 bg-black/45 text-white hover:bg-black/70 hover:text-white" />
+                  </>
+                )}
+              </Carousel>
             </div>
             {/* Content - Right side */}
             <div className="md:w-2/5 p-6 flex flex-col justify-center">

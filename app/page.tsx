@@ -2,6 +2,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { useLanguage } from "@/lib/language-context";
 import { Button } from "@/components/ui/button";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Link from "next/link";
 import { useGetStats, useListNews, useListCampaigns, useListGallery } from "@/lib/api-client/api";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
@@ -94,6 +95,9 @@ const toPreviewText = (input: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+const getActivityImages = (item: { imageUrl: string; imageUrls?: string[] | null }) =>
+  Array.from(new Set([...(item.imageUrls ?? []), item.imageUrl].filter(Boolean))).slice(0, 4);
+
 export default function Home() {
   const { t, language } = useLanguage();
   const { data: stats } = useGetStats();
@@ -102,13 +106,14 @@ export default function Home() {
   const { data: uploadedGallery = [] } = useListGallery();
 
   // Modal state for activity posts
-  const [selectedImage, setSelectedImage] = useState<{ src: string; titleEn: string; titleHi: string; detailsEn: string; detailsHi: string } | null>(null);
+  const [selectedImage, setSelectedImage] = useState<{ src: string; images: string[]; titleEn: string; titleHi: string; detailsEn: string; detailsHi: string } | null>(null);
 
   const latestNews = allNews.slice(0, 3);
   const featuredCampaigns = allCampaigns.filter((c) => c.isActive);
   const homeGalleryItems = uploadedGallery.length > 0
     ? uploadedGallery.slice(0, 6).map((item) => ({
       src: item.imageUrl,
+      images: getActivityImages(item),
       titleEn: item.caption ?? "Activity post",
       titleHi: item.captionHindi ?? item.caption ?? "Activity post",
       detailsEn: item.detailsEn ?? item.category,
@@ -307,11 +312,18 @@ export default function Home() {
                   <Link key={article.id} href={`/news/${article.id}`}>
                     <article className="bg-card border rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group h-full flex flex-col">
                       {/* Image header */}
-                      <div className="h-56 overflow-hidden relative">
+                      <div className="h-56 overflow-hidden relative bg-black">
+                        <img
+                          src={categoryImg}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl"
+                        />
+                        <div className="absolute inset-0 bg-black/20" />
                         <img
                           src={categoryImg}
                           alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="absolute inset-0 h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                         <span className={`absolute bottom-3 left-3 text-xs font-bold px-3 py-1 rounded-full capitalize ${CATEGORY_COLORS[article.category] ?? CATEGORY_COLORS.general}`}>
@@ -441,7 +453,14 @@ export default function Home() {
                 onClick={() => setSelectedImage(item)}
               >
                 <div className="relative h-80 overflow-hidden">
-                  <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={item.src} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl" />
+                  <div className="absolute inset-0 bg-black/25" />
+                  <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]" />
+                  {item.images.length > 1 && (
+                    <span className="absolute right-3 top-3 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                      1/{item.images.length}
+                    </span>
+                  )}
 
                   {/* Content overlay - always visible at bottom, expands on hover */}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent pt-16 pb-4 px-5 transition-all duration-300 group-hover:pt-24 group-hover:pb-6">
@@ -484,11 +503,27 @@ export default function Home() {
               >
                 {/* Image - Left side */}
                 <div className="md:w-3/5 bg-black flex items-center justify-center">
-                  <img
-                    src={selectedImage.src}
-                    alt={selectedImage.titleEn}
-                    className="w-full h-auto max-h-[50vh] md:max-h-[90vh] object-contain"
-                  />
+                  <Carousel className="w-full" opts={{ loop: selectedImage.images.length > 1 }}>
+                    <CarouselContent className="ml-0">
+                      {selectedImage.images.map((imageUrl, index) => (
+                        <CarouselItem key={`${imageUrl}-${index}`} className="pl-0">
+                          <div className="relative flex h-[50vh] items-center justify-center md:h-[90vh]">
+                            <img
+                              src={imageUrl}
+                              alt={selectedImage.titleEn}
+                              className="max-h-full w-full object-contain"
+                            />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    {selectedImage.images.length > 1 && (
+                      <>
+                        <CarouselPrevious className="left-3 border-white/30 bg-black/45 text-white hover:bg-black/70 hover:text-white" />
+                        <CarouselNext className="right-3 border-white/30 bg-black/45 text-white hover:bg-black/70 hover:text-white" />
+                      </>
+                    )}
+                  </Carousel>
                 </div>
                 {/* Content - Right side */}
                 <div className="md:w-2/5 p-6 flex flex-col justify-center">

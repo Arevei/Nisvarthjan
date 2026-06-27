@@ -5,6 +5,7 @@ import { getDb } from "@/lib/db";
 type GalleryDoc = {
   id: number;
   imageUrl: string;
+  imageUrls?: string[] | null;
   caption?: string | null;
   captionHindi?: string | null;
   detailsEn?: string | null;
@@ -14,9 +15,12 @@ type GalleryDoc = {
 };
 
 function fmt(g: WithId<GalleryDoc> | GalleryDoc) {
+  const imageUrls = Array.from(new Set([...(g.imageUrls ?? []), g.imageUrl].filter(Boolean))).slice(0, 4);
+
   return {
     id: g.id,
-    imageUrl: g.imageUrl,
+    imageUrl: imageUrls[0] ?? g.imageUrl,
+    imageUrls,
     caption: g.caption ?? null,
     captionHindi: g.captionHindi ?? null,
     detailsEn: g.detailsEn ?? null,
