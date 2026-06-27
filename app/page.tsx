@@ -297,7 +297,7 @@ export default function Home() {
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {latestNews.map((article) => {
-                const categoryImg = CATEGORY_IMAGES[article.category] ?? CATEGORY_IMAGES.general;
+                const categoryImg = article.imageUrl ?? CATEGORY_IMAGES.general;
                 const category = CATEGORY_LABELS[article.category] ?? CATEGORY_LABELS.general;
                 const preview =
                   language === "hi"
@@ -307,7 +307,7 @@ export default function Home() {
                   <Link key={article.id} href={`/news/${article.id}`}>
                     <article className="bg-card border rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group h-full flex flex-col">
                       {/* Image header */}
-                      <div className="h-44 overflow-hidden relative">
+                      <div className="h-56 overflow-hidden relative">
                         <img
                           src={categoryImg}
                           alt={article.title}
