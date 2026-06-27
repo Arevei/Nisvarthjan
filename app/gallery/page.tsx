@@ -31,8 +31,73 @@ const getActivityImages = (item: { imageUrl: string; imageUrls?: string[] | null
   Array.from(new Set([...(item.imageUrls ?? []), item.imageUrl].filter(Boolean))).slice(0, 4);
 
 function isVideoUrl(value: string) {
-  return /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(value) || /\/video\/upload\//i.test(value);
+  return (
+    /\.(mp4|webm|ogg|mov|m4v|m3u8)(\?|#|$)/i.test(value) ||
+    /\/video\//i.test(value) ||
+    /(^|[,/])f_(mp4|webm)([,/]|$)/i.test(value) ||
+    /[?&](resource_type|type)=video/i.test(value)
+  );
 }
+
+function GalleryMedia({
+  src,
+  alt,
+  className,
+  videoClassName,
+  controls = false,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+  videoClassName?: string;
+  controls?: boolean;
+}) {
+  const [forceVideo, setForceVideo] = useState(false);
+
+  if (forceVideo || isVideoUrl(src)) {
+    return (
+      <video
+        src={src}
+        controls={controls}
+        muted={!controls}
+        playsInline
+        preload="metadata"
+        className={videoClassName ?? className}
+      />
+    );
+  }
+
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img src={src} alt={alt} className={className} onError={() => setForceVideo(true)} />
+  );
+}
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+const toRenderableHtml = (value: string) => {
+  if (/<[a-z][\s\S]*>/i.test(value)) return value;
+
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${escapeHtml(line)}</p>`)
+    .join("");
+};
+
+const toPreviewText = (value: string) =>
+  value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 export default function Gallery() {
   const { t } = useLanguage();
@@ -83,16 +148,16 @@ export default function Gallery() {
                   onClick={() => openItem(item, itemImages)}
                 >
                   <div className="relative flex h-60 items-center justify-center overflow-hidden bg-muted">
-                    {isVideoUrl(item.imageUrl) ? (
-                      <video src={item.imageUrl} className="h-full w-full bg-black object-contain" muted playsInline />
-                    ) : (
-                      <>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.imageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-40" />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.imageUrl} alt={title} className="relative h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]" />
-                      </>
+                    {!isVideoUrl(item.imageUrl) && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={item.imageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-40" />
                     )}
+                    <GalleryMedia
+                      src={item.imageUrl}
+                      alt={title}
+                      className="relative h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
+                      videoClassName="h-full w-full bg-black object-contain"
+                    />
                     {itemImages.length > 1 && (
                       <span className="absolute right-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
                         1/{itemImages.length}
@@ -111,7 +176,7 @@ export default function Gallery() {
                     <h3 className="font-serif text-xl font-bold leading-snug text-foreground">{title}</h3>
                     {(detailsEn || detailsHi) && (
                       <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                        {t(detailsEn ?? "", detailsHi ?? detailsEn ?? "")}
+                        {toPreviewText(t(detailsEn ?? "", detailsHi ?? detailsEn ?? ""))}
                       </p>
                     )}
                   </div>
@@ -136,7 +201,7 @@ export default function Gallery() {
             <X className="h-7 w-7" />
           </button>
           <div 
-            className="relative flex h-full w-full flex-col overflow-hidden"
+            className="relative flex h-full w-full flex-col overflow-hidden lg:flex-row"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="min-h-0 flex-1 bg-black">
@@ -144,17 +209,14 @@ export default function Gallery() {
                 <CarouselContent className="ml-0">
                   {getActivityImages(selectedItem).map((imageUrl, index) => (
                     <CarouselItem key={`${imageUrl}-${index}`} className="pl-0">
-                      <div className="relative flex h-[calc(100vh-92px)] items-center justify-center">
-                        {isVideoUrl(imageUrl) ? (
-                          <video src={imageUrl} controls className="h-full w-full object-contain" />
-                        ) : (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={imageUrl}
-                            alt={t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
-                            className="max-h-full w-full object-contain"
-                          />
-                        )}
+                      <div className="relative flex h-[calc(100vh-92px)] items-center justify-center lg:h-screen">
+                        <GalleryMedia
+                          src={imageUrl}
+                          alt={t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
+                          className="max-h-full w-full object-contain"
+                          videoClassName="h-full w-full object-contain"
+                          controls
+                        />
                       </div>
                     </CarouselItem>
                   ))}
@@ -167,30 +229,37 @@ export default function Gallery() {
                 )}
               </Carousel>
             </div>
-            <div className="border-t bg-card">
+            <div className={`border-t bg-card transition-all duration-300 lg:h-full lg:border-l lg:border-t-0 ${isModalContentOpen ? "lg:w-[420px]" : "lg:w-16"}`}>
               <button
                 type="button"
                 onClick={() => setIsModalContentOpen((current) => !current)}
-                className="flex w-full items-center justify-between px-4 py-3 text-left sm:px-6"
+                className="flex w-full items-center justify-between px-4 py-3 text-left sm:px-6 lg:min-h-16 lg:px-4"
               >
-                <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+                <span className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground">
                   <Info className="h-4 w-4 text-primary" />
-                  {t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
+                  <span className={`${isModalContentOpen ? "line-clamp-2" : "sr-only"}`}>
+                    {t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
+                  </span>
                 </span>
                 <ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${isModalContentOpen ? "rotate-180" : ""}`} />
               </button>
               {isModalContentOpen && (
-                <div className="max-h-44 overflow-y-auto px-4 pb-5 sm:px-6">
+                <div className="max-h-44 overflow-y-auto px-4 pb-5 sm:px-6 lg:max-h-[calc(100vh-64px)]">
                   <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
                     {selectedItem.category}
                   </span>
                   {("detailsEn" in selectedItem && selectedItem.detailsEn) || ("detailsHi" in selectedItem && selectedItem.detailsHi) ? (
-                    <p className="mt-3 leading-relaxed text-muted-foreground">
-                      {t(
-                        ("detailsEn" in selectedItem ? selectedItem.detailsEn : "") ?? "",
-                        ("detailsHi" in selectedItem ? selectedItem.detailsHi : selectedItem.detailsEn) ?? ""
-                      )}
-                    </p>
+                    <div
+                      className="mt-3 space-y-3 leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-bold [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
+                      dangerouslySetInnerHTML={{
+                        __html: toRenderableHtml(
+                          t(
+                            ("detailsEn" in selectedItem ? selectedItem.detailsEn : "") ?? "",
+                            ("detailsHi" in selectedItem ? selectedItem.detailsHi : selectedItem.detailsEn) ?? ""
+                          ),
+                        ),
+                      }}
+                    />
                   ) : null}
                 </div>
               )}

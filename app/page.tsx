@@ -8,7 +8,7 @@ import { useGetStats, useListNews, useListCampaigns, useListGallery } from "@/li
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { CampaignsSnapCarousel } from "@/components/home/CampaignsSnapCarousel";
 import { HomeHero } from "@/components/home/HomeHero";
-import { ArrowRight, Calendar, Target, Eye, Compass, Sparkles, Heart, Leaf, Users2, BookOpen, X, ZoomIn } from "lucide-react";
+import { ArrowRight, Calendar, Target, Eye, Compass, Sparkles, Heart, Leaf, Users2, BookOpen, X, ZoomIn, ChevronDown, Info } from "lucide-react";
 import { useState } from "react";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -95,8 +95,67 @@ const toPreviewText = (input: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+const toRenderableHtml = (value: string) => {
+  if (/<[a-z][\s\S]*>/i.test(value)) return value;
+
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${escapeHtml(line)}</p>`)
+    .join("");
+};
+
 const getActivityImages = (item: { imageUrl: string; imageUrls?: string[] | null }) =>
   Array.from(new Set([...(item.imageUrls ?? []), item.imageUrl].filter(Boolean))).slice(0, 4);
+
+function isVideoUrl(value: string) {
+  return (
+    /\.(mp4|webm|ogg|mov|m4v|m3u8)(\?|#|$)/i.test(value) ||
+    /\/video\//i.test(value) ||
+    /(^|[,/])f_(mp4|webm)([,/]|$)/i.test(value) ||
+    /[?&](resource_type|type)=video/i.test(value)
+  );
+}
+
+function ActivityMedia({
+  src,
+  alt,
+  className,
+  videoClassName,
+  controls = false,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+  videoClassName?: string;
+  controls?: boolean;
+}) {
+  const [forceVideo, setForceVideo] = useState(false);
+
+  if (forceVideo || isVideoUrl(src)) {
+    return (
+      <video
+        src={src}
+        controls={controls}
+        muted={!controls}
+        playsInline
+        preload="metadata"
+        className={videoClassName ?? className}
+      />
+    );
+  }
+
+  return <img src={src} alt={alt} className={className} onError={() => setForceVideo(true)} />;
+}
 
 export default function Home() {
   const { t, language } = useLanguage();
@@ -107,6 +166,7 @@ export default function Home() {
 
   // Modal state for activity posts
   const [selectedImage, setSelectedImage] = useState<{ src: string; images: string[]; titleEn: string; titleHi: string; detailsEn: string; detailsHi: string } | null>(null);
+  const [isActivityContentOpen, setIsActivityContentOpen] = useState(true);
 
   const latestNews = allNews.slice(0, 3);
   const featuredCampaigns = allCampaigns.filter((c) => c.isActive);
@@ -450,12 +510,24 @@ export default function Home() {
               <article
                 key={`${item.src}-${index}`}
                 className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-                onClick={() => setSelectedImage(item)}
+                onClick={() => {
+                  setSelectedImage(item);
+                  setIsActivityContentOpen(true);
+                }}
               >
                 <div className="relative h-80 overflow-hidden">
-                  <img src={item.src} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl" />
-                  <div className="absolute inset-0 bg-black/25" />
-                  <img src={item.src} alt={item.titleEn} className="absolute inset-0 h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]" />
+                  {!isVideoUrl(item.src) && (
+                    <>
+                      <img src={item.src} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl" />
+                      <div className="absolute inset-0 bg-black/25" />
+                    </>
+                  )}
+                  <ActivityMedia
+                    src={item.src}
+                    alt={item.titleEn}
+                    className="absolute inset-0 h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
+                    videoClassName="h-full w-full bg-black object-contain"
+                  />
                   {item.images.length > 1 && (
                     <span className="absolute right-3 top-3 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
                       1/{item.images.length}
@@ -469,7 +541,7 @@ export default function Home() {
                         {t(item.titleEn, item.titleHi)}
                       </h3>
                       <p className="text-sm text-white/80 leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
-                        {t(item.detailsEn, item.detailsHi)}
+                        {toPreviewText(t(item.detailsEn, item.detailsHi))}
                       </p>
                     </div>
                   </div>
@@ -488,30 +560,32 @@ export default function Home() {
           {/* Image Modal - Instagram style left/right layout */}
           {selectedImage && (
             <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+              className="fixed inset-0 z-50 flex bg-background"
               onClick={() => setSelectedImage(null)}
             >
               <button
-                className="absolute top-4 right-4 md:top-6 md:right-6 text-white hover:text-gray-300 transition-colors z-10"
+                className="absolute right-4 top-4 z-20 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
                 onClick={() => setSelectedImage(null)}
+                aria-label="Close"
               >
-                <X className="w-8 h-8" />
+                <X className="h-7 w-7" />
               </button>
               <div
-                className="relative max-w-5xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
+                className="relative flex h-full w-full flex-col overflow-hidden lg:flex-row"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Image - Left side */}
-                <div className="md:w-3/5 bg-black flex items-center justify-center">
+                <div className="min-h-0 flex-1 bg-black">
                   <Carousel className="w-full" opts={{ loop: selectedImage.images.length > 1 }}>
                     <CarouselContent className="ml-0">
                       {selectedImage.images.map((imageUrl, index) => (
                         <CarouselItem key={`${imageUrl}-${index}`} className="pl-0">
-                          <div className="relative flex h-[50vh] items-center justify-center md:h-[90vh]">
-                            <img
+                          <div className="relative flex h-[calc(100vh-92px)] items-center justify-center lg:h-screen">
+                            <ActivityMedia
                               src={imageUrl}
                               alt={selectedImage.titleEn}
                               className="max-h-full w-full object-contain"
+                              videoClassName="h-full w-full object-contain"
+                              controls
                             />
                           </div>
                         </CarouselItem>
@@ -525,15 +599,31 @@ export default function Home() {
                     )}
                   </Carousel>
                 </div>
-                {/* Content - Right side */}
-                <div className="md:w-2/5 p-6 flex flex-col justify-center">
-                  <h3 className="font-serif font-bold text-xl text-foreground mb-3">
-                    {t(selectedImage.titleEn, selectedImage.titleHi)}
-                  </h3>
-                  {(selectedImage.detailsEn || selectedImage.detailsHi) && (
-                    <p className="text-muted-foreground leading-relaxed">
-                      {t(selectedImage.detailsEn, selectedImage.detailsHi)}
-                    </p>
+                <div className={`border-t bg-card transition-all duration-300 lg:h-full lg:border-l lg:border-t-0 ${isActivityContentOpen ? "lg:w-[420px]" : "lg:w-16"}`}>
+                  <button
+                    type="button"
+                    onClick={() => setIsActivityContentOpen((current) => !current)}
+                    className="flex w-full items-center justify-between px-4 py-3 text-left sm:px-6 lg:min-h-16 lg:px-4"
+                  >
+                    <span className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground">
+                      <Info className="h-4 w-4 text-primary" />
+                      <span className={`${isActivityContentOpen ? "line-clamp-2" : "sr-only"}`}>
+                        {t(selectedImage.titleEn, selectedImage.titleHi)}
+                      </span>
+                    </span>
+                    <ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${isActivityContentOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {isActivityContentOpen && (
+                    <div className="max-h-44 overflow-y-auto px-4 pb-5 sm:px-6 lg:max-h-[calc(100vh-64px)]">
+                      {(selectedImage.detailsEn || selectedImage.detailsHi) && (
+                        <div
+                          className="space-y-3 leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-bold [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
+                          dangerouslySetInnerHTML={{
+                            __html: toRenderableHtml(t(selectedImage.detailsEn, selectedImage.detailsHi)),
+                          }}
+                        />
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
