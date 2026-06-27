@@ -112,6 +112,7 @@ export async function GET(req: NextRequest) {
       payment: member.payment
         ? {
             ...member.payment,
+            keyId: member.payment.mode === "razorpay" ? process.env.RAZORPAY_KEY_ID : undefined,
             createdAt: member.payment.createdAt ? new Date(member.payment.createdAt).toISOString() : undefined,
           }
         : null,

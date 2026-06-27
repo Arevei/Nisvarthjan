@@ -207,7 +207,7 @@ function enquiryStatusClass(status: ActiveEnquiry["status"]) {
 
 export default function Dashboard() {
   const { t } = useLanguage();
-  const { user, isLoading, logout } = useAuth();
+  const { token, user, isLoading, logout } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   const [birthdayEmailStatus, setBirthdayEmailStatus] = useState<"idle" | "sent" | "failed" | "alreadySent">("idle");
@@ -247,7 +247,10 @@ export default function Dashboard() {
         try {
           const verifyResponse = await fetch("/api/membership-payments/verify", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
             credentials: "include",
             body: JSON.stringify({
               memberId: user.id,

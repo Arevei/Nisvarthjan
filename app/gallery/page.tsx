@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { X, ZoomIn } from "lucide-react";
+import { ChevronDown, Info, X, ZoomIn } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useLanguage } from "@/lib/language-context";
@@ -30,11 +30,21 @@ type GalleryItem = {
 const getActivityImages = (item: { imageUrl: string; imageUrls?: string[] | null }) =>
   Array.from(new Set([...(item.imageUrls ?? []), item.imageUrl].filter(Boolean))).slice(0, 4);
 
+function isVideoUrl(value: string) {
+  return /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(value) || /\/video\/upload\//i.test(value);
+}
+
 export default function Gallery() {
   const { t } = useLanguage();
   const { data: uploadedItems = [], isLoading } = useListGallery();
   const galleryItems = uploadedItems.length > 0 ? uploadedItems : GALLERY_ITEMS;
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+  const [isModalContentOpen, setIsModalContentOpen] = useState(true);
+
+  const openItem = (item: GalleryItem, itemImages: string[]) => {
+    setSelectedItem({ ...item, imageUrls: itemImages });
+    setIsModalContentOpen(true);
+  };
 
   return (
     <Layout>
@@ -69,36 +79,41 @@ export default function Gallery() {
               return (
                 <article
                   key={item.id}
-                  className="group relative h-72 overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-                  onClick={() => setSelectedItem({ ...item, imageUrls: itemImages })}
+                  className="group overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+                  onClick={() => openItem(item, itemImages)}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.imageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl" />
-                  <div className="absolute inset-0 bg-black/25" />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.imageUrl} alt={title} className="absolute inset-0 h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
-                  {itemImages.length > 1 && (
-                    <span className="absolute right-3 top-3 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                      1/{itemImages.length}
-                    </span>
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 translate-y-2 p-5 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    <span className="mb-2 inline-flex rounded-full bg-white/18 px-3 py-1 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm">
+                  <div className="relative flex h-60 items-center justify-center overflow-hidden bg-muted">
+                    {isVideoUrl(item.imageUrl) ? (
+                      <video src={item.imageUrl} className="h-full w-full bg-black object-contain" muted playsInline />
+                    ) : (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={item.imageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-40" />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={item.imageUrl} alt={title} className="relative h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]" />
+                      </>
+                    )}
+                    {itemImages.length > 1 && (
+                      <span className="absolute right-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                        1/{itemImages.length}
+                      </span>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <div className="rounded-full bg-black/45 p-3 backdrop-blur-sm">
+                        <ZoomIn className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <span className="mb-2 inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
                       {item.category}
                     </span>
-                    <h3 className="font-serif text-xl font-bold leading-snug">{title}</h3>
+                    <h3 className="font-serif text-xl font-bold leading-snug text-foreground">{title}</h3>
                     {(detailsEn || detailsHi) && (
-                      <p className="mt-2 line-clamp-2 text-sm text-white/80">
+                      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
                         {t(detailsEn ?? "", detailsHi ?? detailsEn ?? "")}
                       </p>
                     )}
-                  </div>
-                  {/* Zoom icon */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                      <ZoomIn className="w-6 h-6 text-white" />
-                    </div>
                   </div>
                 </article>
               );
@@ -107,35 +122,39 @@ export default function Gallery() {
         )}
       </div>
 
-      {/* Image Modal - Instagram style left/right layout */}
+      {/* Full-page media modal */}
       {selectedItem && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex bg-background"
           onClick={() => setSelectedItem(null)}
         >
           <button 
-            className="absolute top-4 right-4 md:top-6 md:right-6 text-white hover:text-gray-300 transition-colors z-10"
+            className="absolute right-4 top-4 z-20 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
             onClick={() => setSelectedItem(null)}
+            aria-label="Close"
           >
-            <X className="w-8 h-8" />
+            <X className="h-7 w-7" />
           </button>
           <div 
-            className="relative max-w-5xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
+            className="relative flex h-full w-full flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Image - Left side */}
-            <div className="md:w-3/5 bg-black flex items-center justify-center">
+            <div className="min-h-0 flex-1 bg-black">
               <Carousel className="w-full" opts={{ loop: getActivityImages(selectedItem).length > 1 }}>
                 <CarouselContent className="ml-0">
                   {getActivityImages(selectedItem).map((imageUrl, index) => (
                     <CarouselItem key={`${imageUrl}-${index}`} className="pl-0">
-                      <div className="relative flex h-[50vh] items-center justify-center md:h-[90vh]">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={imageUrl}
-                          alt={t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
-                          className="max-h-full w-full object-contain"
-                        />
+                      <div className="relative flex h-[calc(100vh-92px)] items-center justify-center">
+                        {isVideoUrl(imageUrl) ? (
+                          <video src={imageUrl} controls className="h-full w-full object-contain" />
+                        ) : (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={imageUrl}
+                            alt={t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
+                            className="max-h-full w-full object-contain"
+                          />
+                        )}
                       </div>
                     </CarouselItem>
                   ))}
@@ -148,22 +167,33 @@ export default function Gallery() {
                 )}
               </Carousel>
             </div>
-            {/* Content - Right side */}
-            <div className="md:w-2/5 p-6 flex flex-col justify-center">
-              <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary mb-3 w-fit">
-                {selectedItem.category}
-              </span>
-              <h3 className="font-serif font-bold text-xl text-foreground mb-3">
-                {t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
-              </h3>
-              {("detailsEn" in selectedItem && selectedItem.detailsEn) || ("detailsHi" in selectedItem && selectedItem.detailsHi) ? (
-                <p className="text-muted-foreground leading-relaxed">
-                  {t(
-                    ("detailsEn" in selectedItem ? selectedItem.detailsEn : "") ?? "",
-                    ("detailsHi" in selectedItem ? selectedItem.detailsHi : selectedItem.detailsEn) ?? ""
-                  )}
-                </p>
-              ) : null}
+            <div className="border-t bg-card">
+              <button
+                type="button"
+                onClick={() => setIsModalContentOpen((current) => !current)}
+                className="flex w-full items-center justify-between px-4 py-3 text-left sm:px-6"
+              >
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Info className="h-4 w-4 text-primary" />
+                  {t(selectedItem.caption ?? "Activity post image", selectedItem.captionHindi ?? selectedItem.caption ?? "Activity post image")}
+                </span>
+                <ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${isModalContentOpen ? "rotate-180" : ""}`} />
+              </button>
+              {isModalContentOpen && (
+                <div className="max-h-44 overflow-y-auto px-4 pb-5 sm:px-6">
+                  <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                    {selectedItem.category}
+                  </span>
+                  {("detailsEn" in selectedItem && selectedItem.detailsEn) || ("detailsHi" in selectedItem && selectedItem.detailsHi) ? (
+                    <p className="mt-3 leading-relaxed text-muted-foreground">
+                      {t(
+                        ("detailsEn" in selectedItem ? selectedItem.detailsEn : "") ?? "",
+                        ("detailsHi" in selectedItem ? selectedItem.detailsHi : selectedItem.detailsEn) ?? ""
+                      )}
+                    </p>
+                  ) : null}
+                </div>
+              )}
             </div>
           </div>
         </div>

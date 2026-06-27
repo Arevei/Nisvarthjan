@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useCallback, useContext, useState, ReactNode, useEffect } from "react";
 import { useGetMe, getGetMeQueryKey } from "@/lib/api-client/api";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Member } from "@/lib/api-client/api";
@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return window.localStorage.getItem("token");
   });
 
-  const setToken = (newToken: string | null) => {
+  const setToken = useCallback((newToken: string | null) => {
     setTokenState(newToken);
     if (newToken) {
       window.localStorage.setItem("token", newToken);
@@ -29,15 +29,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.localStorage.removeItem("token");
       queryClient.setQueryData(getGetMeQueryKey(), null);
     }
-  };
+  }, [queryClient]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
-  };
+  }, [setToken]);
 
   const { data: user, isLoading } = useGetMe({
     query: {
-      enabled: !!token,
+      enabled: true,
       retry: false,
       queryKey: getGetMeQueryKey(),
     },
@@ -47,10 +47,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isLoading && token && !user) {
       const error = queryClient.getQueryState(getGetMeQueryKey())?.error;
       if (error) {
-        logout();
+        window.setTimeout(logout, 0);
       }
     }
-  }, [user, isLoading, token]);
+  }, [user, isLoading, token, logout, queryClient]);
 
   return (
     <AuthContext.Provider value={{ token, setToken, user: user || null, isLoading, logout }}>
