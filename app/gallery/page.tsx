@@ -187,24 +187,25 @@ export default function Gallery() {
         )}
       </div>
 
-      {/* Full-page media modal */}
+      {/* Full-page media modal - Responsive layout */}
       {selectedItem && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex bg-background"
           onClick={() => setSelectedItem(null)}
         >
-          <button 
+          <button
             className="absolute right-4 top-4 z-20 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
             onClick={() => setSelectedItem(null)}
             aria-label="Close"
           >
             <X className="h-7 w-7" />
           </button>
-          <div 
+          <div
             className="relative flex h-full w-full flex-col overflow-hidden lg:flex-row"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="min-h-0 flex-1 bg-black">
+            {/* Image area - left on desktop, top on mobile */}
+            <div className="min-h-0 flex-1 bg-black lg:h-full">
               <Carousel className="w-full" opts={{ loop: getActivityImages(selectedItem).length > 1 }}>
                 <CarouselContent className="ml-0">
                   {getActivityImages(selectedItem).map((imageUrl, index) => (
@@ -229,7 +230,10 @@ export default function Gallery() {
                 )}
               </Carousel>
             </div>
+
+            {/* Content panel - right on desktop, bottom on mobile */}
             <div className={`border-t bg-card transition-all duration-300 lg:h-full lg:border-l lg:border-t-0 ${isModalContentOpen ? "lg:w-[420px]" : "lg:w-16"}`}>
+              {/* Toggle bar at the dividing edge */}
               <button
                 type="button"
                 onClick={() => setIsModalContentOpen((current) => !current)}
