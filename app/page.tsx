@@ -554,77 +554,61 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Image Modal - Responsive layout */}
+          {/* Image Modal - Desktop: left/right with toggle, Mobile: top/bottom */}
           {selectedImage && (
             <div
-              className="fixed inset-0 z-50 flex bg-background"
+              className="fixed inset-0 z-50 flex flex-col bg-background lg:flex-row"
               onClick={() => setSelectedImage(null)}
             >
+              {/* Close button - top right */}
               <button
-                className="absolute right-4 top-4 z-20 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
+                className="absolute right-4 top-4 z-30 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
                 onClick={() => setSelectedImage(null)}
                 aria-label="Close"
               >
                 <X className="h-7 w-7" />
               </button>
-              <div
-                className="relative flex h-full w-full flex-col overflow-hidden lg:flex-row"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Image area - left on desktop, top on mobile */}
-                <div className="min-h-0 flex-1 bg-black lg:h-full">
-                  <Carousel className="w-full" opts={{ loop: selectedImage.images.length > 1 }}>
-                    <CarouselContent className="ml-0">
-                      {selectedImage.images.map((imageUrl, index) => (
-                        <CarouselItem key={`${imageUrl}-${index}`} className="pl-0">
-                          <div className="relative flex h-[calc(100vh-92px)] items-center justify-center lg:h-screen">
-                            <ActivityMedia
-                              src={imageUrl}
-                              alt={selectedImage.titleEn}
-                              className="max-h-full w-full object-contain"
-                              videoClassName="h-full w-full object-contain"
-                              controls
-                            />
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    {selectedImage.images.length > 1 && (
-                      <>
-                        <CarouselPrevious className="left-3 border-white/30 bg-black/45 text-white hover:bg-black/70 hover:text-white" />
-                        <CarouselNext className="right-3 border-white/30 bg-black/45 text-white hover:bg-black/70 hover:text-white" />
-                      </>
-                    )}
-                  </Carousel>
-                </div>
 
-                {/* Content panel - right on desktop, bottom on mobile */}
-                <div className={`border-t bg-card transition-all duration-300 lg:h-full lg:border-l lg:border-t-0 ${isActivityContentOpen ? "lg:w-[420px]" : "lg:w-16"}`}>
-                  {/* Toggle bar at the dividing edge */}
-                  <button
-                    type="button"
-                    onClick={() => setIsActivityContentOpen((current) => !current)}
-                    className="flex w-full items-center justify-between px-4 py-3 text-left sm:px-6 lg:min-h-16 lg:px-4"
-                  >
-                    <span className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground">
-                      <Info className="h-4 w-4 text-primary" />
-                      <span className={`${isActivityContentOpen ? "line-clamp-2" : "sr-only"}`}>
-                        {t(selectedImage.titleEn, selectedImage.titleHi)}
-                      </span>
-                    </span>
-                    <ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${isActivityContentOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {isActivityContentOpen && (
-                    <div className="max-h-44 overflow-y-auto px-4 pb-5 sm:px-6 lg:max-h-[calc(100vh-64px)]">
-                      {(selectedImage.detailsEn || selectedImage.detailsHi) && (
-                        <div
-                          className="space-y-3 leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-bold [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
-                          dangerouslySetInnerHTML={{
-                            __html: toRenderableHtml(t(selectedImage.detailsEn, selectedImage.detailsHi)),
-                          }}
-                        />
-                      )}
-                    </div>
+              {/* Image area - full width on mobile, left side on desktop */}
+              <div className="flex-shrink-0 bg-black lg:flex-1 lg:h-full">
+                <Carousel className="w-full" opts={{ loop: selectedImage.images.length > 1 }}>
+                  <CarouselContent className="ml-0">
+                    {selectedImage.images.map((imageUrl, index) => (
+                      <CarouselItem key={`${imageUrl}-${index}`} className="pl-0">
+                        <div className="relative flex h-[50vh] items-center justify-center lg:h-screen">
+                          <ActivityMedia
+                            src={imageUrl}
+                            alt={selectedImage.titleEn}
+                            className="max-h-full w-full object-contain"
+                            videoClassName="h-full w-full object-contain"
+                            controls
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {selectedImage.images.length > 1 && (
+                    <>
+                      <CarouselPrevious className="left-3 border-white/30 bg-black/45 text-white hover:bg-black/70 hover:text-white" />
+                      <CarouselNext className="right-3 border-white/30 bg-black/45 text-white hover:bg-black/70 hover:text-white" />
+                    </>
+                  )}
+                </Carousel>
+              </div>
+
+              {/* Content panel - bottom on mobile, right side on desktop */}
+              <div className={`flex-1 overflow-y-auto border-t bg-card transition-all duration-300 lg:h-full lg:w-[420px] lg:border-t-0 lg:border-l`}>
+                <div className="p-4 sm:p-6">
+                  <h3 className="font-serif font-bold text-xl text-foreground mb-3">
+                    {t(selectedImage.titleEn, selectedImage.titleHi)}
+                  </h3>
+                  {(selectedImage.detailsEn || selectedImage.detailsHi) && (
+                    <div
+                      className="space-y-3 leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-bold [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
+                      dangerouslySetInnerHTML={{
+                        __html: toRenderableHtml(t(selectedImage.detailsEn, selectedImage.detailsHi)),
+                      }}
+                    />
                   )}
                 </div>
               </div>
