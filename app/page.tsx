@@ -554,7 +554,7 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Image Modal - Desktop: left/right with toggle, Mobile: top/bottom */}
+          {/* Image Modal - Desktop: 70% image + 30% content with toggle, Mobile: top/bottom */}
           {selectedImage && (
             <div
               className="fixed inset-0 z-50 flex flex-col bg-background lg:flex-row"
@@ -569,8 +569,8 @@ export default function Home() {
                 <X className="h-7 w-7" />
               </button>
 
-              {/* Image area - full width on mobile, left side on desktop */}
-              <div className="flex-shrink-0 bg-black lg:flex-1 lg:h-full">
+              {/* Image area - full width on mobile, 70% on desktop */}
+              <div className="flex-shrink-0 bg-black lg:flex-[7] lg:h-full" onClick={(e) => e.stopPropagation()}>
                 <Carousel className="w-full" opts={{ loop: selectedImage.images.length > 1 }}>
                   <CarouselContent className="ml-0">
                     {selectedImage.images.map((imageUrl, index) => (
@@ -596,9 +596,9 @@ export default function Home() {
                 </Carousel>
               </div>
 
-              {/* Content panel - bottom on mobile, right side on desktop */}
-              <div className={`flex-1 overflow-y-auto border-t bg-card transition-all duration-300 lg:h-full lg:w-[420px] lg:border-t-0 lg:border-l`}>
-                <div className="p-4 sm:p-6">
+              {/* Content panel - bottom on mobile, 30% on desktop with toggle */}
+              <div className={`flex-1 overflow-y-auto border-t bg-card transition-all duration-300 lg:h-full lg:border-t-0 lg:border-l ${isActivityContentOpen ? "lg:flex-[3]" : "lg:flex-[0.35]"}`} onClick={(e) => e.stopPropagation()}>
+               { isActivityContentOpen && <div className="p-4 sm:p-6">
                   <h3 className="font-serif font-bold text-xl text-foreground mb-3">
                     {t(selectedImage.titleEn, selectedImage.titleHi)}
                   </h3>
@@ -610,7 +610,17 @@ export default function Home() {
                       }}
                     />
                   )}
-                </div>
+                </div>}
+                {/* Toggle button - bottom right on desktop */}
+                <button
+                  type="button"
+                  onClick={() => setIsActivityContentOpen((current) => !current)}
+                  className="hidden lg:absolute lg:bottom-4 lg:right-4 lg:inline-flex lg:items-center lg:gap-2 lg:rounded-full lg:bg-muted lg:px-3 lg:py-2 lg:text-sm lg:font-medium lg:text-foreground lg:shadow-sm lg:transition-colors lg:hover:bg-muted/80"
+                >
+                  <Info className="h-4 w-4" />
+                  <span>{isActivityContentOpen ? "Less" : "Details"}</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isActivityContentOpen ? "rotate-180" : ""}`} />
+                </button>
               </div>
             </div>
           )}

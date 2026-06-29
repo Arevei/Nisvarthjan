@@ -187,7 +187,7 @@ export default function Gallery() {
         )}
       </div>
 
-      {/* Full-page media modal - Desktop: left/right, Mobile: top/bottom */}
+      {/* Full-page media modal - Desktop: 70% image + 30% content with toggle, Mobile: top/bottom */}
       {selectedItem && (
         <div
           className="fixed inset-0 z-50 flex flex-col bg-background lg:flex-row"
@@ -202,8 +202,8 @@ export default function Gallery() {
             <X className="h-7 w-7" />
           </button>
 
-          {/* Image area - full width on mobile, left side on desktop */}
-          <div className="flex-shrink-0 bg-black lg:flex-1 lg:h-full">
+          {/* Image area - full width on mobile, 70% on desktop */}
+          <div className="flex-shrink-0 bg-black lg:flex-[7] lg:h-full" onClick={(e) => e.stopPropagation()}>
             <Carousel className="w-full" opts={{ loop: getActivityImages(selectedItem).length > 1 }}>
               <CarouselContent className="ml-0">
                 {getActivityImages(selectedItem).map((imageUrl, index) => (
@@ -229,9 +229,9 @@ export default function Gallery() {
             </Carousel>
           </div>
 
-          {/* Content panel - bottom on mobile, right side on desktop */}
-          <div className="flex-1 overflow-y-auto border-t bg-card lg:h-full lg:w-[420px] lg:border-t-0 lg:border-l">
-            <div className="p-4 sm:p-6">
+          {/* Content panel - bottom on mobile, 30% on desktop with toggle */}
+          <div className={`flex-1 overflow-y-auto border-t bg-card transition-all duration-300 lg:h-full lg:border-t-0 lg:border-l ${isModalContentOpen ? "lg:flex-[3]" : "lg:flex-[0.35]"}`} onClick={(e) => e.stopPropagation()}>
+            {isModalContentOpen && <div className="p-4 sm:p-6">
               <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
                 {selectedItem.category}
               </span>
@@ -248,7 +248,17 @@ export default function Gallery() {
                   }}
                 />
               ) : null}
-            </div>
+            </div>}
+            {/* Toggle button - bottom right on desktop */}
+            <button
+              type="button"
+              onClick={() => setIsModalContentOpen((current) => !current)}
+              className="hidden lg:absolute lg:bottom-4 lg:right-4 lg:inline-flex lg:items-center lg:gap-2 lg:rounded-full lg:bg-muted lg:px-3 lg:py-2 lg:text-sm lg:font-medium lg:text-foreground lg:shadow-sm lg:transition-colors lg:hover:bg-muted/80"
+            >
+              <Info className="h-4 w-4" />
+              <span>{isModalContentOpen ? "Less" : "Details"}</span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${isModalContentOpen ? "rotate-180" : ""}`} />
+            </button>
           </div>
         </div>
       )}
