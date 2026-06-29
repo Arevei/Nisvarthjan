@@ -8,7 +8,7 @@ import { useGetStats, useListNews, useListCampaigns, useListGallery } from "@/li
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { CampaignsSnapCarousel } from "@/components/home/CampaignsSnapCarousel";
 import { HomeHero } from "@/components/home/HomeHero";
-import { ArrowRight, Calendar, Target, Eye, Compass, Sparkles, Heart, Leaf, Users2, BookOpen, X, ZoomIn, ChevronDown, Info } from "lucide-react";
+import { ArrowRight, Calendar, Target, Eye, Compass, Sparkles, Heart, Leaf, Users2, BookOpen, X, ZoomIn } from "lucide-react";
 import { useState } from "react";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -166,7 +166,6 @@ export default function Home() {
 
   // Modal state for activity posts
   const [selectedImage, setSelectedImage] = useState<{ src: string; images: string[]; titleEn: string; titleHi: string; detailsEn: string; detailsHi: string } | null>(null);
-  const [isActivityContentOpen, setIsActivityContentOpen] = useState(true);
 
   const latestNews = allNews.slice(0, 3);
   const featuredCampaigns = allCampaigns.filter((c) => c.isActive);
@@ -509,13 +508,13 @@ export default function Home() {
             {homeGalleryItems.map((item, index) => (
               <article
                 key={`${item.src}-${index}`}
-                className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+                className="group overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
                 onClick={() => {
                   setSelectedImage(item);
-                  setIsActivityContentOpen(true);
                 }}
               >
-                <div className="relative h-80 overflow-hidden">
+                {/* Image on top */}
+                <div className="relative h-56 overflow-hidden bg-black">
                   {!isVideoUrl(item.src) && (
                     <>
                       <img src={item.src} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl" />
@@ -533,19 +532,6 @@ export default function Home() {
                       1/{item.images.length}
                     </span>
                   )}
-
-                  {/* Content overlay - always visible at bottom, expands on hover */}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent pt-16 pb-4 px-5 transition-all duration-300 group-hover:pt-24 group-hover:pb-6">
-                    <div className="translate-y-0 transition-transform duration-300 group-hover:-translate-y-2">
-                      <h3 className="font-serif font-bold text-lg text-white mb-1">
-                        {t(item.titleEn, item.titleHi)}
-                      </h3>
-                      <p className="text-sm text-white/80 leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
-                        {toPreviewText(t(item.detailsEn, item.detailsHi))}
-                      </p>
-                    </div>
-                  </div>
-
                   {/* Zoom icon on hover */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                     <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
@@ -553,14 +539,23 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
+                {/* Content below image */}
+                <div className="p-5">
+                  <h3 className="font-serif font-bold text-lg text-foreground mb-2 line-clamp-2">
+                    {t(item.titleEn, item.titleHi)}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                    {toPreviewText(t(item.detailsEn, item.detailsHi))}
+                  </p>
+                </div>
               </article>
             ))}
           </div>
 
-          {/* Image Modal - Instagram style left/right layout */}
+          {/* Image Modal - Top/Bottom layout */}
           {selectedImage && (
             <div
-              className="fixed inset-0 z-50 flex bg-background"
+              className="fixed inset-0 z-50 flex flex-col bg-background"
               onClick={() => setSelectedImage(null)}
             >
               <button
@@ -571,15 +566,16 @@ export default function Home() {
                 <X className="h-7 w-7" />
               </button>
               <div
-                className="relative flex h-full w-full flex-col overflow-hidden lg:flex-row"
+                className="flex flex-col h-full overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="min-h-0 flex-1 bg-black">
+                {/* Image on top */}
+                <div className="flex-shrink-0 bg-black">
                   <Carousel className="w-full" opts={{ loop: selectedImage.images.length > 1 }}>
                     <CarouselContent className="ml-0">
                       {selectedImage.images.map((imageUrl, index) => (
                         <CarouselItem key={`${imageUrl}-${index}`} className="pl-0">
-                          <div className="relative flex h-[calc(100vh-92px)] items-center justify-center lg:h-screen">
+                          <div className="relative flex h-[50vh] items-center justify-center">
                             <ActivityMedia
                               src={imageUrl}
                               alt={selectedImage.titleEn}
@@ -599,32 +595,21 @@ export default function Home() {
                     )}
                   </Carousel>
                 </div>
-                <div className={`border-t bg-card transition-all duration-300 lg:h-full lg:border-l lg:border-t-0 ${isActivityContentOpen ? "lg:w-[420px]" : "lg:w-16"}`}>
-                  <button
-                    type="button"
-                    onClick={() => setIsActivityContentOpen((current) => !current)}
-                    className="flex w-full items-center justify-between px-4 py-3 text-left sm:px-6 lg:min-h-16 lg:px-4"
-                  >
-                    <span className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground">
-                      <Info className="h-4 w-4 text-primary" />
-                      <span className={`${isActivityContentOpen ? "line-clamp-2" : "sr-only"}`}>
-                        {t(selectedImage.titleEn, selectedImage.titleHi)}
-                      </span>
-                    </span>
-                    <ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${isActivityContentOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {isActivityContentOpen && (
-                    <div className="max-h-44 overflow-y-auto px-4 pb-5 sm:px-6 lg:max-h-[calc(100vh-64px)]">
-                      {(selectedImage.detailsEn || selectedImage.detailsHi) && (
-                        <div
-                          className="space-y-3 leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-bold [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
-                          dangerouslySetInnerHTML={{
-                            __html: toRenderableHtml(t(selectedImage.detailsEn, selectedImage.detailsHi)),
-                          }}
-                        />
-                      )}
-                    </div>
-                  )}
+                {/* Content below - scrollable */}
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-4 sm:p-6">
+                    <h3 className="font-serif font-bold text-xl text-foreground mb-3">
+                      {t(selectedImage.titleEn, selectedImage.titleHi)}
+                    </h3>
+                    {(selectedImage.detailsEn || selectedImage.detailsHi) && (
+                      <div
+                        className="space-y-3 leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-bold [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
+                        dangerouslySetInnerHTML={{
+                          __html: toRenderableHtml(t(selectedImage.detailsEn, selectedImage.detailsHi)),
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
