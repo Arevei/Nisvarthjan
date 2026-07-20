@@ -3,6 +3,7 @@ import { getDb, nextSequence } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { getMembershipFee, getPaymentMode } from "@/lib/membership-payments";
 import { hashPassword } from "@/lib/auth";
+import { sendAdminMembershipSignupNotificationEmail } from "@/lib/email";
 
 function generateMembershipId() {
   return `NSF-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000) + 10000}`;
@@ -193,6 +194,14 @@ export async function POST(req: NextRequest) {
 
     await db.collection("members").insertOne(member);
 
+    let adminEmailSent = true;
+    try {
+      await sendAdminMembershipSignupNotificationEmail(member, req.url, "registered");
+    } catch (emailError) {
+      adminEmailSent = false;
+      console.error("Admin membership signup notification failed:", emailError);
+    }
+
     const session = await getSession();
     session.memberId = member.id;
     await session.save();
@@ -201,6 +210,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           member: fmt(member),
+          adminEmailSent,
           paymentMode,
           payment: {
             provider: "razorpay",
@@ -214,7 +224,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ member: fmt(member), paymentMode }, { status: 201 });
+    return NextResponse.json({ member: fmt(member), adminEmailSent, paymentMode }, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to register member" }, { status: 500 });

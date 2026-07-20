@@ -114,6 +114,129 @@ function formatAmount(member: MemberDocumentRecord) {
   return `INR ${member.payment.amount.toLocaleString("en-IN")}`;
 }
 
+function formatMemberPaymentStatus(member: MemberDocumentRecord) {
+  const mode = safeText(member.payment?.mode).replace(/[_-]+/g, " ");
+  const status = safeText(member.payment?.status).replace(/[_-]+/g, " ");
+  const amount = formatAmount(member);
+
+  return {
+    amount,
+    label: `${status.toUpperCase()} (${mode})`,
+    mode,
+    status,
+  };
+}
+
+function requireAdminNotificationEmail() {
+  const email = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_MEMBERSHIP_NOTIFICATION_EMAIL;
+
+  if (!email) {
+    throw new Error("ADMIN_NOTIFICATION_EMAIL is not configured.");
+  }
+
+  return email;
+}
+
+export async function sendAdminMembershipSignupNotificationEmail(
+  member: MemberDocumentRecord,
+  requestUrl: string,
+  event: "registered" | "payment_paid" = "registered",
+) {
+  const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || new URL(requestUrl).origin;
+  const logoUrl = `${baseUrl}/email-logo.png`;
+
+  if (!fromAddress) {
+    throw new Error("SMTP_FROM or SMTP_USER is not configured.");
+  }
+
+  const adminNotificationEmail = requireAdminNotificationEmail();
+
+  const payment = formatMemberPaymentStatus(member);
+  const heading = event === "payment_paid" ? "Membership Payment Completed" : "New Membership Signup";
+  const intro =
+    event === "payment_paid"
+      ? "A member has completed payment and is waiting for final admin approval."
+      : "A new member has signed up and is waiting for admin review.";
+
+  const content = `
+      <h2 style="margin-bottom: 8px; color: #b0112f;">${heading}</h2>
+      <p style="margin-top: 0; color: #71717a;">${intro}</p>
+      <table style="border-collapse: collapse; margin: 16px 0; width: 100%;">
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Name</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.name)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Email</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.email)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Phone</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.phone)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Membership ID</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.membershipId)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Membership Type</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.membershipType)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Member Status</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.status)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Payment Status</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${payment.label}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Amount</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${payment.amount}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Payment Reference</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(member.payment?.paymentId || member.payment?.orderId || member.payment?.receipt)}</td></tr>
+      </table>
+      <p style="color: #71717a;">Please open the admin panel and approve the membership request after review.</p>
+    `;
+
+  const transporter = getTransporter();
+
+  return transporter.sendMail({
+    from: `Nisvarthjan Seva Foundation<${fromAddress}>`,
+    to: adminNotificationEmail,
+    replyTo: safeText(member.email) === "Not available" ? ADMIN_EMAIL : safeText(member.email),
+    subject: `${heading}: ${safeText(member.name)} (${safeText(member.membershipId)})`,
+    html: wrapEmailTemplate(content, heading, logoUrl),
+  });
+}
+
+export async function sendAdminDonationNotificationEmail(
+  donation: DonationReceiptRecord,
+  requestUrl: string,
+  event: "created" | "paid" = "created",
+) {
+  const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || new URL(requestUrl).origin;
+  const logoUrl = `${baseUrl}/email-logo.png`;
+
+  if (!fromAddress) {
+    throw new Error("SMTP_FROM or SMTP_USER is not configured.");
+  }
+
+  const adminNotificationEmail = requireAdminNotificationEmail();
+  const paymentMode = safeText(donation.payment?.mode).replace(/[_-]+/g, " ");
+  const paymentStatus = safeText(donation.payment?.status || donation.status).replace(/[_-]+/g, " ");
+  const heading = event === "paid" ? "Donation Payment Completed" : "New Donation Submitted";
+  const intro =
+    event === "paid"
+      ? "A donation payment has been completed successfully."
+      : "A new donation has been submitted.";
+
+  const content = `
+      <h2 style="margin-bottom: 8px; color: #b0112f;">${heading}</h2>
+      <p style="margin-top: 0; color: #71717a;">${intro}</p>
+      <table style="border-collapse: collapse; margin: 16px 0; width: 100%;">
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Donor Name</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(donation.donorName)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Donor Email</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(donation.donorEmail)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Donor Phone</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(donation.donorPhone)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Amount</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">INR ${Number(donation.amount || 0).toLocaleString("en-IN")}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Purpose</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(donation.purpose)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Receipt No.</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(donation.receiptNumber)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Donation Status</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(donation.status)}</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Payment Status</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${paymentStatus.toUpperCase()} (${paymentMode})</td></tr>
+        <tr><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">Payment Reference</td><td style="padding: 6px 10px; border: 1px solid #e4e4e7;">${safeText(donation.payment?.paymentId || donation.payment?.orderId || donation.payment?.receipt)}</td></tr>
+      </table>
+      <p style="color: #71717a;">Please open the admin panel to review this donation record.</p>
+    `;
+
+  const transporter = getTransporter();
+
+  return transporter.sendMail({
+    from: `Nisvarthjan Seva Foundation<${fromAddress}>`,
+    to: adminNotificationEmail,
+    replyTo: safeText(donation.donorEmail) === "Not available" ? ADMIN_EMAIL : safeText(donation.donorEmail),
+    subject: `${heading}: INR ${Number(donation.amount || 0).toLocaleString("en-IN")} from ${safeText(donation.donorName)}`,
+    html: wrapEmailTemplate(content, heading, logoUrl),
+  });
+}
+
 export async function sendMembershipPaymentDocumentsEmail(member: MemberDocumentRecord, requestUrl: string) {
   const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(requestUrl).origin;

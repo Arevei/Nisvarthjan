@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { sendMembershipPaymentDocumentsEmail } from "@/lib/email";
+import { sendAdminMembershipSignupNotificationEmail, sendMembershipPaymentDocumentsEmail } from "@/lib/email";
 
 type PaymentVerifyBody = {
   memberId?: number;
@@ -121,7 +121,15 @@ export async function POST(req: NextRequest) {
       console.error("Membership receipt email failed:", emailError);
     }
 
-    return NextResponse.json({ member: toResponse(updated), emailSent });
+    let adminEmailSent = true;
+    try {
+      await sendAdminMembershipSignupNotificationEmail(updated, req.url, "payment_paid");
+    } catch (adminEmailError) {
+      adminEmailSent = false;
+      console.error("Admin membership payment notification failed:", adminEmailError);
+    }
+
+    return NextResponse.json({ member: toResponse(updated), emailSent, adminEmailSent });
   } catch (error) {
     console.error("Payment verification failed:", error);
     return NextResponse.json({ error: "Payment verification failed" }, { status: 500 });

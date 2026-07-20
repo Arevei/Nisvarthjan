@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb, nextSequence } from "@/lib/db";
-import { sendDonationReceiptEmail } from "@/lib/email";
+import { sendAdminDonationNotificationEmail, sendDonationReceiptEmail } from "@/lib/email";
 import { issueReferralAchievementIfEligible } from "@/lib/referral-achievement-service";
 import { getSession } from "@/lib/session";
 
@@ -221,6 +221,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    let adminEmailSent = true;
+    try {
+      await sendAdminDonationNotificationEmail(donation, req.url, paymentMode === "manual" ? "paid" : "created");
+    } catch (adminEmailError) {
+      adminEmailSent = false;
+      console.error("Admin donation notification failed:", adminEmailError);
+    }
+
     return NextResponse.json(
       {
         ...toResponse(
@@ -236,6 +244,7 @@ export async function POST(req: NextRequest) {
           : undefined,
         ),
         emailSent,
+        adminEmailSent,
       },
       { status: 201 },
     );

@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { sendDonationReceiptEmail } from "@/lib/email";
+import { sendAdminDonationNotificationEmail, sendDonationReceiptEmail } from "@/lib/email";
 import { issueReferralAchievementIfEligible } from "@/lib/referral-achievement-service";
 
 type PaymentVerifyBody = {
@@ -138,7 +138,15 @@ export async function POST(req: NextRequest) {
       console.error("Donation receipt email failed:", emailError);
     }
 
-    return NextResponse.json({ donation: toResponse(updated), emailSent });
+    let adminEmailSent = true;
+    try {
+      await sendAdminDonationNotificationEmail(updated, req.url, "paid");
+    } catch (adminEmailError) {
+      adminEmailSent = false;
+      console.error("Admin donation payment notification failed:", adminEmailError);
+    }
+
+    return NextResponse.json({ donation: toResponse(updated), emailSent, adminEmailSent });
   } catch (error) {
     console.error("Donation payment verification failed:", error);
     return NextResponse.json({ error: "Payment verification failed" }, { status: 500 });
