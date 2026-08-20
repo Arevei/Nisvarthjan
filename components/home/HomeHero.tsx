@@ -1,64 +1,53 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowDown, ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { useLanguage } from "@/lib/language-context";
 
-interface HeroStats {
-  livesImpacted: number;
-  villagesCovered: number;
-  treesPlanted: number;
-}
+const heroImage = "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=1600&auto=format&fit=crop";
+const logo = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/469710739_612718211319474_5696599549072528849_n-MYot00380QWkD4ENrAK6cVVMH8XG4V.jpg";
 
-export function HomeHero({ stats }: { stats?: HeroStats | null }) {
+export function HomeHero() {
   const { t } = useLanguage();
+
   return (
-    <section className="relative isolate overflow-hidden bg-[#0B4A7F] text-white">
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(115deg,#0B4A7F_0%,#1271BD_48%,#008DCB_100%)]" />
-      <div className="absolute -right-32 -top-40 h-[34rem] w-[34rem] rounded-full border border-white/15" />
-      <div className="absolute -right-16 -top-24 h-[24rem] w-[24rem] rounded-full border border-white/15" />
-      <div className="absolute bottom-[-18rem] left-[-10rem] h-[30rem] w-[30rem] rounded-full border border-[#F4B734]/35" />
-      <div className="container mx-auto grid min-h-[min(760px,calc(100vh-7rem))] items-center gap-12 px-5 py-16 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-24">
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7 }}>
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[.2em] text-white/85 backdrop-blur">
-            <Sparkles className="h-4 w-4 text-[#F4B734]" /> {t("Passion for the least", "सबसे वंचित के लिए जुनून")}
-          </div>
-          <h1 className="max-w-3xl font-serif text-5xl leading-[.98] tracking-[-.04em] text-balance sm:text-7xl lg:text-[6.5rem]">
-            {t("Lifting the least. Empowering all.", "सबसे वंचित को उठाना। सबको सशक्त बनाना।")}
+    <section className="relative overflow-hidden bg-background">
+      <div className="absolute -left-20 top-0 h-64 w-64 rounded-full bg-secondary/10" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 opacity-50 [background-image:radial-gradient(ellipse_at_center,_transparent_35%,_hsl(var(--primary)/.12)_36%,_transparent_37%)] [background-size:28px_18px]" />
+      <div className="container relative mx-auto grid min-h-[590px] items-center gap-10 px-5 py-14 lg:grid-cols-[.92fr_1.08fr] lg:px-8 lg:py-20">
+        <div className="z-10 max-w-xl">
+          <p className="mb-4 text-sm font-bold uppercase tracking-[.22em] text-primary">{t("Passion for the least", "सबसे वंचित के लिए जुनून")}</p>
+          <h1 className="font-serif text-5xl font-bold leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+            {t("Building dignity. Empowering futures.", "गरिमा का निर्माण। भविष्य को सशक्त बनाना।")}
           </h1>
-          <p className="mt-7 max-w-xl text-lg leading-8 text-white/78 sm:text-xl">
-            {t("PLEF partners with communities to turn everyday potential into lasting progress — through learning, livelihoods, health, and care for our shared planet.", "PLEF समुदायों के साथ मिलकर शिक्षा, आजीविका, स्वास्थ्य और प्रकृति के माध्यम से स्थायी प्रगति का निर्माण करता है।")}
+          <div className="my-7 h-1 w-12 bg-accent" />
+          <p className="max-w-lg text-base leading-7 text-muted-foreground sm:text-lg">
+            {t("We walk with communities to create lasting change through livelihood, education, care for animals, and a healthier planet.", "हम समुदायों के साथ मिलकर आजीविका, शिक्षा, पशु देखभाल और स्वस्थ ग्रह के माध्यम से स्थायी बदलाव लाते हैं।")}
           </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg" className="h-13 rounded-full bg-[#F4B734] px-7 text-[#0B4A7F] shadow-xl shadow-[#0B4A7F]/25 hover:bg-[#ffd06a]">
-              <Link href="/donate">{t("Start a ripple", "बदलाव की शुरुआत करें")} <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button asChild size="lg" className="rounded-full px-7">
+              <Link href="/about">{t("Our Mission", "हमारा मिशन")} <ArrowRight data-icon="inline-end" /></Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="h-13 rounded-full border-white/35 bg-white/10 px-7 text-white hover:bg-white hover:text-[#0B4A7F]">
-              <Link href="/membership">{t("Join the movement", "अभियान से जुड़ें")}</Link>
+            <Button asChild size="lg" variant="outline" className="rounded-full border-primary/30 px-7 text-primary hover:bg-primary hover:text-primary-foreground">
+              <Link href="/donate"><Heart data-icon="inline-start" /> {t("Donate Now", "अभी दान करें")}</Link>
             </Button>
           </div>
-          <div className="mt-12 flex items-center gap-3 text-sm text-white/65"><span className="h-px w-10 bg-[#F4B734]" /> {t("Change begins with one shared decision.", "बदलाव एक साझा निर्णय से शुरू होता है।")}</div>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, scale: .94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .9, delay: .15 }} className="relative mx-auto w-full max-w-xl">
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 p-3 shadow-2xl backdrop-blur-sm">
-            <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1400" alt={t("Children learning together in a community classroom", "सामुदायिक कक्षा में साथ पढ़ते बच्चे")} className="aspect-[4/5] w-full rounded-[1.5rem] object-cover" />
-            <div className="absolute bottom-8 left-8 right-8 rounded-2xl bg-[#0B4A7F]/90 p-5 backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#F4B734]">{t("The PLEF promise", "PLEF का वादा")}</p>
-              <p className="mt-2 font-serif text-2xl leading-tight">{t("Every person deserves a fair chance to flourish.", "हर व्यक्ति को आगे बढ़ने का समान अवसर मिलना चाहिए।")}</p>
-            </div>
+        </div>
+
+        <div className="relative mx-auto w-full max-w-2xl lg:mr-[-8rem]">
+          <div className="relative overflow-hidden rounded-[50%_0_0_50%] border-[10px] border-primary/90 bg-primary p-2 shadow-2xl sm:border-[16px]">
+            <img src={heroImage} alt={t("A smiling child holding a young goat", "एक मुस्कुराता बच्चा बकरी के बच्चे को पकड़े हुए") } className="aspect-[1.1] w-full rounded-[50%_0_0_50%] object-cover" />
           </div>
-          <div className="absolute -bottom-5 -right-4 hidden rounded-2xl bg-white p-4 text-[#0B4A7F] shadow-xl sm:block">
-            <div className="font-serif text-3xl font-bold">{stats ? <AnimatedCounter value={stats.livesImpacted} duration={1800} /> : "1,000+"}</div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-[#0B4A7F]/60">{t("lives touched", "जीवनों पर असर")}</div>
+          <div className="absolute bottom-4 left-5 flex max-w-xs items-center gap-4 rounded-2xl bg-primary p-4 text-primary-foreground shadow-xl sm:bottom-8 sm:left-[-2rem] sm:p-5">
+            <img src={logo} alt="PLEF" className="size-14 rounded-full object-cover ring-2 ring-primary-foreground/80" />
+            <div><p className="font-bold">{t("A compassionate India", "एक संवेदनशील भारत")}</p><p className="mt-1 text-xs leading-5 text-primary-foreground/75">{t("Where every life is valued and every community thrives.", "जहाँ हर जीवन मूल्यवान है और हर समुदाय आगे बढ़ता है।")}</p></div>
           </div>
-        </motion.div>
+        </div>
       </div>
-      <div className="container mx-auto flex items-center justify-center gap-2 pb-7 text-xs uppercase tracking-[.25em] text-white/50"><ArrowDown className="h-4 w-4" /> {t("Explore our impact", "हमारा प्रभाव देखें")}</div>
     </section>
   );
 }
 
 export default HomeHero;
+
