@@ -28,7 +28,7 @@ export default function Terms() {
 
           <section>
             <h2 className="text-xl font-serif font-semibold text-foreground mb-3">{t("4. Intellectual Property", "4. बौद्धिक संपदा")}</h2>
-            <p className="text-muted-foreground leading-relaxed">{t("All content on this website, including text, images, and logos, is the property of Nisvarthjan Seva Foundation and is protected by copyright laws. Unauthorized use of our content is strictly prohibited.", "इस वेबसाइट पर सभी सामग्री, जिसमें टेक्स्ट, चित्र और लोगो शामिल हैं, निस्वार्थजन सेवा फाउंडेशन की संपत्ति है।")}</p>
+            <p className="text-muted-foreground leading-relaxed">{t("All content on this website, including text, images, and logos, is the property of PLF — Passion for the Least Foundation and is protected by copyright laws. Unauthorized use of our content is strictly prohibited.", "इस वेबसाइट पर सभी सामग्री, जिसमें टेक्स्ट, चित्र और लोगो शामिल हैं, निस्वार्थजन सेवा फाउंडेशन की संपत्ति है।")}</p>
           </section>
 
           <section>

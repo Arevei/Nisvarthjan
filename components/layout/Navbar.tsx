@@ -236,8 +236,8 @@ export function Navbar() {
                 <SheetClose asChild>
                   <Link href="/" className="mb-4 inline-flex">
                     <Image
-                      src="/brand/navbar-logo.png"
-                      alt="Nisvarthjan Seva Foundation"
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/469710739_612718211319474_5696599549072528849_n-MYot00380QWkD4ENrAK6cVVMH8XG4V.jpg"
+                      alt="PLF — Passion for the Least Foundation"
                       width={220}
                       height={56}
                       className="h-10 w-auto"
@@ -245,7 +245,7 @@ export function Navbar() {
                   </Link>
                 </SheetClose>
                 <SheetTitle className="pr-8 font-serif text-2xl text-primary">
-                  {t("Nisvarthjan Seva", "निस्वार्थजन सेवा")}
+                  {t("PLF", "पीएलएफ")}
                 </SheetTitle>
                 <SheetDescription>
                   {t("Explore pages, member area, and ways to support.", "पेज, सदस्य क्षेत्र और सहयोग के विकल्प देखें।")}

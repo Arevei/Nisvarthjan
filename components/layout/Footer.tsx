@@ -13,7 +13,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
             <Image
-              src="/brand/footer-logo.png"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/469710739_612718211319474_5696599549072528849_n-MYot00380QWkD4ENrAK6cVVMH8XG4V.jpg"
               alt="PLEF — Passion for the Least Foundation"
               width={160}
               height={206}
@@ -110,7 +110,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()}  {t("Nisvarthjan Seva Foundation | All rights reserved.", " निस्वार्थजन सेवा फाउंडेशन । सर्वाधिकार सुरक्षित।")}</p>
+          <p>© {new Date().getFullYear()}  {t("PLF — Passion for the Least Foundation | All rights reserved.", "पीएलएफ — पैशन फॉर द लीस्ट फाउंडेशन । सर्वाधिकार सुरक्षित।")}</p>
           <p className="mt-2">{t("Lic. No:", "लाइसेंस संख्या:")} 4889004P2025NPL231619</p>
           <p className="mt-3 text-xs text-muted-foreground/70">Powered by <Link href="https://www.arevei.com/" className=" text-pink-400 hover:text-pink-500">Arevei</Link></p>
         </div>

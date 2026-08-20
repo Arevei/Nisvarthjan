@@ -69,7 +69,7 @@ export function NewsTicker() {
               ) : (
                <div className="flex items-center px-4 text-sm">
                   <span className="text-primary-foreground/80">
-                    {t("Welcome to Nisvarthjan Seva Foundation", "निःस्वार्थजन सेवा फाउंडेशन में आपका स्वागत है")}
+                    {t("Welcome to PLF — Passion for the Least Foundation", "पीएलएफ — पैशन फॉर द लीस्ट फाउंडेशन में आपका स्वागत है")}
                   </span>
                 </div>
               )}
