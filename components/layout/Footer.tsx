@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -8,13 +8,13 @@ export function Footer() {
   const { t } = useLanguage();
 
   return (
-    <footer className="mt-auto border-t bg-card">
+    <footer className="mt-auto border-t border-primary/15 bg-[#0B4A7F] text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
             <Image
               src="/brand/footer-logo.png"
-              alt="Nisvarthjan Seva Foundation"
+              alt="PLEF — Passion for the Least Foundation"
               width={160}
               height={206}
               className="mb-4 h-auto w-32"
@@ -24,7 +24,7 @@ export function Footer() {
             </p>
             <p className="text-sm text-muted-foreground">
               {t(
-                "Dedicated to education, health, women empowerment, and rural development across India.",
+                "PLEF exists to make dignity, opportunity, and a voice in the future accessible to every community.",
                 "भारत भर में शिक्षा, स्वास्थ्य, महिला सशक्तिकरण और ग्रामीण विकास के लिए समर्पित।",
               )}
             </p>
