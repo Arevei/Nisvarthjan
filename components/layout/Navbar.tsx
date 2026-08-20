@@ -123,15 +123,15 @@ export function Navbar() {
   }, [messageOpen, dismissMessage]);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex min-w-0 items-center">
           <Image
-            src="/brand/navbar-logo.png"
-            alt="Nisvarthjan Seva Foundation"
-            width={270}
-            height={70}
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/469710739_612718211319474_5696599549072528849_n-MYot00380QWkD4ENrAK6cVVMH8XG4V.jpg"
+            alt="PLEF — Passion for the Least Foundation"
+            width={584}
+            height={248}
             priority
             className="h-12 w-auto sm:h-14"
           />
@@ -236,8 +236,8 @@ export function Navbar() {
                 <SheetClose asChild>
                   <Link href="/" className="mb-4 inline-flex">
                     <Image
-                      src="/brand/navbar-logo.png"
-                      alt="Nisvarthjan Seva Foundation"
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/469710739_612718211319474_5696599549072528849_n-MYot00380QWkD4ENrAK6cVVMH8XG4V.jpg"
+                      alt="PLF — Passion for the Least Foundation"
                       width={220}
                       height={56}
                       className="h-10 w-auto"
@@ -245,7 +245,7 @@ export function Navbar() {
                   </Link>
                 </SheetClose>
                 <SheetTitle className="pr-8 font-serif text-2xl text-primary">
-                  {t("Nisvarthjan Seva", "निस्वार्थजन सेवा")}
+                  {t("PLF", "पीएलएफ")}
                 </SheetTitle>
                 <SheetDescription>
                   {t("Explore pages, member area, and ways to support.", "पेज, सदस्य क्षेत्र और सहयोग के विकल्प देखें।")}

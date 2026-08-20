@@ -91,7 +91,7 @@ export default function Donate() {
       key: donation.payment.keyId,
       amount: donation.payment.amount * 100,
       currency: donation.payment.currency,
-      name: "Nisvarthjan Seva Foundation",
+      name: "PLF — Passion for the Least Foundation",
       description: donation.purpose,
       order_id: donation.payment.orderId,
       prefill: {

@@ -25,7 +25,7 @@ export default function About() {
         <div className="max-w-4xl mx-auto prose prose-lg prose-red dark:prose-invert">
           <p>
             {t(
-              "Nisvarthjan Seva Foundation was founded with a singular, unwavering mission: to serve humanity without any expectation of reward. We believe that true fulfillment comes from lifting others up and creating pathways of opportunity for those left behind by circumstances.",
+              "PLF — Passion for the Least Foundation was founded with a singular, unwavering mission: to serve humanity without any expectation of reward. We believe that true fulfillment comes from lifting others up and creating pathways of opportunity for those left behind by circumstances.",
               "निस्वार्थजन सेवा फाउंडेशन की स्थापना एक ही अटूट मिशन के साथ की गई थी: बिना किसी प्रतिफल की अपेक्षा के मानवता की सेवा करना। हमारा मानना ​​है कि सच्ची तृप्ति दूसरों को ऊपर उठाने और परिस्थितियों के कारण पीछे छूट गए लोगों के लिए अवसर के रास्ते बनाने से मिलती है।"
             )}
           </p>

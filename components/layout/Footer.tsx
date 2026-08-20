@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -8,13 +8,13 @@ export function Footer() {
   const { t } = useLanguage();
 
   return (
-    <footer className="mt-auto border-t bg-card">
+    <footer className="mt-auto border-t border-primary/15 bg-[#0B4A7F] text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
             <Image
-              src="/brand/footer-logo.png"
-              alt="Nisvarthjan Seva Foundation"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/469710739_612718211319474_5696599549072528849_n-MYot00380QWkD4ENrAK6cVVMH8XG4V.jpg"
+              alt="PLEF — Passion for the Least Foundation"
               width={160}
               height={206}
               className="mb-4 h-auto w-32"
@@ -24,7 +24,7 @@ export function Footer() {
             </p>
             <p className="text-sm text-muted-foreground">
               {t(
-                "Dedicated to education, health, women empowerment, and rural development across India.",
+                "PLEF exists to make dignity, opportunity, and a voice in the future accessible to every community.",
                 "भारत भर में शिक्षा, स्वास्थ्य, महिला सशक्तिकरण और ग्रामीण विकास के लिए समर्पित।",
               )}
             </p>
@@ -110,7 +110,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()}  {t("Nisvarthjan Seva Foundation | All rights reserved.", " निस्वार्थजन सेवा फाउंडेशन । सर्वाधिकार सुरक्षित।")}</p>
+          <p>© {new Date().getFullYear()}  {t("PLF — Passion for the Least Foundation | All rights reserved.", "पीएलएफ — पैशन फॉर द लीस्ट फाउंडेशन । सर्वाधिकार सुरक्षित।")}</p>
           <p className="mt-2">{t("Lic. No:", "लाइसेंस संख्या:")} 4889004P2025NPL231619</p>
           <p className="mt-3 text-xs text-muted-foreground/70">Powered by <Link href="https://www.arevei.com/" className=" text-pink-400 hover:text-pink-500">Arevei</Link></p>
         </div>

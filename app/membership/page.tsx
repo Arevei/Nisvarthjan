@@ -144,7 +144,7 @@ export default function Membership() {
       key: payload.payment.keyId,
       amount: payload.payment.amount * 100,
       currency: payload.payment.currency,
-      name: "Nisvarthjan Seva Foundation",
+      name: "PLF — Passion for the Least Foundation",
       description: `${payload.member.membershipType} membership fee`,
       order_id: payload.payment.orderId,
       prefill: {

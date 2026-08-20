@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Script from "next/script";
@@ -14,13 +14,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const devanagari = Noto_Sans_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari"],
+});
+
 export const metadata: Metadata = {
   title: {
-    default: "Nisvarthjan Seva Foundation",
-    template: "%s | Nisvarthjan Seva Foundation",
+    default: "PLEF — Passion for the Least Foundation",
+    template: "%s | PLEF",
   },
   description:
-    "Nisvarthjan Seva Foundation is dedicated to education, healthcare, women empowerment, environmental protection, and rural development across India.",
+    "PLEF partners with communities to lift the least, expand opportunity, and build a kinder, more resilient India through education, health, livelihoods, and environmental action.",
 };
 
 export default function RootLayout({
@@ -31,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${devanagari.variable} h-full antialiased bg-background`}
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
